@@ -1,25 +1,59 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import SideBar from "./components/SideBar/SideBar";
+import NavBar from "./components/NavBar/NavBar";
+import styled from "styled-components";
+import Content from "./components/Content/Content";
+import { BrowserRouter as Router } from "react-router-dom";
+import Songs from "./components/Songs/Songs";
+import Albums from "./components/Albums/Albums";
+import Artists from "./components/Artists/Artists";
+import {
+  AnimatedRoutes,
+  RouteTransition,
+} from "./components/RouteTransition/RouteTransition";
+import Player from "./components/Player/Player";
+// import "./App.css";
 
+const Container = styled.div`
+  background-color: #121212;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: auto;
+  flex-direction: row;
+  margin: 0px;
+  flex-wrap: wrap;
+`;
+const SwitchContainer = styled.div`
+  padding-top: 120px;
+  padding-left: 100px;
+`;
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Container>
+        <Content>
+          <NavBar />
+          <SideBar />
+          <AnimatedRoutes>
+            <SwitchContainer>
+              <RouteTransition path="/songs">
+                <Songs />
+              </RouteTransition>
+              <RouteTransition path="/albums">
+                <Albums />
+              </RouteTransition>
+              <RouteTransition path="/artists">
+                <Artists />
+              </RouteTransition>
+              <RouteTransition exact path="/">
+                <Songs />
+              </RouteTransition>
+            </SwitchContainer>
+          </AnimatedRoutes>
+        </Content>
+        <Player></Player>
+      </Container>
+    </Router>
   );
 }
 
