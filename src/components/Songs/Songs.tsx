@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 //@ts-ignore
 import Card, { item } from "../Card/Card";
@@ -39,6 +39,7 @@ interface SongsZustand {
   addItem: (item: item[]) => void;
 }
 
+// TODO: make store global
 const useStore = create<SongsZustand>(
   persist(
     (set, get) => ({
@@ -58,7 +59,7 @@ const useStore = create<SongsZustand>(
 );
 
 const Songs = () => {
-  const { items, addItem } = useStore((state) => state);
+  const { items, addItem } = useStore(useCallback((state) => state, []));
 
   function getWantlistItems() {
     //@ts-ignore
