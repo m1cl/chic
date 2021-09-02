@@ -6,9 +6,26 @@ import { invoke } from "@tauri-apps/api/tauri";
 
 const Container = styled.div`
   display: flex;
-  overflow-x: scroll;
+  flex-wrap: wrap;
 `;
 
+const H1 = styled.h3`
+  margin-bottom: 122px;
+  color: #b7b4b9;
+`;
+const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto !important;
+`;
+const PlaceHolder = styled.div`
+  margin-top: 100px;
+  margin-bottom: 50px;
+  width: 100%;
+  height: 30px;
+  background-color: green;
+  flex-direction: column;
+`;
 function playSong() {
   //@ts-ignore
   if (window.__TAURI__) {
@@ -100,7 +117,24 @@ const Songs = () => {
   }, []);
   return (
     <Container>
-      <Card items={items} />
+      <PlaceHolder>
+        <H1>Discogs Wantlist</H1>
+      </PlaceHolder>
+      <Row>
+        <Card items={items} />
+      </Row>
+      <PlaceHolder>
+        <H1>Discogs Wantlist</H1>
+      </PlaceHolder>
+      <Row>
+        <Card items={items} />
+      </Row>
+      <PlaceHolder>
+        <H1>Discogs Wantlist</H1>
+      </PlaceHolder>
+      <Row>
+        <Card items={items} />
+      </Row>
     </Container>
   );
 };

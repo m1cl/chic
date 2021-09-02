@@ -51,9 +51,14 @@ const hoverAnimation = keyframes`
  100% { height: 125px; width: 125px }
 `;
 
-const Container = styled(AnimateSharedLayout)``;
+const Container = styled(AnimateSharedLayout)`
+  display: grid;
+  flex-wrap: nowrap !important;
+  width: 300px;
+`;
 
 const ItemContainer = styled(motion.li)`
+  display: grid;
   list-style: none;
   margin: 0;
   width: 100px;
@@ -97,7 +102,7 @@ const Card = ({ items }: CardProps) => {
   //   })();
   // }, []);
   return (
-    <Container type="crossfade">
+    <Container>
       {items.map((item) => (
         <Item item={item} />
       ))}
@@ -107,30 +112,10 @@ const Card = ({ items }: CardProps) => {
 const Item: FC<{ item: item }> = ({ children, item }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const [scale, scaleCard] = useCycle(
-    {
-      sale: 1.0,
-    },
-    {
-      scale: 1.9,
-    }
-  );
-
-  const [hover, hoverCard] = useCycle(
-    {
-      sale: 1.0,
-    },
-    {
-      scale: 1.1,
-    }
-  );
-
   function handleIsOpen() {
     toggleOpen();
-    scaleCard();
   }
   function handleMouseLeave() {
-    hoverCard();
     isOpen && handleIsOpen();
   }
   const toggleOpen = () => setIsOpen(!isOpen);
