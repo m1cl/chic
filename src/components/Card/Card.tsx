@@ -52,13 +52,10 @@ const hoverAnimation = keyframes`
 `;
 
 const Container = styled(AnimateSharedLayout)`
-  display: grid;
-  flex-wrap: nowrap !important;
   width: 300px;
 `;
 
 const ItemContainer = styled(motion.li)`
-  display: grid;
   list-style: none;
   margin: 0;
   width: 100px;
@@ -88,19 +85,10 @@ const Row = styled.div`
 const ContentContainer = styled(motion.div)``;
 
 const Card = ({ items }: CardProps) => {
-  items = items.map((i) => {
-    Object.values(i).forEach((val) => val.replace(/['"]+/g, ""));
-    return i;
+  items = items.map((item) => {
+    item.artist = item.artist?.replace(/['"]+/g, "");
+    return item;
   });
-  // useEffect(() => {
-  //   (async () => {
-  //     const unlisten = await listen("play-song", (event) => {
-  //       alert(event);
-  //       // event.event is the event name (useful if you want to use a single callback fn for multiple event types)
-  //       // event.payload is the payload object
-  //     });
-  //   })();
-  // }, []);
   return (
     <Container>
       {items.map((item) => (
@@ -157,6 +145,7 @@ const Content: FC<{ item: item }> = ({ item }) => {
       style={{ zIndex: 0 }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
+      transition={{ duration: 1.5 }}
       exit={{ opacity: 0 }}
     >
       <Title className="row">{item.artist}</Title>
