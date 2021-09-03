@@ -74,7 +74,7 @@ fn get_release_information(want_list: &Value) -> DiscogsRelease {
 
 #[tauri::command]
 async fn get_want_list_information(username: String) -> String {
-  let mut send_back_data = Vec::new();
+  let mut discogs_releases = Vec::new();
   // REACT_APP_DC_TOKEN=MDWxrXOOMfubtyEQdmmMcnRriPuMEZabvrgCuUDn
   let DISCOGS_URL = "https://api.discogs.com";
   let url = format!("{}/users/{}/wants", DISCOGS_URL, username);
@@ -82,9 +82,9 @@ async fn get_want_list_information(username: String) -> String {
   let want_lists = data["wants"].as_array();
   for w in want_lists.unwrap().into_iter() {
     let release = get_release_information(w);
-    send_back_data.push(release);
+    discogs_releases.push(release);
   }
-  serde_json::to_string(&send_back_data).unwrap()
+  serde_json::to_string(&discogs_releases).unwrap()
 }
 
 #[tauri::command]
