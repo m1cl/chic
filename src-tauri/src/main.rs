@@ -28,22 +28,6 @@ async fn get_data_from_response(url: &str) -> Value {
   data
 }
 
-//               setItems([
-//                 ...items,
-//                 {
-//                   notes,
-//                   genres,
-//                   album,
-//                   label,
-//                   artist,
-//                   artistUri,
-//                   videos,
-//                   id,
-//                   year,
-//                 },
-//               ]);
-//
-
 #[derive(Default, Serialize)]
 struct DiscogsRelease {
   artist: String,
@@ -76,8 +60,8 @@ fn get_release_information(want_list: &Value) -> DiscogsRelease {
 async fn get_want_list_information(username: String) -> String {
   let mut discogs_releases = Vec::new();
   // REACT_APP_DC_TOKEN=MDWxrXOOMfubtyEQdmmMcnRriPuMEZabvrgCuUDn
-  let DISCOGS_URL = "https://api.discogs.com";
-  let url = format!("{}/users/{}/wants", DISCOGS_URL, username);
+  let discogs_url = "https://api.discogs.com";
+  let url = format!("{}/users/{}/wants", discogs_url, username);
   let data = get_data_from_response(&url).await;
   let want_lists = data["wants"].as_array();
   for w in want_lists.unwrap().into_iter() {
