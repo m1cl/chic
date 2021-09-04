@@ -52,22 +52,29 @@ const hoverAnimation = keyframes`
 `;
 
 const Container = styled(AnimateSharedLayout)`
-  width: 300px;
+  overflow-y: auto;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  overflow-y;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const ItemContainer = styled(motion.li)`
   list-style: none;
   margin: 0;
-  width: 100px;
-  margin-right: 22px;
-  height: 100px;
+  width: 100%;
+  height: 100%;
+  margin-right: 8px;
   z-index: 99;
-  padding: 12px;
+  padding: 4px;
   background-color: rgba(100, 100, 100, 1);
   border-radius: 10px;
   padding: 18px;
   //box-shadow: 0px 10px 22px 1px black;
-  margin-bottom: 20px;
+  margin-bottom: 8px;
   overflow-y: auto;
   cursor: pointer;
   &::-webkit-scrollbar {
@@ -115,8 +122,8 @@ const Item: FC<{ item: item }> = ({ children, item }) => {
       onClick={handleIsOpen}
       onMouseLeave={handleMouseLeave}
       animate={{
-        width: isOpen ? "220px" : "130px",
-        height: isOpen ? "220px" : "130px",
+        width: isOpen ? "220px" : "80px",
+        height: isOpen ? "220px" : "80px",
         marginRight: "100px",
       }}
     >

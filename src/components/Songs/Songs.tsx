@@ -9,6 +9,9 @@ import { persist } from "zustand/middleware";
 const Main = styled.div`
   display: flex;
   flex-wrap: wrap;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const H1 = styled.h3`
@@ -17,7 +20,6 @@ const H1 = styled.h3`
 const Row = styled.div`
   display: flex;
   flex-direction: row;
-  overflow-x: auto !important;
 `;
 const PlaceHolder = styled.div`
   margin-bottom: 20px;

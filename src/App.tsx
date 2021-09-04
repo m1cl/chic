@@ -12,20 +12,28 @@ import {
   RouteTransition,
 } from "./components/RouteTransition/RouteTransition";
 import Player from "./components/Player/Player";
-// import "./App.css";
 
 const Container = styled.div`
   background-color: #121212;
   display: flex;
   overflow-x: auto;
-  overflow-y: auto;
+  overflow-y: hidden;
   flex-direction: row;
   margin: 0px;
   flex-wrap: wrap;
+
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 const SwitchContainer = styled.div`
   padding-top: 120px;
   padding-left: 100px;
+  overflow-y: auto;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 function App() {
   return (
