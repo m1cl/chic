@@ -54,9 +54,10 @@ const hoverAnimation = keyframes`
 const Container = styled(AnimateSharedLayout)`
   overflow-y: auto;
   width: 100%;
+  flex: 1;
   height: 100%;
   cursor: pointer;
-  overflow-y;
+  overflow-y: auto;
   &::-webkit-scrollbar {
     display: none;
   }
@@ -122,8 +123,8 @@ const Item: FC<{ item: item }> = ({ children, item }) => {
       onClick={handleIsOpen}
       onMouseLeave={handleMouseLeave}
       animate={{
-        width: isOpen ? "220px" : "80px",
-        height: isOpen ? "220px" : "80px",
+        width: isOpen ? "220px" : "120px",
+        height: isOpen ? "220px" : "120px",
         marginRight: "100px",
       }}
     >

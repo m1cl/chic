@@ -28,7 +28,7 @@ const Container = styled.div`
   }
 `;
 const SwitchContainer = styled.div`
-  padding-top: 120px;
+  padding-top: 100px;
   padding-left: 100px;
   overflow-y: auto;
   &::-webkit-scrollbar {

@@ -7,8 +7,7 @@ import create from "zustand";
 import { persist } from "zustand/middleware";
 
 const Main = styled.div`
-  display: flex;
-  flex-wrap: wrap;
+  display: table-row;
   &::-webkit-scrollbar {
     display: none;
   }
@@ -22,7 +21,7 @@ const Row = styled.div`
   flex-direction: row;
 `;
 const PlaceHolder = styled.div`
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   width: 100%;
   height: 30px;
   flex-direction: column;
@@ -87,7 +86,7 @@ const Songs = () => {
             <H1>Discogs Wantlist</H1>
           </PlaceHolder>
           <Row>
-            <Card items={items} />
+            <Card items={items.slice(0, 6)} />
           </Row>
         </Container>
 
@@ -96,7 +95,7 @@ const Songs = () => {
             <H1>Discogs Wantlist</H1>
           </PlaceHolder>
           <Row>
-            <Card items={items} />
+            <Card items={items.slice(1, 3)} />
           </Row>
         </Container>
         <Container>
@@ -104,7 +103,7 @@ const Songs = () => {
             <H1>Discogs Wantlist</H1>
           </PlaceHolder>
           <Row>
-            <Card items={items} />
+            <Card items={items.slice(0, 1)} />
           </Row>
         </Container>
       </Main>
