@@ -42,7 +42,6 @@ fn get_release_information(want_list: &Value) -> DiscogsRelease {
 #[tauri::command]
 pub async fn get_want_list_information(username: String) -> String {
   let mut discogs_releases = Vec::new();
-  // REACT_APP_DC_TOKEN=MDWxrXOOMfubtyEQdmmMcnRriPuMEZabvrgCuUDn
   let discogs_url = "https://api.discogs.com";
   let url = format!("{}/users/{}/wants", discogs_url, username);
   let data = get_data_from_response(&url).await;
