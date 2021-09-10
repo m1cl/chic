@@ -8,7 +8,7 @@ pub struct MusicLibrary {
 }
 
 impl MusicLibrary {
-  fn new() -> Vec<DirEntry> {
+  pub fn new(dir: &str) -> Vec<DirEntry> {
     let mut music_library = Vec::new();
     let mut filenames: HashMap<String, String> = HashMap::new();
     for entry in WalkDir::new("/home/m1cl/Musik")
