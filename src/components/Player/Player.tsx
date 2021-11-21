@@ -6,17 +6,15 @@ import play from "./play.png";
 import next from "./next.png";
 // With the Tauri global script, enabled when `tauri.conf.json > build > withGlobalTauri` is set to true:
 //
-//@ts-ignore
-if (window.__TAURI__) {
-  //@ts-ignore
-  const invi = window.__TAURI__.invoke;
-  invoke("my_custom_command").then((message) => console.log(message));
-}
 
 function playSong() {
   //@ts-ignore
   if (window.__TAURI__) {
     invoke("play_song").then((message) => console.log(message));
+  } else {
+    fetch("http://localhost:3000/api/player/play_song", {
+      mode: "cors",
+    });
   }
 }
 

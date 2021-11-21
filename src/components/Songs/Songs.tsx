@@ -45,7 +45,7 @@ const useStore = create<SongsZustand>(
   persist(
     (set, get) => ({
       addItem: (item: item[]) => {
-        alert(item);
+        console.log(item);
         set((state) => ({
           items: [...get().items, ...item],
         }));
@@ -71,7 +71,14 @@ const Songs = () => {
         .then((message: any) => {
           addItem(JSON.parse(message));
         })
-        .catch(alert);
+        .catch(console.error);
+    } else {
+      fetch("http://localhost:3000/api/discogs/get_want_list/m1cl", {
+        mode: "cors",
+      })
+        .then((res) => res.json())
+        .then(addItem)
+        .catch((err) => console.error("the error", err));
     }
   }
   useEffect(() => {
