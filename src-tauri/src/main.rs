@@ -6,6 +6,14 @@
 
 use tokio::task;
 
+// use futures_util::{SinkExt, StreamExt};
+use futures_util::{SinkExt, StreamExt};
+use log::{error, info};
+use std::net::SocketAddr;
+use tokio::net::{TcpListener, TcpStream};
+use tokio_tungstenite::{accept_async, tungstenite::Error};
+use tungstenite::Result;
+
 #[macro_use]
 extern crate rocket;
 
@@ -35,6 +43,30 @@ async fn get_wantlist(username: String) -> String {
   result
 }
 
+async fn accept_connection(peer: SocketAddr, stream: TcpStream) {
+  if let Err(e) = handle_connection(peer, stream).await {
+    match e {
+      Error::ConnectionClosed | Error::Protocol(_) | Error::Utf8 => (),
+      err => error!("Error processing connection: {}", err),
+    }
+  }
+}
+async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()> {
+  let mut ws_stream = accept_async(stream).await.expect("Failed to accept");
+
+  info!("New WebSocket connection: {}", peer);
+
+  while let Some(msg) = ws_stream.next().await {
+    // TODO :whattttttttttttttttttttttttt?
+    let msg = msg?;
+    if msg.is_text() || msg.is_binary() {
+      ws_stream.send(msg).await?;
+    }
+  }
+
+  Ok(())
+}
+
 #[get("/")]
 fn root() -> String {
   format!("this is chic api ")
@@ -48,13 +80,32 @@ fn root() -> String {
 //       -5 chunks and +5 chunks ahead
 //       webrtc.rs might be a good choice
 //
-#[tokio::main]
-async fn main() {
-  let concurrent_webserver = task::spawn(
+async fn create_web_server() {
+  task::spawn(
     rocket::build()
       .mount("/api", routes![root, get_wantlist, start])
       .launch(),
   );
+}
+// TODO: add proxy in frontend
+async fn create_socket_server() {
+  let ws_addr = "127.0.0.1:9002";
+
+  let listener = TcpListener::bind(&ws_addr).await.expect("Can't listen");
+  info!("Listening on: {}", ws_addr);
+  while let Ok((stream, _)) = listener.accept().await {
+    let peer = stream
+      .peer_addr()
+      .expect("connected streams should have a peer address");
+    info!("Peer address: {}", peer);
+
+    tokio::spawn(accept_connection(peer, stream));
+  }
+}
+#[tokio::main]
+async fn main() {
+  tokio::spawn(create_socket_server());
+  tokio::spawn(create_web_server());
 
   tauri::Builder::default()
     .invoke_handler(tauri::generate_handler![
@@ -63,8 +114,4 @@ async fn main() {
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
-}
-
-fn mein_test(name: &str) {
-  print!("{:?}", name);
 }

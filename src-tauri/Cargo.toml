@@ -25,6 +25,10 @@ rodio = "0.14.0"
 json = "0.12.4"
 tokio = { version = "1.13.0", features = ["full"] }
 rocket = "0.5.0-rc.1"
+tokio-tungstenite = "0.16.0"
+log = "0.4.14"
+tungstenite = "0.16.0"
+futures-util = "0.3.18"
 
 [features]
 default = ["custom-protocol"]
