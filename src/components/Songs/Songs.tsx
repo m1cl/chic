@@ -20,6 +20,9 @@ const Row = styled.div`
   display: flex;
   flex-direction: row;
 `;
+
+const CardList = styled(Row)``;
+
 const PlaceHolder = styled.div`
   margin-bottom: 10px;
   width: 100%;
@@ -62,11 +65,14 @@ const useStore = create<SongsZustand>(
 const Songs = () => {
   const { items, addItem } = useStore(useCallback((state) => state, []));
 
+  const [isExanded, x] = useState(false);
+
   function getWantlistItems() {
     //@ts-ignore
     if (window.__TAURI__) {
       //@ts-ignore
       const invoke = window.__TAURI__.invoke;
+      // TODO:  REMOVE YOUR USERNAME and make it generic
       invoke("get_want_list_information", { username: "m1cl" })
         .then((message: any) => {
           addItem(JSON.parse(message));
@@ -85,6 +91,7 @@ const Songs = () => {
     getWantlistItems();
   }, []);
 
+  // TODO: make cards expand when switch to another card fast
   if (items.length) {
     return (
       <Main>
@@ -93,7 +100,7 @@ const Songs = () => {
             <H1>Discogs Wantlist</H1>
           </PlaceHolder>
           <Row>
-            <Card items={items.slice(0, 6)} />
+            <Card isExpanded={isExpanded} items={items.slice(0, 6)} />
           </Row>
         </Container>
 
@@ -101,17 +108,17 @@ const Songs = () => {
           <PlaceHolder>
             <H1>Discogs Wantlist</H1>
           </PlaceHolder>
-          <Row>
-            <Card items={items.slice(1, 3)} />
-          </Row>
+          <CardList>
+            <Card isExpanded={isExpanded} items={items.slice(1, 3)} />
+          </CardList>
         </Container>
         <Container>
           <PlaceHolder>
             <H1>Discogs Wantlist</H1>
           </PlaceHolder>
-          <Row>
-            <Card items={items.slice(0, 1)} />
-          </Row>
+          <CardList>
+            <Card isExpanded={isExpanded} items={items.slice(0, 1)} />
+          </CardList>
         </Container>
       </Main>
     );

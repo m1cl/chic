@@ -114,6 +114,8 @@ const Item: FC<{ item: item }> = ({ children, item }) => {
   function handleMouseLeave() {
     isOpen && handleIsOpen();
   }
+
+  function fastExpander() {}
   const toggleOpen = () => setIsOpen(!isOpen);
 
   return (
@@ -121,6 +123,7 @@ const Item: FC<{ item: item }> = ({ children, item }) => {
       layout
       drag
       onClick={handleIsOpen}
+      onMouseEnter={fastExpander}
       onMouseLeave={handleMouseLeave}
       animate={{
         width: isOpen ? "220px" : "120px",

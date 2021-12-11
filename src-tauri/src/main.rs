@@ -51,6 +51,7 @@ async fn accept_connection(peer: SocketAddr, stream: TcpStream) {
     }
   }
 }
+
 async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()> {
   let mut ws_stream = accept_async(stream).await.expect("Failed to accept");
 
@@ -87,12 +88,13 @@ async fn create_web_server() {
       .launch(),
   );
 }
-// TODO: add proxy in frontend
 async fn create_socket_server() {
   let ws_addr = "127.0.0.1:9002";
 
   let listener = TcpListener::bind(&ws_addr).await.expect("Can't listen");
+
   info!("Listening on: {}", ws_addr);
+
   while let Ok((stream, _)) = listener.accept().await {
     let peer = stream
       .peer_addr()
