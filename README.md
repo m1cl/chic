@@ -15,3 +15,8 @@ wait until tauri boots up.
 Keep in mind to install tauri beforehand:
 
 ### `npm install -g @tauri-apps/cli`
+
+### DEPS
+
+tauri websocket plugin
+https://github.com/tauri-apps/tauri-plugin-websocket

@@ -22,6 +22,7 @@ export type item = {
 };
 type CardProps = {
   items: item[];
+  isExpanded: boolean;
 };
 
 // .saturate { filter: saturate(3); }
@@ -92,7 +93,7 @@ const Row = styled.div`
 
 const ContentContainer = styled(motion.div)``;
 
-const Card = ({ items }: CardProps) => {
+const Card = ({ items, isExpanded }: CardProps) => {
   items = items.map((item) => {
     item.artist = item.artist?.replace(/['"]+/g, "");
     return item;

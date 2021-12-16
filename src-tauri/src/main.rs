@@ -12,7 +12,9 @@ use log::{error, info};
 use std::net::SocketAddr;
 use tokio::net::{TcpListener, TcpStream};
 use tokio_tungstenite::{accept_async, tungstenite::Error};
-use tungstenite::Result;
+
+use tauri_plugin_websocket::TauriWebsocket;
+use tungstenite::{Message, Result};
 
 #[macro_use]
 extern crate rocket;
@@ -41,15 +43,6 @@ fn start() -> String {
 async fn get_wantlist(username: String) -> String {
   let result = get_want_list_information(username).await;
   result
-}
-
-async fn accept_connection(peer: SocketAddr, stream: TcpStream) {
-  if let Err(e) = handle_connection(peer, stream).await {
-    match e {
-      Error::ConnectionClosed | Error::Protocol(_) | Error::Utf8 => (),
-      err => error!("Error processing connection: {}", err),
-    }
-  }
 }
 
 async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()> {
@@ -88,28 +81,45 @@ async fn create_web_server() {
       .launch(),
   );
 }
-async fn create_socket_server() {
+
+async fn accept_connection(stream: TcpStream) {
+  let ws_stream = tokio_tungstenite::accept_async(stream)
+    .await
+    .expect("Error during the weboscket handshare occured");
+
+  let (mut write, read) = ws_stream.split();
+
+  write
+    .send(Message::Text("Yeah this ist cool".to_string()))
+    .await
+    .expect("Something went wrong, babe");
+
+  read
+    .forward(write)
+    .await
+    .expect("failed to forward message")
+}
+
+async fn run_websocket() {
   let ws_addr = "127.0.0.1:9002";
 
-  let listener = TcpListener::bind(&ws_addr).await.expect("Can't listen");
+  let try_socket = TcpListener::bind(&ws_addr).await;
+
+  let listener = try_socket.expect("Failed to bind");
 
   info!("Listening on: {}", ws_addr);
 
   while let Ok((stream, _)) = listener.accept().await {
-    let peer = stream
-      .peer_addr()
-      .expect("connected streams should have a peer address");
-    info!("Peer address: {}", peer);
-
-    tokio::spawn(accept_connection(peer, stream));
+    tokio::spawn(accept_connection(stream));
   }
 }
 #[tokio::main]
 async fn main() {
-  tokio::spawn(create_socket_server());
+  tauri::async_runtime::spawn(run_websocket());
   tokio::spawn(create_web_server());
 
   tauri::Builder::default()
+    .plugin(TauriWebsocket::default())
     .invoke_handler(tauri::generate_handler![
       play_song,
       get_want_list_information

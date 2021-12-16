@@ -65,7 +65,7 @@ const useStore = create<SongsZustand>(
 const Songs = () => {
   const { items, addItem } = useStore(useCallback((state) => state, []));
 
-  const [isExanded, x] = useState(false);
+  const [isExpanded, x] = useState(false);
 
   function getWantlistItems() {
     //@ts-ignore

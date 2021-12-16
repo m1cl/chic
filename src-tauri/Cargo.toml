@@ -29,6 +29,7 @@ tokio-tungstenite = "0.16.0"
 log = "0.4.14"
 tungstenite = "0.16.0"
 futures-util = "0.3.18"
+tauri-plugin-websocket = { path = "/home/m1cl/.cargo/registry/src/github.com-1ecc6299db9ec823/tauri-plugin-websocket" }
 
 [features]
 default = ["custom-protocol"]
