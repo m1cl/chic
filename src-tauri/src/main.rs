@@ -1,17 +1,18 @@
 #![cfg_attr(
   all(not(debug_assertions), target_os = "windows"),
-  windows_subsystem = "windows"
+  windows_subsystem = "linux"
 )]
 #![feature(proc_macro_hygiene, decl_macro)]
 
 use tokio::task;
+use url::Url;
 
 // use futures_util::{SinkExt, StreamExt};
-use futures_util::{SinkExt, StreamExt};
-use log::{error, info};
+use futures_util::{stream::SplitSink, SinkExt, StreamExt, TryFutureExt};
+use log::{debug, error, info};
 use std::net::SocketAddr;
 use tokio::net::{TcpListener, TcpStream};
-use tokio_tungstenite::{accept_async, tungstenite::Error};
+use tokio_tungstenite::{accept_async, tungstenite::Error, WebSocketStream};
 
 use tauri_plugin_websocket::TauriWebsocket;
 use tungstenite::{Message, Result};
@@ -22,7 +23,13 @@ extern crate rocket;
 use std::{collections::HashMap, future::Future, io};
 use walkdir::WalkDir;
 
-use tauri::api::http::{ClientBuilder, HttpRequestBuilder, ResponseType};
+use tauri::{
+  api::http::{ClientBuilder, HttpRequestBuilder, ResponseType},
+  utils::config::WindowConfig,
+  WindowUrl,
+};
+
+use authentication_manager::AuthManager;
 
 mod discogs;
 use discogs::get_want_list_information;
@@ -61,6 +68,10 @@ async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()> {
   Ok(())
 }
 
+struct State {
+  socket_writer: Option<SplitSink<WebSocketStream<TcpStream>, Message>>,
+}
+
 #[get("/")]
 fn root() -> String {
   format!("this is chic api ")
@@ -82,6 +93,8 @@ async fn create_web_server() {
   );
 }
 
+fn open_authorize_url(url: Url) {}
+
 async fn accept_connection(stream: TcpStream) {
   let ws_stream = tokio_tungstenite::accept_async(stream)
     .await
@@ -100,6 +113,9 @@ async fn accept_connection(stream: TcpStream) {
     .expect("failed to forward message")
 }
 
+// fn spawn_new_window() {
+//   tauri::Builder::default()
+// }
 async fn run_websocket() {
   let ws_addr = "127.0.0.1:9002";
 
@@ -113,12 +129,19 @@ async fn run_websocket() {
     tokio::spawn(accept_connection(stream));
   }
 }
+// TODO: send the authorize_url via websocket to the frontend and render it in a modal to signup
+// the user
 #[tokio::main]
 async fn main() {
+  let auth_manager = AuthManager::new();
+  let authorize_url = auth_manager.authorize_url;
+  let win_url = WindowUrl::App(authorize_url.as_str().into());
   tauri::async_runtime::spawn(run_websocket());
   tokio::spawn(create_web_server());
+  let window_config = WindowConfig::default();
 
   tauri::Builder::default()
+    .create_window("Google authorization", win_url, |s, p| (s, p))
     .plugin(TauriWebsocket::default())
     .invoke_handler(tauri::generate_handler![
       play_song,
