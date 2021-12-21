@@ -1,16 +1,12 @@
 extern crate dotenv;
 use dotenv::dotenv;
-use oauth2::{basic::BasicClient, revocation::StandardRevocableToken, TokenResponse};
+use oauth2::basic::BasicClient;
 // Alternatively, this can be oauth2::curl::http_client or a custom.
 use oauth2::{
-  reqwest::http_client, AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken,
-  PkceCodeChallenge, RedirectUrl, RevocationUrl, Scope, TokenUrl,
+  AuthUrl, ClientId, ClientSecret, CsrfToken, PkceCodeChallenge, RedirectUrl, RevocationUrl, Scope,
+  TokenUrl,
 };
-use std::{
-  env,
-  io::{BufRead, BufReader, Write},
-  net::TcpListener,
-};
+use std::env;
 use url::Url;
 
 pub struct AuthManager {
@@ -41,7 +37,8 @@ impl AuthManager {
       Some(token_url),
     )
     .set_redirect_uri(
-      RedirectUrl::new("http://localhost:8080".to_string()).expect("Invalid redirect URL"),
+      RedirectUrl::new("http://localhost:8000/api/get_google_auth_token".to_string())
+        .expect("Invalid redirect URL"),
     )
     .set_revocation_uri(
       RevocationUrl::new("https://oauth2.googleapis.com/revoke".to_string())
@@ -50,15 +47,15 @@ impl AuthManager {
 
     // Google supports Proof Key for Code Exchange (PKCE - https://oauth.net/2/pkce/).
     // Create a PKCE code verifier and SHA-256 encode it as a code challenge.
-    let (pkce_code_challenge, pkce_code_verifier) = PkceCodeChallenge::new_random_sha256();
+    // let (pkce_code_challenge, _pkce_code_verifier) = PkceCodeChallenge::new_random_sha256();
 
     // Generate the authorization URL to which we ll redirect the user.
-    let (authorize_url, csrf_state) = client
+    let (authorize_url, _csrf_state) = client
       .authorize_url(CsrfToken::new_random)
       .add_scope(Scope::new(
         "https://www.googleapis.com/auth/youtube".to_string(),
       ))
-      .set_pkce_challenge(pkce_code_challenge)
+      // .set_pkce_challenge(pkce_code_challenge)
       .url();
 
     println!(

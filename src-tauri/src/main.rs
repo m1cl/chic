@@ -1,33 +1,17 @@
-#![cfg_attr(
-  all(not(debug_assertions), target_os = "windows"),
-  windows_subsystem = "linux"
-)]
-#![feature(proc_macro_hygiene, decl_macro)]
-
+use futures_util::{stream::SplitSink, SinkExt, StreamExt};
+use oauth2::{AuthorizationCode, CsrfToken};
 use tokio::task;
-use url::Url;
 
-// use futures_util::{SinkExt, StreamExt};
-use futures_util::{stream::SplitSink, SinkExt, StreamExt, TryFutureExt};
-use log::{debug, error, info};
-use std::net::SocketAddr;
 use tokio::net::{TcpListener, TcpStream};
-use tokio_tungstenite::{accept_async, tungstenite::Error, WebSocketStream};
+use tokio_tungstenite::WebSocketStream;
 
 use tauri_plugin_websocket::TauriWebsocket;
-use tungstenite::{Message, Result};
+use tungstenite::Message;
 
 #[macro_use]
 extern crate rocket;
 
-use std::{collections::HashMap, future::Future, io};
-use walkdir::WalkDir;
-
-use tauri::{
-  api::http::{ClientBuilder, HttpRequestBuilder, ResponseType},
-  utils::config::WindowConfig,
-  WindowUrl,
-};
+use tauri::{utils::config::WindowConfig, WindowUrl};
 
 use authentication_manager::AuthManager;
 
@@ -36,9 +20,6 @@ use discogs::get_want_list_information;
 
 mod music_player;
 use music_player::play_song;
-
-mod file_manager;
-use file_manager::MusicLibrary;
 
 #[get("/player/play_song")]
 fn start() -> String {
@@ -52,29 +33,44 @@ async fn get_wantlist(username: String) -> String {
   result
 }
 
-async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()> {
-  let mut ws_stream = accept_async(stream).await.expect("Failed to accept");
+// async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()> {
+//   let mut ws_stream = accept_async(stream).await.expect("Failed to accept");
+//
+//   info!("New WebSocket connection: {}", peer);
+//
+//   while let Some(msg) = ws_stream.next().await {
+//     // TODO :whattttttttttttttttttttttttt?
+//     let msg = msg?;
+//     if msg.is_text() || msg.is_binary() {
+//       ws_stream.send(msg).await?;
+//     }
+//   }
+//
+//   Ok(())
+// }
 
-  info!("New WebSocket connection: {}", peer);
-
-  while let Some(msg) = ws_stream.next().await {
-    // TODO :whattttttttttttttttttttttttt?
-    let msg = msg?;
-    if msg.is_text() || msg.is_binary() {
-      ws_stream.send(msg).await?;
-    }
-  }
-
-  Ok(())
-}
-
-struct State {
+struct _State {
   socket_writer: Option<SplitSink<WebSocketStream<TcpStream>, Message>>,
+  authorization_token: Option<String>,
 }
 
+// #[get("/authorization_token/<token>")]
+// fn receive_authorization_token(token: &str) {}
 #[get("/")]
 fn root() -> String {
   format!("this is chic api ")
+}
+
+// TODO: receive google api token
+#[get("/get_google_auth_token?<state>&<code>&<_scope>")]
+async fn get_google_auth_token(state: &str, code: String, _scope: &str) -> String {
+  let _state = CsrfToken::new(state.into());
+  let code = AuthorizationCode::new(code.into());
+  code.secret().to_string()
+}
+#[get("/get_token")]
+async fn get_token() -> &'static str {
+  "here is the token"
 }
 
 // TODO: create a streaming api
@@ -85,15 +81,19 @@ fn root() -> String {
 //       -5 chunks and +5 chunks ahead
 //       webrtc.rs might be a good choice
 //
+// api-endpoint (/api/{})
 async fn create_web_server() {
   task::spawn(
     rocket::build()
-      .mount("/api", routes![root, get_wantlist, start])
+      .mount(
+        "/api",
+        routes![root, get_wantlist, start, get_google_auth_token, get_token],
+      )
       .launch(),
   );
 }
 
-fn open_authorize_url(url: Url) {}
+// fn open_authorize_url(url: Url) {}
 
 async fn accept_connection(stream: TcpStream) {
   let ws_stream = tokio_tungstenite::accept_async(stream)
@@ -118,9 +118,7 @@ async fn accept_connection(stream: TcpStream) {
 // }
 async fn run_websocket() {
   let ws_addr = "127.0.0.1:9002";
-
   let try_socket = TcpListener::bind(&ws_addr).await;
-
   let listener = try_socket.expect("Failed to bind");
 
   info!("Listening on: {}", ws_addr);
@@ -138,7 +136,7 @@ async fn main() {
   let win_url = WindowUrl::App(authorize_url.as_str().into());
   tauri::async_runtime::spawn(run_websocket());
   tokio::spawn(create_web_server());
-  let window_config = WindowConfig::default();
+  let _window_config = WindowConfig::default();
 
   tauri::Builder::default()
     .create_window("Google authorization", win_url, |s, p| (s, p))
