@@ -1,20 +1,12 @@
 extern crate dirs;
 use std::{
-  fmt::format,
   fs::{create_dir_all, read_to_string, File, OpenOptions},
-  io::{BufRead, BufReader, BufWriter, Write},
+  io::{BufRead, BufReader, Write},
   path::Path,
-  sync::Arc,
 };
 
-use futures_util::{stream::SplitSink, SinkExt, StreamExt, TryFutureExt};
-use log::debug;
+use futures_util::{stream::SplitSink, SinkExt, StreamExt};
 use oauth2::{AuthorizationCode, CsrfToken};
-use rocket::http::ext::IntoCollection;
-use rusqlite::{
-  types::{FromSql, ValueRef},
-  Row, NO_PARAMS,
-};
 use tokio::task;
 
 use tokio::net::{TcpListener, TcpStream};
@@ -24,14 +16,12 @@ use tauri::{utils::config::WindowConfig, WindowUrl};
 use tauri_plugin_websocket::TauriWebsocket;
 use tungstenite::Message;
 
-use config::Config;
-
 #[macro_use]
 extern crate rocket;
 
 use authentication_manager::AuthManager;
 
-use rusqlite::{params, Connection, Result, RowIndex, Rows};
+use rusqlite::{Connection, Result};
 
 mod discogs;
 mod music_player;
