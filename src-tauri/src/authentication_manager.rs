@@ -14,7 +14,7 @@ pub struct AuthManager {
 }
 
 impl AuthManager {
-  pub fn new() -> Self {
+  pub fn create_auth_manager() -> BasicClient {
     dotenv().ok();
     let google_client_id =
       ClientId::new(env::var("GOOGLE_CLIENT_ID").expect("Missing the GOOGLE_CLIENT_ID env var"));
@@ -44,6 +44,10 @@ impl AuthManager {
       RevocationUrl::new("https://oauth2.googleapis.com/revoke".to_string())
         .expect("Invalid revocation endpoint URL"),
     );
+    return client;
+  }
+  pub fn get_authorize_url() -> Url {
+    let client = AuthManager::create_auth_manager();
 
     // Google supports Proof Key for Code Exchange (PKCE - https://oauth.net/2/pkce/).
     // Create a PKCE code verifier and SHA-256 encode it as a code challenge.
@@ -62,6 +66,6 @@ impl AuthManager {
       "Open this URL in your browser: \n{}\n",
       authorize_url.to_string()
     );
-    Self { authorize_url }
+    authorize_url
   }
 }
