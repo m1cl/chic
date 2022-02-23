@@ -25,6 +25,7 @@
     "react-scripts": "^5.0.0",
     "styled-components": "^5.3.1",
     "tauri": "^0.14.1",
+    "tauri-plugin-sql-api": "github:tauri-apps/tauri-plugin-sql",
     "typescript": "^4.1.2",
     "uuid": "^8.3.2",
     "web-vitals": "^1.0.1",
