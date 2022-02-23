@@ -7,6 +7,8 @@ use std::{
 
 use futures_util::{stream::SplitSink, SinkExt, StreamExt};
 use oauth2::{AuthorizationCode, CsrfToken};
+use rusqlite::{params, Connection};
+// use tauri_plugin_sql::{Migration, TauriSql};
 use tokio::task;
 
 use tokio::net::{TcpListener, TcpStream};
@@ -20,8 +22,6 @@ use tungstenite::Message;
 extern crate rocket;
 
 use authentication_manager::AuthManager;
-
-use rusqlite::{Connection, Result};
 
 mod discogs;
 mod music_player;
@@ -122,6 +122,24 @@ fn youtube_code_exists() -> bool {
   code_exists
 }
 fn save_yt_code(code: String) {
+  // INFO: pwd is project root
+  let conn = Connection::open("./chic.db").unwrap();
+  let result = conn.execute(
+    "insert into chic_data (yt_code) values (?1)",
+    params![&code],
+  );
+
+  match result {
+    Ok(r) => {
+      println!("everything is just fine {}", r);
+    }
+    Err(e) => {
+      println!(
+        "oopsi, something went wrong: {}. \t youtube code was already saved",
+        e
+      );
+    }
+  }
   println!("this is the code: {}, ", &code);
   let mut file = OpenOptions::new()
     .append(true)
@@ -178,18 +196,17 @@ async fn websocket_server() {
     tokio::spawn(accept_connection(stream));
   }
 }
-async fn get_all_playlists_from_db(db: &Connection) -> Result<()> {
-  db.query_row("select * from playlists", [], |row| {
-    let data: String = row.get(0)?;
-    println!("let s try t oget data ");
-    println!("{:?}", data.as_str());
-    Ok(())
-  });
-  Ok(())
-}
+// async fn get_all_playlists_from_db(db: &Connection) -> Result<()> {
+//   db.query_row("select * from playlists", [], |row| {
+//     let data: String = row.get(0)?;
+//     println!("let s try t oget data ");
+//     println!("{:?}", data.as_str());
+//     Ok(())
+//   });
+//   Ok(())
+// }
 async fn create_tauri_window() {
-  let auth_manager = AuthManager::new();
-  let authorize_url = auth_manager.authorize_url;
+  let authorize_url = AuthManager::get_authorize_url();
   let win_url = WindowUrl::App(authorize_url.as_str().into());
   let _window_config = WindowConfig::default();
   if youtube_code_exists() {
@@ -199,11 +216,20 @@ async fn create_tauri_window() {
         music_player::play_song,
         discogs::get_want_list_information
       ])
+      // .plugin(TauriSql::default().add_migrations(
+      //   "sqlite:chic.db",
+      //   vec![Migration {
+      //     version: 1,
+      //     description: "create playlists",
+      //     sql: include_str!("../migrations/2022-02-14-165803_playlist/up.sql"),
+      //     kind: tauri_plugin_sql::MigrationKind::Up,
+      //   }],
+      // ))
       .run(tauri::generate_context!())
       .expect("error while running tauri application");
   } else {
     tauri::Builder::default()
-      .create_window("Google authorization", win_url, |s, p| (s, p))
+      .create_window("", win_url, |s, p| (s, p))
       .plugin(TauriWebsocket::default())
       .invoke_handler(tauri::generate_handler![
         music_player::play_song,
