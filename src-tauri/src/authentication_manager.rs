@@ -1,12 +1,18 @@
 extern crate dotenv;
 use dotenv::dotenv;
-use oauth2::basic::BasicClient;
+use oauth2::{
+  basic::BasicClient, http::Result, PkceCodeChallenge, StandardRevocableToken,
+  TokenIntrospectionResponse, TokenResponse,
+};
 // Alternatively, this can be oauth2::curl::http_client or a custom.
 use oauth2::{
-  AuthUrl, ClientId, ClientSecret, CsrfToken, PkceCodeChallenge, RedirectUrl, RevocationUrl, Scope,
-  TokenUrl,
+  reqwest::http_client, AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken, RedirectUrl,
+  RevocationUrl, Scope, TokenUrl,
 };
-use std::env;
+use sqlx::{sqlite::SqlitePoolOptions, Executor, Row, Sqlite};
+use std::{env, error::Error, sync::Arc};
+use tauri::async_runtime::block_on;
+use tokio::task::spawn_blocking;
 use url::Url;
 
 pub struct AuthManager {
@@ -45,6 +51,66 @@ impl AuthManager {
         .expect("Invalid revocation endpoint URL"),
     );
     return client;
+  }
+  pub async fn receive_access_token(code: String) -> Result<()> {
+    let client = AuthManager::create_auth_manager();
+    let auth_code = AuthorizationCode::new(code);
+    let m_client = client.clone();
+    let token_response = spawn_blocking(move || {
+      let token = m_client
+        .clone()
+        .exchange_code(auth_code)
+        .request(http_client)
+        .unwrap();
+      token
+    })
+    .await
+    .unwrap();
+    let token_to_revoke: StandardRevocableToken = match token_response.refresh_token() {
+      Some(token) => token.into(),
+      None => token_response.access_token().into(),
+    };
+    println!(
+      "access token:\t {}",
+      token_response.access_token().secret().as_str()
+    );
+    Ok(())
+    // client
+    //   .revoke_token(token_to_revoke)
+    //   .unwrap()
+    //   .request(http_client)
+    //   .expect("Failed to revoke");
+  }
+  pub async fn get_access_token() {
+    let conn = SqlitePoolOptions::new().connect("./chic.db").await.unwrap();
+    let row = conn
+      .fetch_one("select yt_code from chic_data")
+      .await
+      .unwrap();
+    let code: String = row.try_get(0).unwrap();
+    // let (pkce_code_challenge, pkce_code_verifier) = PkceCodeChallenge::new_random_sha256();
+    let client = AuthManager::create_auth_manager();
+    let auth_code = AuthorizationCode::new(code);
+    let res = spawn_blocking(move || {
+      client
+        .exchange_code(auth_code)
+        // .set_pkce_verifier(pkce_code_verifier)
+        .request(http_client)
+        .unwrap()
+    });
+    // if let Ok(token) = res {
+    //   let scopes = if let Some(scopes_vec) = token.scopes() {
+    //     scopes_vec
+    //       .iter()
+    //       .map(|comma_separated| comma_separated.split(','))
+    //       .flatten()
+    //       .collect::<Vec<_>>()
+    //   } else {
+    //     Vec::new()
+    //   };
+    //   println!("the scopes: {}", scopes);
+    //   println!("the token: {}", token);
+    // }
   }
   pub fn get_authorize_url() -> Url {
     let client = AuthManager::create_auth_manager();
