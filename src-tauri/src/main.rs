@@ -72,7 +72,10 @@ async fn get_google_auth_token(state: &str, code: String, scope: &str) {
   let _state = CsrfToken::new(state.into());
   let code = AuthorizationCode::new(code.into());
   save_yt_code(code.secret().to_string());
-  AuthManager::receive_access_token(code.secret().to_string()).await;
+  let auth_manager = AuthManager::default();
+  auth_manager
+    .receive_access_token(code.secret().to_string())
+    .await;
 }
 #[get("/get_token")]
 async fn get_token() -> &'static str {

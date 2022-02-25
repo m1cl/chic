@@ -1,23 +1,25 @@
 extern crate dotenv;
 use dotenv::dotenv;
 use oauth2::{
-  basic::BasicClient, http::Result, PkceCodeChallenge, StandardRevocableToken,
-  TokenIntrospectionResponse, TokenResponse,
+  basic::BasicClient, PkceCodeChallenge, StandardRevocableToken, TokenIntrospectionResponse,
+  TokenResponse,
 };
 // Alternatively, this can be oauth2::curl::http_client or a custom.
 use oauth2::{
   reqwest::http_client, AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken, RedirectUrl,
   RevocationUrl, Scope, TokenUrl,
 };
-use sqlx::{sqlite::SqlitePoolOptions, Executor, Row, Sqlite};
+use sqlx::{
+  sqlite::{SqlitePoolOptions, SqliteQueryResult},
+  Executor, Result, Row, Sqlite, SqlitePool,
+};
 use std::{env, error::Error, sync::Arc};
 use tauri::async_runtime::block_on;
 use tokio::task::spawn_blocking;
 use url::Url;
 
-pub struct AuthManager {
-  pub authorize_url: Url,
-}
+#[derive(Default)]
+pub struct AuthManager {}
 
 impl AuthManager {
   pub fn create_auth_manager() -> BasicClient {
@@ -52,7 +54,7 @@ impl AuthManager {
     );
     return client;
   }
-  pub async fn receive_access_token(code: String) -> Result<()> {
+  pub async fn receive_access_token(&self, code: String) -> Result<()> {
     let client = AuthManager::create_auth_manager();
     let auth_code = AuthorizationCode::new(code);
     let m_client = client.clone();
@@ -70,9 +72,11 @@ impl AuthManager {
       Some(token) => token.into(),
       None => token_response.access_token().into(),
     };
+    let access_token = token_response.access_token().secret().as_str();
+    let result = self.store_access_token(access_token.into()).await;
     println!(
-      "access token:\t {}",
-      token_response.access_token().secret().as_str()
+      "storing access token result: {}",
+      result.unwrap().rows_affected()
     );
     Ok(())
     // client
@@ -80,6 +84,17 @@ impl AuthManager {
     //   .unwrap()
     //   .request(http_client)
     //   .expect("Failed to revoke");
+  }
+  async fn store_access_token(&self, access_token: String) -> Result<SqliteQueryResult> {
+    // Insert the task, then obtain the ID of this row
+    let mut conn = SqlitePool::connect("./chic.db").await.unwrap();
+    let query = format!(
+      "update chic_data set yt_access_token = '{}' where id = 1",
+      &access_token
+    );
+    let query = query.as_str();
+    let id = conn.execute(query).await.unwrap();
+    Ok(id)
   }
   pub async fn get_access_token() {
     let conn = SqlitePoolOptions::new().connect("./chic.db").await.unwrap();
