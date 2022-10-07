@@ -5,7 +5,8 @@ use tauri::api::http::{ClientBuilder, HttpRequestBuilder, ResponseType};
 async fn get_data_from_response(url: &str) -> Value {
   let client = ClientBuilder::new().max_redirections(3).build().unwrap();
   let request_builder = HttpRequestBuilder::new("GET", url);
-  let request = request_builder.response_type(ResponseType::Json);
+  let request = request_builder.unwrap().response_type(ResponseType::Json);
+  // let request = request_builder.response_type(ResponseType::Json);
   let value = client.send(request).await.unwrap().read().await.unwrap();
   let data = value.data;
   data
