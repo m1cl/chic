@@ -1,17 +1,16 @@
-import React from "react";
-import SideBar from "./components/SideBar/SideBar";
-import NavBar from "./components/NavBar/NavBar";
-import styled from "styled-components";
-import Content from "./components/Content/Content";
 import { BrowserRouter as Router } from "react-router-dom";
-import Songs from "./components/Songs/Songs";
+import styled from "styled-components";
 import Albums from "./components/Albums/Albums";
 import Artists from "./components/Artists/Artists";
+import Content from "./components/Content/Content";
+import NavBar from "./components/NavBar/NavBar";
+import Player from "./components/Player/Player";
 import {
   AnimatedRoutes,
   RouteTransition,
 } from "./components/RouteTransition/RouteTransition";
-import Player from "./components/Player/Player";
+import SideBar from "./components/SideBar/SideBar";
+import Songs from "./components/Songs/Songs";
 
 const Container = styled.div`
   background-color: #121212;
