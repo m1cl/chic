@@ -20,9 +20,10 @@ name = "authentication_manager"
 path = "./src/authentication_manager.rs"
 
 [dependencies]
+google-youtube3 = "^2.0"
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.0.0-beta.8", features = ["api-all"] }
+tauri = { version = "1.0.0-rc.6", features = ["api-all"] }
 walkdir = "2.3.2"
 cpal = "0.13.4"
 rodio = "0.14.0"
@@ -32,7 +33,7 @@ tokio-tungstenite = "0.16.0"
 log = "0.4.14"
 tungstenite = "0.16.0"
 futures-util = "0.3.18"
-tauri-plugin-websocket = { path = "/home/m1cl/.cargo/registry/src/github.com-1ecc6299db9ec823/tauri-plugin-websocket" }
+# tauri-plugin-websocket = { path = "/home/m1cl/.cargo/registry/src/github.com-1ecc6299db9ec823/tauri-plugin-websocket" }
 sqlx = { version = "0.5", features = ["runtime-tokio-native-tls", "sqlite"] }
 config = "0.11.0"
 dotenv = "0.15.0"

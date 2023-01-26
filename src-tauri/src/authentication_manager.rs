@@ -1,9 +1,6 @@
 extern crate dotenv;
 use dotenv::dotenv;
-use oauth2::{
-  basic::BasicClient, PkceCodeChallenge, StandardRevocableToken, TokenIntrospectionResponse,
-  TokenResponse,
-};
+use oauth2::{basic::BasicClient, StandardRevocableToken, TokenResponse};
 // Alternatively, this can be oauth2::curl::http_client or a custom.
 use oauth2::{
   reqwest::http_client, AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken, RedirectUrl,
@@ -11,10 +8,9 @@ use oauth2::{
 };
 use sqlx::{
   sqlite::{SqlitePoolOptions, SqliteQueryResult},
-  Executor, Result, Row, Sqlite, SqlitePool,
+  Executor, Row, SqlitePool,
 };
-use std::{env, error::Error, sync::Arc};
-use tauri::async_runtime::block_on;
+use std::env;
 use tokio::task::spawn_blocking;
 use url::Url;
 
@@ -54,7 +50,7 @@ impl AuthManager {
     );
     return client;
   }
-  pub async fn receive_access_token(&self, code: String) -> Result<()> {
+  pub async fn receive_access_token(&self, code: String) -> sqlx::Result<()> {
     let client = AuthManager::create_auth_manager();
     let auth_code = AuthorizationCode::new(code);
     let m_client = client.clone();
@@ -68,10 +64,10 @@ impl AuthManager {
     })
     .await
     .unwrap();
-    let token_to_revoke: StandardRevocableToken = match token_response.refresh_token() {
-      Some(token) => token.into(),
-      None => token_response.access_token().into(),
-    };
+    // let token_to_revoke: StandardRevocableToken = match token_response.refresh_token() {
+    //   Some(token) => token.into(),
+    //   None => token_response.access_token().into(),
+    // };
     let access_token = token_response.access_token().secret().as_str();
     let result = self.store_access_token(access_token.into()).await;
     println!(
@@ -85,9 +81,9 @@ impl AuthManager {
     //   .request(http_client)
     //   .expect("Failed to revoke");
   }
-  async fn store_access_token(&self, access_token: String) -> Result<SqliteQueryResult> {
+  async fn store_access_token(&self, access_token: String) -> sqlx::Result<SqliteQueryResult> {
     // Insert the task, then obtain the ID of this row
-    let mut conn = SqlitePool::connect("./chic.db").await.unwrap();
+    let conn = SqlitePool::connect("./chic.db").await.unwrap();
     let query = format!(
       "update chic_data set yt_access_token = '{}' where id = 1",
       &access_token
@@ -96,7 +92,7 @@ impl AuthManager {
     let id = conn.execute(query).await.unwrap();
     Ok(id)
   }
-  pub async fn get_access_token() {
+  pub async fn get_access_token() -> Result<String, tokio::task::JoinError> {
     let conn = SqlitePoolOptions::new().connect("./chic.db").await.unwrap();
     let row = conn
       .fetch_one("select yt_code from chic_data")
@@ -107,12 +103,13 @@ impl AuthManager {
     let client = AuthManager::create_auth_manager();
     let auth_code = AuthorizationCode::new(code);
     let res = spawn_blocking(move || {
-      client
-        .exchange_code(auth_code)
-        // .set_pkce_verifier(pkce_code_verifier)
-        .request(http_client)
-        .unwrap()
-    });
+      let token_response = client.exchange_code(auth_code).request(http_client);
+      token_response.expect("be right")
+    })
+    .await;
+
+    Ok(res.expect("lool").access_token().secret().clone())
+
     // if let Ok(token) = res {
     //   let scopes = if let Some(scopes_vec) = token.scopes() {
     //     scopes_vec

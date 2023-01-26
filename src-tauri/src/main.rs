@@ -15,7 +15,7 @@ use tokio::net::{TcpListener, TcpStream};
 use tokio_tungstenite::WebSocketStream;
 
 use tauri::{utils::config::WindowConfig, WindowUrl};
-use tauri_plugin_websocket::TauriWebsocket;
+// use tauri_plugin_websocket::TauriWebsocket;
 use tungstenite::Message;
 
 #[macro_use]
@@ -25,6 +25,7 @@ use authentication_manager::AuthManager;
 
 mod discogs;
 mod music_player;
+mod youtube;
 
 #[get("/player/play_song")]
 fn start() -> String {
@@ -215,7 +216,7 @@ async fn create_tauri_window() {
   let _window_config = WindowConfig::default();
   if youtube_code_exists() {
     tauri::Builder::default()
-      .plugin(TauriWebsocket::default())
+      // .plugin(TauriWebsocket::default())
       .invoke_handler(tauri::generate_handler![
         music_player::play_song,
         discogs::get_want_list_information
@@ -234,7 +235,7 @@ async fn create_tauri_window() {
   } else {
     tauri::Builder::default()
       .create_window("", win_url, |s, p| (s, p))
-      .plugin(TauriWebsocket::default())
+      .unwrap()
       .invoke_handler(tauri::generate_handler![
         music_player::play_song,
         discogs::get_want_list_information
@@ -247,6 +248,7 @@ async fn create_tauri_window() {
 // the user
 #[tokio::main]
 async fn main() {
+  youtube::get_playlists().await;
   create_config_file().await;
   youtube_code_exists();
   tauri::async_runtime::spawn(websocket_server());
