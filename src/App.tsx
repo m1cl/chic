@@ -35,7 +35,6 @@ const SwitchContainer = styled.div`
   }
 `;
 function App() {
-  console.log("hello");
   return (
     <Router>
       <Container>

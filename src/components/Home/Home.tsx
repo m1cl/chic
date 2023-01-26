@@ -6,14 +6,14 @@ const Content = styled.div`
   display: flex;
   flex-wrap: wrap;
   width: 80vw;
-  padding: 100px  50px; 100px 50px;
+  padding: 100px 50px 100px 50px;
   background-color: #151515;
   color: green !important;
 `;
 
 const Home: FC = ({ children }) => (
   <Content id="home">
-    <Body></Body>
+    <Body />
   </Content>
 );
 
