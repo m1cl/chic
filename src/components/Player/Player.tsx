@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 
-import { invoke } from "@tauri-apps/api/tauri";
+import {invoke} from "@tauri-apps/api/tauri";
 import styled from "styled-components";
 //import play from "./play.png";
 //import next from "./next.png";
@@ -17,7 +17,7 @@ const playList = [
   {
     name: "aufgehts",
     writer: "writer",
-    img: "image.jpg",
+    img: "",
     src: "./aufgehts.wav",
     id: 1,
   },
@@ -55,8 +55,6 @@ const Player = () => {
     useState<VolumeSliderPlacement>();
   const [playerPlacement, setPlayerPlacement] =
     useState<PlayerPlacement>("bottom-left");
-  const [interfacePlacement, setInterfacePlacement] =
-    useState<InterfaceGridTemplateArea>();
   const [playListPlacement, setPlayListPlacement] =
     useState<PlayListPlacement>("bottom");
   return (
@@ -69,9 +67,6 @@ const Player = () => {
         }}
         placement={{
           player: playerPlacement,
-          interface: {
-            templateArea: interfacePlacement,
-          },
           playList: playListPlacement,
           volumeSlider: volumeSliderPlacement,
         }}
