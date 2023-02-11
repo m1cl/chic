@@ -14,6 +14,10 @@ use tokio::task;
 use tokio::net::{TcpListener, TcpStream};
 use tokio_tungstenite::WebSocketStream;
 
+extern crate google_youtube3 as youtube3;
+use youtube3::{hyper, hyper_rustls, YouTube};
+use youtube3::{Error, Result};
+
 use tauri::{utils::config::WindowConfig, WindowUrl};
 // use tauri_plugin_websocket::TauriWebsocket;
 use tungstenite::Message;
@@ -126,6 +130,22 @@ fn youtube_code_exists() -> bool {
   }
   code_exists
 }
+
+fn get_youtube_code() -> String {
+  let mut code_exists = false;
+  let file = File::open(get_conf_file()).unwrap();
+  let file = BufReader::new(file);
+  for lines in file.lines() {
+    let lines = lines.unwrap();
+    let l: Vec<&str> = lines.split("=").collect();
+    if l.first().unwrap().contains("YOUTUBE_CODE") {
+      if !l.last().is_none() {
+        return l.last().unwrap().to_string();
+      }
+    }
+  }
+  return "".to_string();
+}
 fn save_yt_code(code: String) {
   // INFO: pwd is project root
   let conn = Connection::open("./chic.db").unwrap();
@@ -212,7 +232,19 @@ async fn websocket_server() {
 // }
 async fn create_tauri_window() {
   let authorize_url = AuthManager::get_authorize_url();
+  let mut hub = YouTube::new(
+    hyper::Client::builder().build(
+      hyper_rustls::HttpsConnectorBuilder::new()
+        .with_native_roots()
+        .https_or_http()
+        .enable_http1()
+        .enable_http2()
+        .build(),
+    ),
+    auth,
+  );
   let win_url = WindowUrl::App(authorize_url.as_str().into());
+  // let mut hub = youtube3::
   let _window_config = WindowConfig::default();
   if youtube_code_exists() {
     tauri::Builder::default()
@@ -253,5 +285,6 @@ async fn main() {
   youtube_code_exists();
   tauri::async_runtime::spawn(websocket_server());
   tokio::spawn(create_web_server());
+  println!("the code is {:?}", get_youtube_code());
   create_tauri_window().await;
 }
