@@ -1,39 +1,80 @@
 extern crate dirs;
 use std::{
-  fs::{create_dir_all, read_to_string, File, OpenOptions},
-  io::{BufRead, BufReader, Write},
-  path::Path,
+  fs::{self},
+  io::{BufRead}, error::Error, ffi::{OsString},
 };
+use json::stringify;
+use rocket::fs::FileServer;
+use serde::Serialize;
+use youtube_dl::{download_yt_dlp, YoutubeDl};
 
 use futures_util::{stream::SplitSink, SinkExt, StreamExt};
-use oauth2::{AuthorizationCode, CsrfToken};
-use rusqlite::{params, Connection};
 // use tauri_plugin_sql::{Migration, TauriSql};
 use tokio::task;
 
 use tokio::net::{TcpListener, TcpStream};
 use tokio_tungstenite::WebSocketStream;
 
-extern crate google_youtube3 as youtube3;
-use youtube3::{hyper, hyper_rustls, YouTube};
-use youtube3::{Error, Result};
-
-use tauri::{utils::config::WindowConfig, WindowUrl};
 // use tauri_plugin_websocket::TauriWebsocket;
 use tungstenite::Message;
 
 #[macro_use]
 extern crate rocket;
 
-use authentication_manager::AuthManager;
-
 mod discogs;
-mod music_player;
 mod youtube;
+mod music_player;
+
+#[derive(Default, Serialize)]
+struct PlaylistItem {
+    name: String,
+    writer: String,
+    img: String,
+    src: String,
+    id: String
+}
+
+fn get_ext(file_name: &OsString) -> String {
+    let ext = file_name.to_str().unwrap().to_string();
+    let ext = ext.split(".").last().unwrap().to_string();
+        println!("the ext {}", ext);
+    ext
+}
+
+#[get("/player/playlist_items")]
+async fn playlist_items() -> String {
+    println!("Starting getting directory items");
+    let mut list: Vec<PlaylistItem> = Vec::new();
+    let i = 1;
+   for file in fs::read_dir("/Users/majala/.config/chic/").unwrap() {
+       let file = file.unwrap();
+       let file_name = file.file_name();
+       let ext = get_ext(&file_name);
+       println!("LOL");
+       if ext == "wav" {
+           let src = file.path().to_str().unwrap().to_string();
+           let name = file_name.clone().into_string().unwrap();
+           let url = "http://localhost:8000/music/";
+           let src = format!("{}{}", url, name);
+           let id = i +1;
+           let id = id.to_string();
+           list.push(PlaylistItem { name: name.clone(), writer: name.clone() , img: "".to_string(), src, id });
+       }
+   }
+
+  // {
+  //   name: "aufgehts",
+  //   writer: "writer",
+  //   img: "",
+  //   src: "./aufgehts.wav",
+  //   id: 1,
+  // },
+   serde_json::to_string(&list).unwrap()
+}
 
 #[get("/player/play_song")]
 fn start() -> String {
-  music_player::play_song();
+  // music_player::play_song();
   format!("Song is playing")
 }
 
@@ -43,21 +84,6 @@ async fn get_wantlist(username: String) -> String {
   result
 }
 
-// async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()> {
-//   let mut ws_stream = accept_async(stream).await.expect("Failed to accept");
-//
-//   info!("New WebSocket connection: {}", peer);
-//
-//   while let Some(msg) = ws_stream.next().await {
-//     // TODO :whattttttttttttttttttttttttt?
-//     let msg = msg?;
-//     if msg.is_text() || msg.is_binary() {
-//       ws_stream.send(msg).await?;
-//     }
-//   }
-//
-//   Ok(())
-// }
 
 struct _State {
   socket_writer: Option<SplitSink<WebSocketStream<TcpStream>, Message>>,
@@ -71,17 +97,6 @@ fn root() -> String {
   format!("this is chic api ")
 }
 
-// TODO: receive google api token
-#[get("/get_google_auth_token?<state>&<code>&<scope>")]
-async fn get_google_auth_token(state: &str, code: String, scope: &str) {
-  let _state = CsrfToken::new(state.into());
-  let code = AuthorizationCode::new(code.into());
-  save_yt_code(code.secret().to_string());
-  let auth_manager = AuthManager::default();
-  auth_manager
-    .receive_access_token(code.secret().to_string())
-    .await;
-}
 #[get("/get_token")]
 async fn get_token() -> &'static str {
   "here is the token"
@@ -99,96 +114,15 @@ async fn get_token() -> &'static str {
 async fn create_web_server() {
   task::spawn(
     rocket::build()
+    .mount("/music", FileServer::from("/Users/majala/.config/chic/"))
       .mount(
         "/api",
-        routes![root, get_wantlist, start, get_google_auth_token, get_token],
+        routes![root, get_wantlist, start, get_token, playlist_items],
       )
       .launch(),
   );
 }
-fn get_conf_dir() -> String {
-  let home_config_dir = dirs::config_dir().unwrap().display().to_string();
-  format!("{}/{}", home_config_dir, "chic")
-}
-fn get_conf_file() -> String {
-  let home_config_dir = get_conf_dir();
-  format!("{}/chic.conf", &home_config_dir)
-}
-fn youtube_code_exists() -> bool {
-  let mut code_exists = false;
-  let file = File::open(get_conf_file()).unwrap();
-  let file = BufReader::new(file);
-  for lines in file.lines() {
-    let lines = lines.unwrap();
-    let l: Vec<&str> = lines.split("=").collect();
-    if l.first().unwrap().contains("YOUTUBE_CODE") {
-      if !l.last().is_none() {
-        code_exists = true;
-        break;
-      }
-    }
-  }
-  code_exists
-}
 
-fn get_youtube_code() -> String {
-  let mut code_exists = false;
-  let file = File::open(get_conf_file()).unwrap();
-  let file = BufReader::new(file);
-  for lines in file.lines() {
-    let lines = lines.unwrap();
-    let l: Vec<&str> = lines.split("=").collect();
-    if l.first().unwrap().contains("YOUTUBE_CODE") {
-      if !l.last().is_none() {
-        return l.last().unwrap().to_string();
-      }
-    }
-  }
-  return "".to_string();
-}
-fn save_yt_code(code: String) {
-  // INFO: pwd is project root
-  let conn = Connection::open("./chic.db").unwrap();
-  let result = conn.execute(
-    "insert into chic_data (yt_code) values (?1)",
-    params![&code],
-  );
-
-  match result {
-    Ok(r) => {
-      println!("everything is just fine {}", r);
-    }
-    Err(e) => {
-      println!(
-        "oopsi, something went wrong: {}. \t youtube code was already saved",
-        e
-      );
-    }
-  }
-  println!("this is the code: {}, ", &code);
-  let mut file = OpenOptions::new()
-    .append(true)
-    .open(&get_conf_file())
-    .expect("Couldn t open config file");
-  file
-    .write_all(format!("YOUTUBE_CODE={}", code).as_bytes())
-    .expect("Couldn t save youtube to code");
-  println!("File saving was successful");
-}
-async fn create_config_file() {
-  let path = get_conf_dir();
-  let file_name = get_conf_file();
-  create_dir_all(Path::new(&path)).expect("Couldn't create directory");
-  if Path::new(&file_name).is_file() {
-    let content = read_to_string(&file_name).unwrap();
-    println!("this is the content {}", content);
-  } else {
-    File::create(&file_name)
-      .unwrap()
-      .write(b"")
-      .expect("Couldn t create file");
-  }
-}
 async fn accept_connection(stream: TcpStream) {
   let ws_stream = tokio_tungstenite::accept_async(stream)
     .await
@@ -221,6 +155,20 @@ async fn websocket_server() {
     tokio::spawn(accept_connection(stream));
   }
 }
+
+async fn download_playlist() -> Result<(), Box<dyn Error>> {
+let yt_dlp_path = download_yt_dlp("/Users/majala/.config/chic").await?;
+    let output = YoutubeDl::new("https://www.youtube.com/watch?v=VFbhKZFzbzk")
+        .download(true)
+        .extract_audio(true)
+        .output_directory("/Users/majala/.config/chic")
+        .youtube_dl_path(yt_dlp_path)
+        .run_async()
+        .await?;
+    let title = output.into_single_video().unwrap().title;
+    println!("Video title: {}", title);
+    Ok(())
+}
 // async fn get_all_playlists_from_db(db: &Connection) -> Result<()> {
 //   db.query_row("select * from playlists", [], |row| {
 //     let data: String = row.get(0)?;
@@ -231,22 +179,6 @@ async fn websocket_server() {
 //   Ok(())
 // }
 async fn create_tauri_window() {
-  let authorize_url = AuthManager::get_authorize_url();
-  let mut hub = YouTube::new(
-    hyper::Client::builder().build(
-      hyper_rustls::HttpsConnectorBuilder::new()
-        .with_native_roots()
-        .https_or_http()
-        .enable_http1()
-        .enable_http2()
-        .build(),
-    ),
-    auth,
-  );
-  let win_url = WindowUrl::App(authorize_url.as_str().into());
-  // let mut hub = youtube3::
-  let _window_config = WindowConfig::default();
-  if youtube_code_exists() {
     tauri::Builder::default()
       // .plugin(TauriWebsocket::default())
       .invoke_handler(tauri::generate_handler![
@@ -264,27 +196,14 @@ async fn create_tauri_window() {
       // ))
       .run(tauri::generate_context!())
       .expect("error while running tauri application");
-  } else {
-    tauri::Builder::default()
-      .create_window("", win_url, |s, p| (s, p))
-      .unwrap()
-      .invoke_handler(tauri::generate_handler![
-        music_player::play_song,
-        discogs::get_want_list_information
-      ])
-      .run(tauri::generate_context!())
-      .expect("error while running tauri application");
-  }
 }
 // TODO: send the authorize_url via websocket to the frontend and render it in a modal to signup
 // the user
 #[tokio::main]
 async fn main() {
-  youtube::get_playlists().await;
-  create_config_file().await;
-  youtube_code_exists();
+  // download_playlist().await;
   tauri::async_runtime::spawn(websocket_server());
+  // youtube::get_playlists_from_user().await;
   tokio::spawn(create_web_server());
-  println!("the code is {:?}", get_youtube_code());
   create_tauri_window().await;
 }
