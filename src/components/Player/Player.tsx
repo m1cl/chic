@@ -1,6 +1,6 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 
-import {invoke} from "@tauri-apps/api/tauri";
+import { invoke } from "@tauri-apps/api/tauri";
 import styled from "styled-components";
 //import play from "./play.png";
 //import next from "./next.png";
@@ -8,11 +8,13 @@ import AudioPlayer from "react-modern-audio-player";
 import {
   InterfaceGridTemplateArea,
   PlayerPlacement,
+  PlayList,
   PlayListPlacement,
   ProgressUI,
   VolumeSliderPlacement,
 } from "react-modern-audio-player/dist/types/components/AudioPlayer/Context";
 
+// TODO: Create playlist object in the backend for $HOME/.config/chic directory and send it to frontend
 const playList = [
   {
     name: "aufgehts",
@@ -38,24 +40,50 @@ const MediaPlayer = styled.div`
   z-index: 99;
 `;
 
-//function playSong() {
-//  //@ts-ignore
-//  if (window.__TAURI__) {
-//    invoke("play_song").then((message) => console.log(message));
-//  } else {
-//    fetch("http://localhost:3000/api/player/play_song", {
-//      mode: "cors",
-//    });
-//  }
-//}
+async function getPlaylist() {
+  //@ts-ignore
+  if (window.__TAURI__) {
+    invoke("playlist_items").then((message) =>
+      console.log(" thie message", message)
+    );
+  } else {
+    return fetch("http://localhost:3000/api/player/playlist_items", {
+      mode: "cors",
+    });
+  }
+}
+
+function playSong() {
+  //@ts-ignore
+  if (window.__TAURI__) {
+    invoke("play_song").then((message) => console.log(message));
+  } else {
+    fetch("http://localhost:3000/api/player/play_song", {
+      mode: "cors",
+    })
+      .then((res) => res.json())
+      .then((res) => console.log(res));
+  }
+}
 
 const Player = () => {
-  const [progressType, setProgressType] = useState<ProgressUI>("waveform");
-  const [volumeSliderPlacement, setVolumeSliderPlacement] =
+  getPlaylist()
+    .then((res) => res?.json())
+    .then((res) => {
+      res.map((r: any) => {
+        console.log("the res", res);
+
+        console.log(r.src.split("/").pop());
+        playList.push(r);
+      });
+    });
+
+  const [progressType, _setProgressType] = useState<ProgressUI>("waveform");
+  const [volumeSliderPlacement, _setVolumeSliderPlacement] =
     useState<VolumeSliderPlacement>();
-  const [playerPlacement, setPlayerPlacement] =
+  const [playerPlacement, _setPlayerPlacement] =
     useState<PlayerPlacement>("bottom-left");
-  const [playListPlacement, setPlayListPlacement] =
+  const [playListPlacement, _setPlayListPlacement] =
     useState<PlayListPlacement>("bottom");
   return (
     <MediaPlayer>
