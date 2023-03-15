@@ -7,8 +7,7 @@ async fn get_data_from_response(url: &str) -> Value {
   let request_builder = HttpRequestBuilder::new("GET", url);
   let request = request_builder.unwrap().response_type(ResponseType::Json);
   let value = client.send(request).await.unwrap().read().await.unwrap();
-  let data = value.data;
-  data
+  value.data
 }
 
 #[derive(Default, Serialize)]

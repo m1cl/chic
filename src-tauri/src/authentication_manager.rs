@@ -14,6 +14,8 @@ use std::env;
 use tokio::task::spawn_blocking;
 use url::Url;
 
+mod youtube;
+
 #[derive(Default)]
 pub struct AuthManager {}
 
@@ -135,7 +137,7 @@ impl AuthManager {
     let (authorize_url, _csrf_state) = client
       .authorize_url(CsrfToken::new_random)
       .add_scope(Scope::new(
-        "https://www.googleapis.com/auth/youtube".to_string(),
+        "https://www.googleapis.com/auth/youtube.readonly".to_string(),
       ))
       // .set_pkce_challenge(pkce_code_challenge)
       .url();

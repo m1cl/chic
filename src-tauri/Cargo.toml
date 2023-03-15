@@ -43,9 +43,10 @@ url = "2.2.2"
 rocket = "0.5.0-rc.1"
 dirs = "4.0.0"
 rusqlite = "0.26.3"
-google-youtube3 = "4.0.1"
 hyper = "0.14.24"
 hyper-rustls = "0.23.2"
+youtube_dl = { version = "0.8.0", features = ["downloader"] }
+ytd-rs = "0.1.7"
 
 # [dependencies.tauri-plugin-sql]
 # git = "https://github.com/tauri-apps/tauri-plugin-sql"
