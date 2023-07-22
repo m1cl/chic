@@ -1,11 +1,13 @@
 extern crate dirs;
-use std::{
-  fs::{self},
-  io::{BufRead}, error::Error, ffi::{OsString},
-};
 use json::stringify;
 use rocket::fs::FileServer;
 use serde::Serialize;
+use std::{
+  error::Error,
+  ffi::OsString,
+  fs::{self},
+  io::BufRead,
+};
 use youtube_dl::{download_yt_dlp, YoutubeDl};
 
 use futures_util::{stream::SplitSink, SinkExt, StreamExt};
@@ -22,45 +24,53 @@ use tungstenite::Message;
 extern crate rocket;
 
 mod discogs;
-mod youtube;
 mod music_player;
+mod youtube;
+
+static CHIC_CONFIG_DIR: &'static str = "/Users/m1cl/.config/chic/";
 
 #[derive(Default, Serialize)]
 struct PlaylistItem {
-    name: String,
-    writer: String,
-    img: String,
-    src: String,
-    id: String
+  name: String,
+  writer: String,
+  img: String,
+  src: String,
+  id: String,
 }
 
 fn get_ext(file_name: &OsString) -> String {
-    let ext = file_name.to_str().unwrap().to_string();
-    let ext = ext.split(".").last().unwrap().to_string();
-        println!("the ext {}", ext);
-    ext
+  let ext = file_name.to_str().unwrap().to_string();
+  let ext = ext.split(".").last().unwrap().to_string();
+  println!("the ext {}", ext);
+  ext
 }
 
 #[get("/player/playlist_items")]
 async fn playlist_items() -> String {
-    println!("Starting getting directory items");
-    let mut list: Vec<PlaylistItem> = Vec::new();
-    let i = 1;
-   for file in fs::read_dir("/Users/majala/.config/chic/").unwrap() {
-       let file = file.unwrap();
-       let file_name = file.file_name();
-       let ext = get_ext(&file_name);
-       println!("LOL");
-       if ext == "wav" {
-           let src = file.path().to_str().unwrap().to_string();
-           let name = file_name.clone().into_string().unwrap();
-           let url = "http://localhost:8000/music/";
-           let src = format!("{}{}", url, name);
-           let id = i +1;
-           let id = id.to_string();
-           list.push(PlaylistItem { name: name.clone(), writer: name.clone() , img: "".to_string(), src, id });
-       }
-   }
+  println!("Starting getting directory items");
+  let mut list: Vec<PlaylistItem> = Vec::new();
+  let i = 1;
+  for file in fs::read_dir(CHIC_CONFIG_DIR).unwrap() {
+    let file = file.unwrap();
+    let file_name = file.file_name();
+    let ext = get_ext(&file_name);
+    println!("LOL");
+    if ext == "wav" {
+      let src = file.path().to_str().unwrap().to_string();
+      let name = file_name.clone().into_string().unwrap();
+      let url = "http://localhost:8000/music/";
+      let src = format!("{}{}", url, name);
+      let id = i + 1;
+      let id = id.to_string();
+      list.push(PlaylistItem {
+        name: name.clone(),
+        writer: name.clone(),
+        img: "".to_string(),
+        src,
+        id,
+      });
+    }
+  }
 
   // {
   //   name: "aufgehts",
@@ -69,7 +79,7 @@ async fn playlist_items() -> String {
   //   src: "./aufgehts.wav",
   //   id: 1,
   // },
-   serde_json::to_string(&list).unwrap()
+  serde_json::to_string(&list).unwrap()
 }
 
 #[get("/player/play_song")]
@@ -83,7 +93,6 @@ async fn get_wantlist(username: String) -> String {
   let result = discogs::get_want_list_information(username).await;
   result
 }
-
 
 struct _State {
   socket_writer: Option<SplitSink<WebSocketStream<TcpStream>, Message>>,
@@ -114,7 +123,7 @@ async fn get_token() -> &'static str {
 async fn create_web_server() {
   task::spawn(
     rocket::build()
-    .mount("/music", FileServer::from("/Users/majala/.config/chic/"))
+      .mount("/music", FileServer::from(CHIC_CONFIG_DIR))
       .mount(
         "/api",
         routes![root, get_wantlist, start, get_token, playlist_items],
@@ -157,17 +166,18 @@ async fn websocket_server() {
 }
 
 async fn download_playlist() -> Result<(), Box<dyn Error>> {
-let yt_dlp_path = download_yt_dlp("/Users/majala/.config/chic").await?;
-    let output = YoutubeDl::new("https://www.youtube.com/watch?v=VFbhKZFzbzk")
-        .download(true)
-        .extract_audio(true)
-        .output_directory("/Users/majala/.config/chic")
-        .youtube_dl_path(yt_dlp_path)
-        .run_async()
-        .await?;
-    let title = output.into_single_video().unwrap().title;
-    println!("Video title: {}", title);
-    Ok(())
+  let yt_dlp_path = download_yt_dlp(CHIC_CONFIG_DIR).await?;
+  let output = YoutubeDl::new("https://www.youtube.com/channel/UCutUJrVebur4VvGimDaW3Rw/playlists")
+    .download(true)
+    .flat_playlist(true)
+    .extract_audio(true)
+    .output_directory(CHIC_CONFIG_DIR)
+    .youtube_dl_path(yt_dlp_path)
+    .run_async()
+    .await?;
+  let title = output.into_single_video().unwrap().title;
+  println!("Video title: {}", title);
+  Ok(())
 }
 // async fn get_all_playlists_from_db(db: &Connection) -> Result<()> {
 //   db.query_row("select * from playlists", [], |row| {
@@ -179,23 +189,23 @@ let yt_dlp_path = download_yt_dlp("/Users/majala/.config/chic").await?;
 //   Ok(())
 // }
 async fn create_tauri_window() {
-    tauri::Builder::default()
-      // .plugin(TauriWebsocket::default())
-      .invoke_handler(tauri::generate_handler![
-        music_player::play_song,
-        discogs::get_want_list_information
-      ])
-      // .plugin(TauriSql::default().add_migrations(
-      //   "sqlite:chic.db",
-      //   vec![Migration {
-      //     version: 1,
-      //     description: "create playlists",
-      //     sql: include_str!("../migrations/2022-02-14-165803_playlist/up.sql"),
-      //     kind: tauri_plugin_sql::MigrationKind::Up,
-      //   }],
-      // ))
-      .run(tauri::generate_context!())
-      .expect("error while running tauri application");
+  tauri::Builder::default()
+    // .plugin(TauriWebsocket::default())
+    .invoke_handler(tauri::generate_handler![
+      music_player::play_song,
+      discogs::get_want_list_information
+    ])
+    // .plugin(TauriSql::default().add_migrations(
+    //   "sqlite:chic.db",
+    //   vec![Migration {
+    //     version: 1,
+    //     description: "create playlists",
+    //     sql: include_str!("../migrations/2022-02-14-165803_playlist/up.sql"),
+    //     kind: tauri_plugin_sql::MigrationKind::Up,
+    //   }],
+    // ))
+    .run(tauri::generate_context!())
+    .expect("error while running tauri application");
 }
 // TODO: send the authorize_url via websocket to the frontend and render it in a modal to signup
 // the user

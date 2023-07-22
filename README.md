@@ -18,5 +18,10 @@ Keep in mind to install tauri beforehand:
 
 ### DEPS
 
-tauri websocket plugin
-https://github.com/tauri-apps/tauri-plugin-websocket
+tauri websocket plugin https://github.com/tauri-apps/tauri-plugin-websocket
+
+## Known Issues
+
+mac: you have to install vips
+
+brew install vips
