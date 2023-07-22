@@ -47,6 +47,7 @@ hyper = "0.14.24"
 hyper-rustls = "0.23.2"
 youtube_dl = { version = "0.8.0", features = ["downloader"] }
 ytd-rs = "0.1.7"
+coreaudio-sys = "0.2.12"
 
 # [dependencies.tauri-plugin-sql]
 # git = "https://github.com/tauri-apps/tauri-plugin-sql"
