@@ -2,12 +2,7 @@ extern crate dirs;
 use json::stringify;
 use rocket::fs::FileServer;
 use serde::Serialize;
-use std::{
-  error::Error,
-  ffi::OsString,
-  fs::{self},
-  io::BufRead,
-};
+use std::{error::Error, ffi::OsString, io::BufRead};
 use youtube_dl::{download_yt_dlp, YoutubeDl};
 
 use futures_util::{stream::SplitSink, SinkExt, StreamExt};
