@@ -1,17 +1,24 @@
 extern crate dirs;
-use json::stringify;
 use rocket::fs::FileServer;
 use serde::Serialize;
-use std::{error::Error, ffi::OsString, io::BufRead};
+use std::{
+  error::Error,
+  ffi::OsString,
+  fs::{self},
+  io::BufRead,
+  path::PathBuf,
+  process::Command,
+};
 use youtube_dl::{download_yt_dlp, YoutubeDl};
+use ytd_rs::{Arg, YoutubeDL};
 
 use futures_util::{stream::SplitSink, SinkExt, StreamExt};
 // use tauri_plugin_sql::{Migration, TauriSql};
 use tokio::task;
 
+use rusty_ytdl::{Video, VideoOptions};
 use tokio::net::{TcpListener, TcpStream};
 use tokio_tungstenite::WebSocketStream;
-
 // use tauri_plugin_websocket::TauriWebsocket;
 use tungstenite::Message;
 
@@ -22,6 +29,7 @@ mod discogs;
 mod music_player;
 mod youtube;
 
+// TODO: use ~ instead
 static CHIC_CONFIG_DIR: &'static str = "/Users/m1cl/.config/chic/";
 
 #[derive(Default, Serialize)]
@@ -40,6 +48,7 @@ fn get_ext(file_name: &OsString) -> String {
   ext
 }
 
+// INFO: <--- next step
 #[get("/player/playlist_items")]
 async fn playlist_items() -> String {
   println!("Starting getting directory items");
@@ -149,7 +158,7 @@ async fn accept_connection(stream: TcpStream) {
 //   tauri::Builder::default()
 // }
 async fn websocket_server() {
-  let ws_addr = "127.0.0.1:9002";
+  let ws_addr = "127.0.0.1:3009";
   let try_socket = TcpListener::bind(&ws_addr).await;
   let listener = try_socket.expect("Failed to bind");
 
@@ -159,30 +168,71 @@ async fn websocket_server() {
     tokio::spawn(accept_connection(stream));
   }
 }
+async fn fetch_playlists_metadata() {
+  // TODO: send playlist meta data to client
+  let yt_dlp_path = format!("{}yt-dlp", CHIC_CONFIG_DIR);
+  let youtube_channel = "https://www.youtube.com/user/twipzy/playlists";
+  let output_dir = format!(
+    "{}%(playlist_title)s/%(title)s-%(id)s.%(ext)s",
+    CHIC_CONFIG_DIR
+  );
+  let yt_dlp_args = [
+    "-o",
+    &output_dir,
+    "--skip-download",
+    "--write-description",
+    "--write-info-json",
+    "--write-annotations",
+    "--write-thumbnail",
+    "--write-all-thumbnails",
+    "--write-sub",
+    "--write-auto-sub",
+    &youtube_channel,
+  ];
 
+  let output = Command::new(yt_dlp_path)
+    .args(yt_dlp_args)
+    .spawn()
+    .expect("Something went wrong");
+}
+
+// async fn_download_thumbnails(){
+// TODO:
+// yt-dlp --skip-download --write-thumbnail --convert-thumbnails jpg -o  &output_dir
+// let output_dir = format!(
+//   "{}%(playlist_title)s/%(title)s-%(id)s.%(ext)s",
+//   CHIC_CONFIG_DIR
+// );
+// }
 async fn download_playlist() -> Result<(), Box<dyn Error>> {
-  let yt_dlp_path = download_yt_dlp(CHIC_CONFIG_DIR).await?;
-  let output = YoutubeDl::new("https://www.youtube.com/channel/UCutUJrVebur4VvGimDaW3Rw/playlists")
-    .download(true)
-    .flat_playlist(true)
-    .extract_audio(true)
-    .output_directory(CHIC_CONFIG_DIR)
-    .youtube_dl_path(yt_dlp_path)
-    .run_async()
-    .await?;
-  let title = output.into_single_video().unwrap().title;
-  println!("Video title: {}", title);
+  let yt_dlp_path = format!("{}yt-dlp", CHIC_CONFIG_DIR);
+  let download_archive_arg = format!("{}playlist_archive.txt", CHIC_CONFIG_DIR);
+  let output_dir = format!(
+    "{}%(playlist_title)s/%(title)s-%(id)s.%(ext)s",
+    CHIC_CONFIG_DIR
+  );
+  let youtube_channel = "https://www.youtube.com/user/twipzy/playlists";
+  let yt_dlp_args = [
+    "--download-archive",
+    &download_archive_arg,
+    "--no-post-overwrites",
+    "--yes-playlist",
+    "--extract-audio",
+    "--audio-format",
+    "mp3",
+    // &download_archive_arg,
+    "-o",
+    &output_dir,
+    &youtube_channel,
+  ];
+  let output = Command::new(yt_dlp_path)
+    .args(yt_dlp_args)
+    .spawn()
+    .expect("Something went wrong");
+
   Ok(())
 }
-// async fn get_all_playlists_from_db(db: &Connection) -> Result<()> {
-//   db.query_row("select * from playlists", [], |row| {
-//     let data: String = row.get(0)?;
-//     println!("let s try t oget data ");
-//     println!("{:?}", data.as_str());
-//     Ok(())
-//   });
-//   Ok(())
-// }
+
 async fn create_tauri_window() {
   tauri::Builder::default()
     // .plugin(TauriWebsocket::default())
@@ -206,9 +256,10 @@ async fn create_tauri_window() {
 // the user
 #[tokio::main]
 async fn main() {
+  fetch_playlists_metadata().await;
   // download_playlist().await;
   tauri::async_runtime::spawn(websocket_server());
   // youtube::get_playlists_from_user().await;
-  tokio::spawn(create_web_server());
+  // tokio::spawn(create_web_server());
   create_tauri_window().await;
 }
