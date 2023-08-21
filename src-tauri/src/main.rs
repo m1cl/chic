@@ -1,12 +1,10 @@
 extern crate dirs;
-use json::stringify;
-use rocket::fs::FileServer;
+use rocket::fs::{ FileServer, Options };
+use std::ffi::OsString;
 use serde::Serialize;
 use std::{
-  error::Error,
-  ffi::OsString,
-  fs::{self},
-  io::BufRead,
+    error::Error,
+    fs,
 };
 use youtube_dl::{download_yt_dlp, YoutubeDl};
 
@@ -27,88 +25,101 @@ mod discogs;
 mod music_player;
 mod youtube;
 
-static CHIC_CONFIG_DIR: &'static str = "/Users/m1cl/.config/chic/";
+static CHIC_CONFIG_DIR: &'static str = "~/.config/chic/";
 
 #[derive(Default, Serialize)]
 struct PlaylistItem {
-  name: String,
-  writer: String,
-  img: String,
-  src: String,
-  id: String,
+    name: String,
+    writer: String,
+    img: String,
+    src: String,
+    id: String,
 }
 
 fn get_ext(file_name: &OsString) -> String {
-  let ext = file_name.to_str().unwrap().to_string();
-  let ext = ext.split(".").last().unwrap().to_string();
-  println!("the ext {}", ext);
-  ext
+    let ext = file_name.to_str().unwrap().to_string();
+    let ext = ext.split(".").last().unwrap().to_string();
+    println!("the ext {}", ext);
+    ext
 }
-
 #[get("/player/playlist_items")]
 async fn playlist_items() -> String {
-  println!("Starting getting directory items");
-  let mut list: Vec<PlaylistItem> = Vec::new();
-  let i = 1;
-  for file in fs::read_dir(CHIC_CONFIG_DIR).unwrap() {
-    let file = file.unwrap();
-    let file_name = file.file_name();
-    let ext = get_ext(&file_name);
-    println!("LOL");
-    if ext == "wav" {
-      let src = file.path().to_str().unwrap().to_string();
-      let name = file_name.clone().into_string().unwrap();
-      let url = "http://localhost:8000/music/";
-      let src = format!("{}{}", url, name);
-      let id = i + 1;
-      let id = id.to_string();
-      list.push(PlaylistItem {
-        name: name.clone(),
-        writer: name.clone(),
-        img: "".to_string(),
-        src,
-        id,
-      });
+    let mut list: Vec<PlaylistItem> = Vec::new();
+    let url = "http://localhost:8000/music/";
+    for file in fs::read_dir(CHIC_CONFIG_DIR).unwrap() {
+        list.push(PlaylistItem {
+            name: file.as_ref().unwrap().file_name().to_str().unwrap().to_string(),
+            writer: file.as_ref().unwrap().file_name().to_str().unwrap().to_string(),
+            img: "".to_string(),
+            src: file.unwrap().path().to_str().unwrap().to_string(),
+            id: "3".to_string(),
+        });
     }
-  }
-
-  // {
-  //   name: "aufgehts",
-  //   writer: "writer",
-  //   img: "",
-  //   src: "./aufgehts.wav",
-  //   id: 1,
-  // },
-  serde_json::to_string(&list).unwrap()
+    serde_json::to_string(&list).unwrap()
 }
+// #[get("/player/playlist_items")]
+// async fn playlist_items() -> String {
+//   println!("Starting getting directory items");
+//   let mut list: Vec<PlaylistItem> = Vec::new();
+//   let i = 1;
+//   for file in fs::read_dir(CHIC_CONFIG_DIR).unwrap() {
+//     let file = file.unwrap();
+//     let file_name = file.file_name();
+//     let ext = get_ext(&file_name);
+//     if ext == "wav" {
+//       let src = file.path().to_str().unwrap().to_string();
+//       let name = file_name.clone().into_string().unwrap();
+//       let url = "http://localhost:8000/music/";
+//       let src = format!("{}{}", url, name);
+//       let id = i + 1;
+//       let id = id.to_string();
+//       list.push(PlaylistItem {
+//         name: name.clone(),
+//         writer: name.clone(),
+//         img: "".to_string(),
+//         src,
+//         id,
+//       });
+//     }
+//   }
+
+//   // {
+//   //   name: "aufgehts",
+//   //   writer: "writer",
+//   //   img: "",
+//   //   src: "./aufgehts.wav",
+//   //   id: 1,
+//   // },
+//   serde_json::to_string(&list).unwrap()
+// }
 
 #[get("/player/play_song")]
 fn start() -> String {
-  // music_player::play_song();
-  format!("Song is playing")
+    // music_player::play_song();
+    format!("Song is playing")
 }
 
 #[get("/discogs/get_want_list/<username>")]
 async fn get_wantlist(username: String) -> String {
-  let result = discogs::get_want_list_information(username).await;
-  result
+    let result = discogs::get_want_list_information(username).await;
+    result
 }
 
 struct _State {
-  socket_writer: Option<SplitSink<WebSocketStream<TcpStream>, Message>>,
-  authorization_token: Option<String>,
+    socket_writer: Option<SplitSink<WebSocketStream<TcpStream>, Message>>,
+    authorization_token: Option<String>,
 }
 
 // #[get("/authorization_token/<token>")]
 // fn receive_authorization_token(token: &str) {}
 #[get("/")]
 fn root() -> String {
-  format!("this is chic api ")
+    format!("this is chic api ")
 }
 
 #[get("/get_token")]
 async fn get_token() -> &'static str {
-  "here is the token"
+    "here is the token"
 }
 
 // TODO: create a streaming api
@@ -121,63 +132,64 @@ async fn get_token() -> &'static str {
 //
 // api-endpoint (/api/{})
 async fn create_web_server() {
-  task::spawn(
-    rocket::build()
-      .mount("/music", FileServer::from(CHIC_CONFIG_DIR))
-      .mount(
-        "/api",
-        routes![root, get_wantlist, start, get_token, playlist_items],
-      )
-      .launch(),
-  );
+    let options = Options::Index | Options::DotFiles;
+    task::spawn(
+        rocket::build()
+        .mount("/music", FileServer::new("chic", options ))
+        .mount(
+            "/api",
+            routes![root, get_wantlist, start, get_token, playlist_items],
+            )
+        .launch(),
+        );
 }
 
 async fn accept_connection(stream: TcpStream) {
-  let ws_stream = tokio_tungstenite::accept_async(stream)
-    .await
-    .expect("Error during the weboscket handshare occured");
+    let ws_stream = tokio_tungstenite::accept_async(stream)
+        .await
+        .expect("Error during the weboscket handshare occured");
 
-  let (mut write, read) = ws_stream.split();
+    let (mut write, read) = ws_stream.split();
 
-  write
-    .send(Message::Text("ahah what is going on?".to_string()))
-    .await
-    .expect("Something went wrong, babe");
+    write
+        .send(Message::Text("ahah what is going on?".to_string()))
+        .await
+        .expect("Something went wrong, babe");
 
-  read
-    .forward(write)
-    .await
-    .expect("failed to forward message")
+    read
+        .forward(write)
+        .await
+        .expect("failed to forward message")
 }
 
 // fn spawn_new_window() {
 //   tauri::Builder::default()
 // }
 async fn websocket_server() {
-  let ws_addr = "127.0.0.1:9002";
-  let try_socket = TcpListener::bind(&ws_addr).await;
-  let listener = try_socket.expect("Failed to bind");
+    let ws_addr = "127.0.0.1:9002";
+    let try_socket = TcpListener::bind(&ws_addr).await;
+    let listener = try_socket.expect("Failed to bind");
 
-  info!("Listening on: {}", ws_addr);
+    info!("Listening on: {}", ws_addr);
 
-  while let Ok((stream, _)) = listener.accept().await {
-    tokio::spawn(accept_connection(stream));
-  }
+    while let Ok((stream, _)) = listener.accept().await {
+        tokio::spawn(accept_connection(stream));
+    }
 }
 
 async fn download_playlist() -> Result<(), Box<dyn Error>> {
-  let yt_dlp_path = download_yt_dlp(CHIC_CONFIG_DIR).await?;
-  let output = YoutubeDl::new("https://www.youtube.com/channel/UCutUJrVebur4VvGimDaW3Rw/playlists")
-    .download(true)
-    .flat_playlist(true)
-    .extract_audio(true)
-    .output_directory(CHIC_CONFIG_DIR)
-    .youtube_dl_path(yt_dlp_path)
-    .run_async()
-    .await?;
-  let title = output.into_single_video().unwrap().title;
-  println!("Video title: {}", title);
-  Ok(())
+    let yt_dlp_path = download_yt_dlp(CHIC_CONFIG_DIR).await?;
+    let output = YoutubeDl::new("https://www.youtube.com/channel/UCutUJrVebur4VvGimDaW3Rw/playlists")
+        .download(true)
+        .flat_playlist(true)
+        .extract_audio(true)
+        .output_directory(CHIC_CONFIG_DIR)
+        .youtube_dl_path(yt_dlp_path)
+        .run_async()
+        .await?;
+    let title = output.into_single_video().unwrap().title;
+    println!("Video title: {}", title);
+    Ok(())
 }
 // async fn get_all_playlists_from_db(db: &Connection) -> Result<()> {
 //   db.query_row("select * from playlists", [], |row| {
@@ -189,31 +201,31 @@ async fn download_playlist() -> Result<(), Box<dyn Error>> {
 //   Ok(())
 // }
 async fn create_tauri_window() {
-  tauri::Builder::default()
-    // .plugin(TauriWebsocket::default())
-    .invoke_handler(tauri::generate_handler![
-      music_player::play_song,
-      discogs::get_want_list_information
-    ])
-    // .plugin(TauriSql::default().add_migrations(
-    //   "sqlite:chic.db",
-    //   vec![Migration {
-    //     version: 1,
-    //     description: "create playlists",
-    //     sql: include_str!("../migrations/2022-02-14-165803_playlist/up.sql"),
-    //     kind: tauri_plugin_sql::MigrationKind::Up,
-    //   }],
-    // ))
-    .run(tauri::generate_context!())
-    .expect("error while running tauri application");
+    tauri::Builder::default()
+        // .plugin(TauriWebsocket::default())
+        .invoke_handler(tauri::generate_handler![
+                        music_player::play_song,
+                        discogs::get_want_list_information
+        ])
+        // .plugin(TauriSql::default().add_migrations(
+        //   "sqlite:chic.db",
+        //   vec![Migration {
+        //     version: 1,
+        //     description: "create playlists",
+        //     sql: include_str!("../migrations/2022-02-14-165803_playlist/up.sql"),
+        //     kind: tauri_plugin_sql::MigrationKind::Up,
+        //   }],
+        // ))
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
 }
 // TODO: send the authorize_url via websocket to the frontend and render it in a modal to signup
 // the user
 #[tokio::main]
 async fn main() {
-  // download_playlist().await;
-  tauri::async_runtime::spawn(websocket_server());
-  // youtube::get_playlists_from_user().await;
-  tokio::spawn(create_web_server());
-  create_tauri_window().await;
+    // download_playlist().await;
+    tauri::async_runtime::spawn(websocket_server());
+    // youtube::get_playlists_from_user().await;
+    tokio::spawn(create_web_server());
+    create_tauri_window().await;
 }

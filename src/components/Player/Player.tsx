@@ -6,9 +6,9 @@ import styled from "styled-components";
 //import next from "./next.png";
 import AudioPlayer from "react-modern-audio-player";
 import {
-  InterfaceGridTemplateArea,
+  //  InterfaceGridTemplateArea,
   PlayerPlacement,
-  PlayList,
+  // PlayList,
   PlayListPlacement,
   ProgressUI,
   VolumeSliderPlacement,
@@ -17,10 +17,10 @@ import {
 // TODO: Create playlist object in the backend for $HOME/.config/chic directory and send it to frontend
 const playList = [
   {
-    name: "aufgehts",
+    name: "bach",
     writer: "writer",
     img: "",
-    src: "./aufgehts.wav",
+    src: "http://localhost:8000/music/bach.wav",
     id: 1,
   },
 ];
@@ -75,10 +75,11 @@ const Player = () => {
 
         console.log(r.src.split("/").pop());
         playList.push(r);
+        return res;
       });
     });
 
-  const [progressType, _setProgressType] = useState<ProgressUI>("waveform");
+  const [progressType, _] = useState<ProgressUI>("waveform");
   const [volumeSliderPlacement, _setVolumeSliderPlacement] =
     useState<VolumeSliderPlacement>();
   const [playerPlacement, _setPlayerPlacement] =
