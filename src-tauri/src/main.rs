@@ -28,7 +28,7 @@ mod youtube;
 static CHIC_CONFIG_DIR: &'static str = "~/.config/chic/";
 
 #[derive(Default, Serialize)]
-struct PlaylistItem {
+struct PlaylistItems {
     name: String,
     writer: String,
     img: String,
@@ -42,62 +42,33 @@ fn get_ext(file_name: &OsString) -> String {
     println!("the ext {}", ext);
     ext
 }
-#[get("/player/playlist_items")]
-async fn playlist_items() -> String {
-    let mut list: Vec<PlaylistItem> = Vec::new();
-    let url = "http://localhost:8000/music/";
-    for file in fs::read_dir(CHIC_CONFIG_DIR).unwrap() {
-        list.push(PlaylistItem {
-            name: file.as_ref().unwrap().file_name().to_str().unwrap().to_string(),
-            writer: file.as_ref().unwrap().file_name().to_str().unwrap().to_string(),
-            img: "".to_string(),
-            src: file.unwrap().path().to_str().unwrap().to_string(),
-            id: "3".to_string(),
-        });
+#[get("/player/playlists")]
+async fn get_playlists() -> String {
+  println!("Starting getting directory items");
+  let mut list: Vec<PlaylistItems> = Vec::new() as Vec<PlaylistItems>;
+  let i = 1;
+  for file in fs::read_dir("chic").unwrap() {
+    let file = file.unwrap();
+    let file_name = file.file_name();
+    let ext = get_ext(&file_name);
+    if ext == "wav" {
+      let name = file_name.clone().into_string().unwrap();
+      let url = "http://localhost:8000/music/";
+      let src = format!("{}{}", url, name);
+      let id = i + 1;
+      let id = id.to_string();
+      list.push(PlaylistItems {
+        name: name.clone(),
+        writer: name.clone(),
+        img: "".to_string(),
+        src,
+        id,
+      });
     }
-    serde_json::to_string(&list).unwrap()
+  }
+  serde_json::to_string(&list).unwrap()
 }
-// #[get("/player/playlist_items")]
-// async fn playlist_items() -> String {
-//   println!("Starting getting directory items");
-//   let mut list: Vec<PlaylistItem> = Vec::new();
-//   let i = 1;
-//   for file in fs::read_dir(CHIC_CONFIG_DIR).unwrap() {
-//     let file = file.unwrap();
-//     let file_name = file.file_name();
-//     let ext = get_ext(&file_name);
-//     if ext == "wav" {
-//       let src = file.path().to_str().unwrap().to_string();
-//       let name = file_name.clone().into_string().unwrap();
-//       let url = "http://localhost:8000/music/";
-//       let src = format!("{}{}", url, name);
-//       let id = i + 1;
-//       let id = id.to_string();
-//       list.push(PlaylistItem {
-//         name: name.clone(),
-//         writer: name.clone(),
-//         img: "".to_string(),
-//         src,
-//         id,
-//       });
-//     }
-//   }
 
-//   // {
-//   //   name: "aufgehts",
-//   //   writer: "writer",
-//   //   img: "",
-//   //   src: "./aufgehts.wav",
-//   //   id: 1,
-//   // },
-//   serde_json::to_string(&list).unwrap()
-// }
-
-#[get("/player/play_song")]
-fn start() -> String {
-    // music_player::play_song();
-    format!("Song is playing")
-}
 
 #[get("/discogs/get_want_list/<username>")]
 async fn get_wantlist(username: String) -> String {
@@ -132,13 +103,12 @@ async fn get_token() -> &'static str {
 //
 // api-endpoint (/api/{})
 async fn create_web_server() {
-    let options = Options::Index | Options::DotFiles;
     task::spawn(
         rocket::build()
-        .mount("/music", FileServer::new("chic", options ))
+        .mount("/music", FileServer::new("chic", Options::Index | Options::DotFiles ))
         .mount(
             "/api",
-            routes![root, get_wantlist, start, get_token, playlist_items],
+            routes![root, get_wantlist, get_token, get_playlists],
             )
         .launch(),
         );
@@ -191,15 +161,6 @@ async fn download_playlist() -> Result<(), Box<dyn Error>> {
     println!("Video title: {}", title);
     Ok(())
 }
-// async fn get_all_playlists_from_db(db: &Connection) -> Result<()> {
-//   db.query_row("select * from playlists", [], |row| {
-//     let data: String = row.get(0)?;
-//     println!("let s try t oget data ");
-//     println!("{:?}", data.as_str());
-//     Ok(())
-//   });
-//   Ok(())
-// }
 async fn create_tauri_window() {
     tauri::Builder::default()
         // .plugin(TauriWebsocket::default())
@@ -207,15 +168,6 @@ async fn create_tauri_window() {
                         music_player::play_song,
                         discogs::get_want_list_information
         ])
-        // .plugin(TauriSql::default().add_migrations(
-        //   "sqlite:chic.db",
-        //   vec![Migration {
-        //     version: 1,
-        //     description: "create playlists",
-        //     sql: include_str!("../migrations/2022-02-14-165803_playlist/up.sql"),
-        //     kind: tauri_plugin_sql::MigrationKind::Up,
-        //   }],
-        // ))
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

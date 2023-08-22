@@ -43,42 +43,23 @@ const MediaPlayer = styled.div`
 async function getPlaylist() {
   //@ts-ignore
   if (window.__TAURI__) {
-    invoke("playlist_items").then((message) =>
+    invoke("get_playlists").then((message) =>
       console.log(" thie message", message)
     );
   } else {
-    return fetch("http://localhost:3000/api/player/playlist_items", {
-      mode: "cors",
-    });
-  }
-}
-
-function playSong() {
-  //@ts-ignore
-  if (window.__TAURI__) {
-    invoke("play_song").then((message) => console.log(message));
-  } else {
-    fetch("http://localhost:3000/api/player/play_song", {
+    return fetch("http://localhost:3000/api/player/playlists", {
       mode: "cors",
     })
       .then((res) => res.json())
-      .then((res) => console.log(res));
+      .then((res) => playList.push(...res) && res)
+      .catch((err) => console.error(err));
   }
 }
 
 const Player = () => {
-  getPlaylist()
-    .then((res) => res?.json())
-    .then((res) => {
-      res.map((r: any) => {
-        console.log("the res", res);
-
-        console.log(r.src.split("/").pop());
-        playList.push(r);
-        return res;
-      });
-    });
-
+  getPlaylist();
+  console.log("HLLLO");
+  console.log("the playlist", playList);
   const [progressType, _] = useState<ProgressUI>("waveform");
   const [volumeSliderPlacement, _setVolumeSliderPlacement] =
     useState<VolumeSliderPlacement>();
