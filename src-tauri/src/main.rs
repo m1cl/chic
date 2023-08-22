@@ -46,16 +46,17 @@ fn get_ext(file_name: &OsString) -> String {
 async fn get_playlists() -> String {
   println!("Starting getting directory items");
   let mut list: Vec<PlaylistItems> = Vec::new() as Vec<PlaylistItems>;
-  let i = 1;
+  let mut i = 2;
   for file in fs::read_dir("chic").unwrap() {
     let file = file.unwrap();
     let file_name = file.file_name();
     let ext = get_ext(&file_name);
     if ext == "wav" {
+      i= i+1;
       let name = file_name.clone().into_string().unwrap();
       let url = "http://localhost:8000/music/";
       let src = format!("{}{}", url, name);
-      let id = i + 1;
+      let id = i ;
       let id = id.to_string();
       list.push(PlaylistItems {
         name: name.clone(),

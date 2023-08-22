@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { invoke } from "@tauri-apps/api/tauri";
 import styled from "styled-components";
@@ -17,13 +17,14 @@ import {
 // TODO: Create playlist object in the backend for $HOME/.config/chic directory and send it to frontend
 const playList = [
   {
-    name: "bach",
+    name: "bdfaf",
     writer: "writer",
     img: "",
     src: "http://localhost:8000/music/bach.wav",
     id: 1,
   },
 ];
+var isFetched = false;
 
 const MediaPlayer = styled.div`
   position: absolute;
@@ -43,10 +44,12 @@ const MediaPlayer = styled.div`
 async function getPlaylist() {
   //@ts-ignore
   if (window.__TAURI__) {
-    invoke("get_playlists").then((message) =>
-      console.log(" thie message", message)
-    );
+    //invoke("get_playlists").then((message) =>
+    //console.log(" thie message", message)
+    // );
   } else {
+    isFetched = true;
+    console.log("HOW OFTEN");
     return fetch("http://localhost:3000/api/player/playlists", {
       mode: "cors",
     })
@@ -57,9 +60,13 @@ async function getPlaylist() {
 }
 
 const Player = () => {
-  getPlaylist();
-  console.log("HLLLO");
-  console.log("the playlist", playList);
+  useEffect(() => {
+    console.log("LOL");
+    if (!isFetched) {
+      console.log("How many times ");
+      getPlaylist();
+    }
+  }, []);
   const [progressType, _] = useState<ProgressUI>("waveform");
   const [volumeSliderPlacement, _setVolumeSliderPlacement] =
     useState<VolumeSliderPlacement>();
