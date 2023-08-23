@@ -53,7 +53,7 @@ fn get_directories() -> Vec<PlaylistItems> {
         .filter_map(|e| e.ok()) {
             id = id + 1;
             let path = entry.path().to_string_lossy();
-            let url = "http://localhost:8000/music";
+            let url = "http://localhost:8000/music/";
             let f_name = entry.file_name().to_string_lossy().to_string();
             let src = format!("{}{}", url, path);
             if f_name.ends_with(".mp3")  {
@@ -111,7 +111,7 @@ async fn get_token() -> &'static str {
 async fn create_web_server() {
     task::spawn(
         rocket::build()
-            .mount("/music", FileServer::new("chic", Options::Index | Options::DotFiles ))
+            .mount("/music/chic", FileServer::new("chic", Options::Index | Options::DotFiles ))
             .mount(
                 "/api",
                 routes![root, get_wantlist, get_token, get_playlists],
