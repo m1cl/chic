@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 
-import { invoke } from "@tauri-apps/api/tauri";
+import {invoke} from "@tauri-apps/api/tauri";
 import styled from "styled-components";
 //import play from "./play.png";
 //import next from "./next.png";
@@ -15,12 +15,12 @@ import {
 } from "react-modern-audio-player/dist/types/components/AudioPlayer/Context";
 
 // TODO: Create playlist object in the backend for $HOME/.config/chic directory and send it to frontend
-const playList = [
+const playlists = [
   {
     name: "bdfaf",
     writer: "writer",
     img: "",
-    src: "http://localhost:8000/music/bach.wav",
+    src: "",
     id: 1,
   },
 ];
@@ -44,40 +44,45 @@ const MediaPlayer = styled.div`
 async function getPlaylist() {
   //@ts-ignore
   if (window.__TAURI__) {
-    //invoke("get_playlists").then((message) =>
-    //console.log(" thie message", message)
-    // );
+    //@ts-ignore
+    const {invoke} = window.__TAURI__;
+    invoke("playlist").then((message: any) => {
+      console.log("LOl");
+      const res = JSON.parse(message);
+      playlists.push(...res);
+    }).catch((err: any) => console.error("somethign went wrong", err));
   } else {
     isFetched = true;
-    console.log("HOW OFTEN");
     return fetch("http://localhost:3000/api/player/playlists", {
       mode: "cors",
     })
       .then((res) => res.json())
-      .then((res) => playList.push(...res) && res)
+      .then((res) => playlists.push(...res) && res)
       .catch((err) => console.error(err));
   }
 }
 
 const Player = () => {
   useEffect(() => {
-    console.log("LOL");
     if (!isFetched) {
-      console.log("How many times ");
       getPlaylist();
+      console.log("LOL");
     }
   }, []);
   const [progressType, _] = useState<ProgressUI>("waveform");
-  const [volumeSliderPlacement, _setVolumeSliderPlacement] =
-    useState<VolumeSliderPlacement>();
-  const [playerPlacement, _setPlayerPlacement] =
-    useState<PlayerPlacement>("bottom-left");
-  const [playListPlacement, _setPlayListPlacement] =
-    useState<PlayListPlacement>("bottom");
+  const [volumeSliderPlacement, _setVolumeSliderPlacement] = useState<
+    VolumeSliderPlacement
+  >();
+  const [playerPlacement, _setPlayerPlacement] = useState<PlayerPlacement>(
+    "bottom-left",
+  );
+  const [playListPlacement, _setPlayListPlacement] = useState<
+    PlayListPlacement
+  >("bottom");
   return (
     <MediaPlayer>
       <AudioPlayer
-        playList={playList}
+        playList={playlists}
         activeUI={{
           all: true,
           progress: progressType,
