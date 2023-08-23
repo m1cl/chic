@@ -1,16 +1,13 @@
-
 [package]
-name = "app"
+name = "chic"
 version = "0.1.0"
 description = "A Tauri App"
-authors = ["you"]
+authors = [ "you" ]
 license = ""
 repository = ""
-default-run = "app"
+default-run = "chic"
 edition = "2018"
 build = "src/build.rs"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
 tauri-build = { version = "1.0.0-beta.4", features = [] }
@@ -21,39 +18,30 @@ path = "./src/authentication_manager.rs"
 
 [dependencies]
 serde_json = "1.0"
-serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.0.0-rc.6", features = ["api-all"] }
+serde = { version = "1.0", features = [ "derive" ] }
 walkdir = "2.3.2"
 cpal = "0.13.4"
 rodio = "0.14.0"
 json = "0.12.4"
-tokio = { version = "1.13.0", features = ["full"] }
+tokio = { version = "1.13.0", features = [ "full" ] }
 tokio-tungstenite = "0.16.0"
 log = "0.4.14"
 tungstenite = "0.16.0"
 futures-util = "0.3.18"
-# tauri-plugin-websocket = { path = "/home/m1cl/.cargo/registry/src/github.com-1ecc6299db9ec823/tauri-plugin-websocket" }
-sqlx = { version = "0.5", features = ["runtime-tokio-native-tls", "sqlite"] }
+sqlx = { version = "0.5", features = [ "runtime-tokio-native-tls", "sqlite" ] }
 config = "0.11.0"
 dotenv = "0.15.0"
 dotenv_codegen = "0.15.0"
 oauth2 = "4.1.0"
 url = "2.2.2"
-# rusqlite = "0.26.3"
 rocket = "0.5.0-rc.1"
 dirs = "4.0.0"
 rusqlite = "0.26.3"
 hyper = "0.14.24"
 hyper-rustls = "0.23.2"
-youtube_dl = { version = "0.8.0", features = ["downloader"] }
+youtube_dl = { version = "0.8.0", features = [ "downloader" ] }
 ytd-rs = "0.1.7"
 coreaudio-sys = "0.2.12"
-
-# [dependencies.tauri-plugin-sql]
-# git = "https://github.com/tauri-apps/tauri-plugin-sql"
-# features = ["sqlite"]                                  # or "postgres", or "mysql"
-#branch = "main"
-
-[features]
-default = ["custom-protocol"]
-custom-protocol = ["tauri/custom-protocol"]
+tauri = { version = "1.4.1", features = ["api-all"] }
+tauri-macros = "1.4.0"
+regex = "1.9.3"
