@@ -1,5 +1,6 @@
 extern crate dirs;
 use rocket::fs::{ FileServer, Options };
+use walkdir::WalkDir;
 use std::ffi::OsString;
 use serde::Serialize;
 use std::{
@@ -42,32 +43,36 @@ fn get_ext(file_name: &OsString) -> String {
     println!("the ext {}", ext);
     ext
 }
+
+fn get_directories() -> Vec<PlaylistItems> {
+    let mut id = 1;
+    let mut playlists: Vec<PlaylistItems> = Vec::new();
+    for entry in WalkDir::new("chic/")
+        .follow_links(true)
+        .into_iter()
+        .filter_map(|e| e.ok()) {
+            id = id + 1;
+            let path = entry.path().to_string_lossy();
+            let url = "http://localhost:8000/music";
+            let f_name = entry.file_name().to_string_lossy().to_string();
+            let src = format!("{}{}", url, path);
+            if f_name.ends_with(".mp3")  {
+                playlists.push(PlaylistItems {
+                    name: f_name.clone(), 
+                    writer: f_name.clone(), 
+                    img: "".to_string(), 
+                    src, 
+                    id: id.to_string() 
+                });
+            }
+        }
+    playlists
+}
 #[get("/player/playlists")]
 async fn get_playlists() -> String {
-  println!("Starting getting directory items");
-  let mut list: Vec<PlaylistItems> = Vec::new() as Vec<PlaylistItems>;
-  let mut i = 2;
-  for file in fs::read_dir("chic").unwrap() {
-    let file = file.unwrap();
-    let file_name = file.file_name();
-    let ext = get_ext(&file_name);
-    if ext == "wav" {
-      i= i+1;
-      let name = file_name.clone().into_string().unwrap();
-      let url = "http://localhost:8000/music/";
-      let src = format!("{}{}", url, name);
-      let id = i ;
-      let id = id.to_string();
-      list.push(PlaylistItems {
-        name: name.clone(),
-        writer: name.clone(),
-        img: "".to_string(),
-        src,
-        id,
-      });
-    }
-  }
-  serde_json::to_string(&list).unwrap()
+    println!("Starting getting directory items");
+    let mut playlists: Vec<PlaylistItems> = get_directories();
+    serde_json::to_string(&playlists).unwrap()
 }
 
 
@@ -106,13 +111,13 @@ async fn get_token() -> &'static str {
 async fn create_web_server() {
     task::spawn(
         rocket::build()
-        .mount("/music", FileServer::new("chic", Options::Index | Options::DotFiles ))
-        .mount(
-            "/api",
-            routes![root, get_wantlist, get_token, get_playlists],
+            .mount("/music", FileServer::new("chic", Options::Index | Options::DotFiles ))
+            .mount(
+                "/api",
+                routes![root, get_wantlist, get_token, get_playlists],
             )
-        .launch(),
-        );
+            .launch(),
+    );
 }
 
 async fn accept_connection(stream: TcpStream) {
@@ -157,7 +162,7 @@ async fn download_playlist() -> Result<(), Box<dyn Error>> {
         .output_directory(CHIC_CONFIG_DIR)
         .youtube_dl_path(yt_dlp_path)
         .run_async()
-        .await?;
+    .await?;
     let title = output.into_single_video().unwrap().title;
     println!("Video title: {}", title);
     Ok(())
@@ -166,8 +171,8 @@ async fn create_tauri_window() {
     tauri::Builder::default()
         // .plugin(TauriWebsocket::default())
         .invoke_handler(tauri::generate_handler![
-                        music_player::play_song,
-                        discogs::get_want_list_information
+            music_player::play_song,
+            discogs::get_want_list_information
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
