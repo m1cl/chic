@@ -13,6 +13,7 @@ import {
   ProgressUI,
   VolumeSliderPlacement,
 } from "react-modern-audio-player/dist/types/components/AudioPlayer/Context";
+import {useStore} from "../Card/Card";
 
 // TODO: Create playlist object in the backend for $HOME/.config/chic directory and send it to frontend
 const playlists = [
@@ -63,6 +64,7 @@ async function getPlaylist() {
 }
 
 const Player = () => {
+  const playlistrs = useStore().playlists;
   useEffect(() => {
     if (!isFetched) {
       getPlaylist();

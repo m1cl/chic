@@ -52,11 +52,12 @@ fn get_directories() -> Vec<PlaylistItems> {
     let url = "http://localhost:8000/music/";
     let f_name = entry.file_name().to_string_lossy().to_string();
     let src = format!("{}{}", url, path);
+    let img = format!("{}album.png", url);
     if f_name.ends_with(".mp3") {
       playlists.push(PlaylistItems {
         name: f_name.clone(),
         writer: f_name.clone(),
-        img: "".to_string(),
+        img: "https://vinyl-records.nl/thrash-metal/photo-gallery/hellbastard/HELLBASTARD---NATURAL-ORDER-8672.jpg".into(),
         src,
         id: id.to_string(),
       });

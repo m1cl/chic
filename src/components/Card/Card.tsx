@@ -3,6 +3,8 @@ import { AnimatePresence } from "framer-motion";
 import { motion } from "framer-motion";
 import React, { FC, useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
+import create from "zustand";
+import { persist } from "zustand/middleware";
 import cover from "./album.png";
 // import {emit, listen} from "@tauri-apps/api/event";
 // With the Tauri API npm package:
@@ -41,9 +43,7 @@ const Title = styled.h3`
 
 const AlbumCover = styled(motion.img)<{ isOpen: boolean }>`
   filter: ${(props) =>
-    props.isOpen
-      ? "drop-shadow(5px 5px 3px rgba(0,0,0,0.7))"
-      : "opacity(100%)"};
+  props.isOpen ? "drop-shadow(5px 5px 3px rgba(0,0,0,0.7))" : "opacity(100%)"};
 `;
 const hoverAnimation = keyframes`
  0% { height: 100px; width: 100px; }
@@ -90,6 +90,29 @@ const Row = styled.div`
   border-radius: 10px;
   margin-top: 12px;
 `;
+export interface PlaylistState {
+  playlists: PlaylistType[];
+}
+export type PlaylistType = {
+  name: string;
+  writer: string;
+  img: string;
+  src: string;
+  id: string;
+};
+export const useStore = create<PlaylistState>(persist(
+  (set, get) => ({
+    playlists: [],
+    addPlaylists: (playlist: PlaylistType) =>
+      set((prevState) => (
+        { playlists: [...prevState.playlists, playlist] }
+      )),
+  }),
+  {
+    name: "playlists-storage", // unique name
+    getStorage: () => sessionStorage, // (optional) by default the 'localStorage' is used
+  },
+));
 
 const ContentContainer = styled(motion.div)``;
 
@@ -100,9 +123,7 @@ const Card = ({ items, isExpanded }: CardProps) => {
   });
   return (
     <Container>
-      {items.map((item) => (
-        <Item item={item} />
-      ))}
+      {items.map((item) => <Item item={item} />)}
     </Container>
   );
 };
