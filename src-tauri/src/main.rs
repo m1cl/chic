@@ -2,7 +2,7 @@ extern crate dirs;
 use rocket::fs::{FileServer, Options};
 use serde::Serialize;
 use std::{error::Error, ffi::OsString};
-use walkdir::WalkDir;
+use walkdir::{DirEntry, WalkDir};
 use youtube_dl::{download_yt_dlp, YoutubeDl};
 
 use futures_util::{SinkExt, StreamExt};
@@ -26,17 +26,23 @@ static CHIC_CONFIG_DIR: &'static str = "~/.config/chic/";
 #[derive(Default, Serialize)]
 struct PlaylistItems {
   name: String,
+  playlist_name: String,
   writer: String,
   img: String,
   src: String,
   id: String,
 }
 
-fn get_ext(file_name: &OsString) -> String {
-  let ext = file_name.to_str().unwrap().to_string();
-  let ext = ext.split(".").last().unwrap().to_string();
-  println!("the ext {}", ext);
-  ext
+fn get_playlist_name(entry: &DirEntry) -> String {
+  entry
+    .path()
+    .to_str()
+    .unwrap()
+    .split("/")
+    .take(2)
+    .last()
+    .unwrap()
+    .to_string()
 }
 
 fn get_directories() -> Vec<PlaylistItems> {
@@ -49,6 +55,8 @@ fn get_directories() -> Vec<PlaylistItems> {
   {
     id = id + 1;
     let path = entry.path().to_string_lossy();
+    let playlist_name = get_playlist_name(&entry);
+    println!("{}", playlist_name);
     let url = "http://localhost:8000/music/";
     let f_name = entry.file_name().to_string_lossy().to_string();
     let src = format!("{}{}", url, path);
@@ -56,6 +64,7 @@ fn get_directories() -> Vec<PlaylistItems> {
     if f_name.ends_with(".mp3") {
       playlists.push(PlaylistItems {
         name: f_name.clone(),
+        playlist_name,
         writer: f_name.clone(),
         img: "https://vinyl-records.nl/thrash-metal/photo-gallery/hellbastard/HELLBASTARD---NATURAL-ORDER-8672.jpg".into(),
         src,
