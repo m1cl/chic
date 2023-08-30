@@ -1,8 +1,8 @@
-import React from "react";
-import { BrowserRouter as Router, Link as L } from "react-router-dom";
+import React, {TouchEvent, useState} from "react";
+import {BrowserRouter as Router, Link as L} from "react-router-dom";
 import styled from "styled-components";
-import { black, grey } from "../../colors";
-import { useStore } from "../../store";
+import {black, grey} from "../../colors";
+import {useStore} from "../../store";
 
 const Container = styled.div`
   display: flex;
@@ -40,15 +40,46 @@ const Link = styled(L)`
   }
 `;
 const SideBar = () => {
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+
+  // the required distance between touchStart and touchEnd to be detected as a swipe
+  const minSwipeDistance = 10;
+  const onTouchStart = (e: any) => {
+    setTouchEnd(null); // otherwise the swipe is fired even with usual touch events
+    console.log("LETS GO");
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: any) => setTouchEnd(e.targetTouches[0].clientX);
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    if (isLeftSwipe || isRightSwipe) {
+      console.log("swipe", isLeftSwipe ? "left" : "right");
+      alert("ADDED to playlist");
+    }
+    // add your conditional logic here
+  };
   const setCurrentPlaylist = useStore((state) => state.setCurrentPlaylist);
   const playlists = useStore((state) => state.playlists);
   const pl = new Set();
-  let MenuItems = [];
+  let MenuItems: any = [];
   playlists.map((p) => pl.add(p.playlist));
   pl.forEach((p) =>
     MenuItems.push(
-      <MenuItem>
-        <Link to="/artists" onClick={() => setCurrentPlaylist(p)}>{p}</Link>
+      <MenuItem
+        onTouchStart={onTouchStart}
+      >
+        <Link
+          to="/artists"
+          onClick={() => setCurrentPlaylist(p)}
+        >
+          {p}
+        </Link>
       </MenuItem>,
     )
   );
@@ -70,7 +101,7 @@ const SideBar = () => {
           </MenuContent>
           <MenuContent>
             <h3>Playlists</h3>
-            {MenuItems.map((m) => m)}
+            {MenuItems}
           </MenuContent>
         </MenuContainer>
       </Container>
