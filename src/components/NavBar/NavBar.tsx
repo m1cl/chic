@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { black, grey, lightblack, white } from "../../colors";
-import { borderradius, paddinglg, paddingsm } from "../../spacing";
+import {black, grey, lightblack, white} from "../../colors";
+import {borderradius, paddinglg, paddingsm} from "../../spacing";
 
 const Container = styled.div`
   background: ${lightblack};
