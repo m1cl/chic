@@ -1,19 +1,20 @@
 import create from "zustand";
 import createContext from "zustand/context";
-import { persist } from "zustand/middleware";
-import { getPlaylist } from "./api";
-import { PlaylistState } from "./types";
+import {persist} from "zustand/middleware";
+import {getPlaylist} from "./api";
+import {PlaylistState} from "./types";
 
 export const Provider = createContext();
 
 export const useStore = create<PlaylistState>(persist(
   (set) => ({
     playlists: [],
-    currentPlaylist: [],
+    currentPlaylist: "",
     fetch: async () => {
       const playlists = await getPlaylist();
-      set({ playlists });
+      set({playlists});
     },
+    setCurrentPlaylist: (currentPlaylist: string) => set({currentPlaylist}),
   }),
   {
     name: "playlists-storage", // unique name

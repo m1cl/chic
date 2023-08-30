@@ -40,6 +40,7 @@ const Link = styled(L)`
   }
 `;
 const SideBar = () => {
+  const setCurrentPlaylist = useStore((state) => state.setCurrentPlaylist);
   const playlists = useStore((state) => state.playlists);
   const pl = new Set();
   let MenuItems = [];
@@ -47,7 +48,7 @@ const SideBar = () => {
   pl.forEach((p) =>
     MenuItems.push(
       <MenuItem>
-        <Link to="/playlists/:id">{p}</Link>
+        <Link to="/artists" onClick={() => setCurrentPlaylist(p)}>{p}</Link>
       </MenuItem>,
     )
   );
