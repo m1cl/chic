@@ -7,12 +7,15 @@ import {PlaylistState} from "./types";
 export const Provider = createContext();
 
 export const useStore = create<PlaylistState>(persist(
-  (set) => ({
+  (set, get) => ({
     playlists: [],
     currentPlaylist: "",
     fetch: async () => {
-      const playlists = await getPlaylist();
-      set({playlists});
+      let isUpdated = get().playlists;
+      if (!isUpdated) {
+        const playlists = await getPlaylist();
+        set({playlists});
+      }
     },
     setCurrentPlaylist: (currentPlaylist: string) => set({currentPlaylist}),
   }),
