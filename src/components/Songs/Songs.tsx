@@ -58,8 +58,8 @@ const useStore = create<SongsZustand>(
     {
       name: "songs-storage",
       getStorage: () => sessionStorage,
-    }
-  )
+    },
+  ),
 );
 
 const Songs = () => {
@@ -88,7 +88,7 @@ const Songs = () => {
     }
   }
   useEffect(() => {
-    getWantlistItems();
+    //getWantlistItems();
   }, []);
 
   // TODO: make cards expand when switch to another card fast
@@ -123,7 +123,7 @@ const Songs = () => {
       </Main>
     );
   }
-  return <div> No data here yet</div>;
+  return <div>No data here yet</div>;
 };
 
 export default Songs;

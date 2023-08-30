@@ -26,7 +26,7 @@ static CHIC_CONFIG_DIR: &'static str = "~/.config/chic/";
 #[derive(Default, Serialize)]
 struct PlaylistItems {
   name: String,
-  playlist_name: String,
+  playlist: String,
   writer: String,
   img: String,
   src: String,
@@ -45,7 +45,7 @@ fn get_playlist_name(entry: &DirEntry) -> String {
     .to_string()
 }
 
-fn get_directories() -> Vec<PlaylistItems> {
+fn create_playlists_from_dir() -> Vec<PlaylistItems> {
   let mut id = 1;
   let mut playlists: Vec<PlaylistItems> = Vec::new();
   for entry in WalkDir::new("chic/")
@@ -53,18 +53,17 @@ fn get_directories() -> Vec<PlaylistItems> {
     .into_iter()
     .filter_map(|e| e.ok())
   {
-    id = id + 1;
     let path = entry.path().to_string_lossy();
     let playlist_name = get_playlist_name(&entry);
     println!("{}", playlist_name);
     let url = "http://localhost:8000/music/";
     let f_name = entry.file_name().to_string_lossy().to_string();
     let src = format!("{}{}", url, path);
-    let img = format!("{}album.png", url);
+    // let img = format!("{}album.png", url);
     if f_name.ends_with(".mp3") {
       playlists.push(PlaylistItems {
         name: f_name.clone(),
-        playlist_name,
+        playlist: playlist_name,
         writer: f_name.clone(),
         img: "https://vinyl-records.nl/thrash-metal/photo-gallery/hellbastard/HELLBASTARD---NATURAL-ORDER-8672.jpg".into(),
         src,
@@ -72,18 +71,19 @@ fn get_directories() -> Vec<PlaylistItems> {
       });
     }
   }
+  id = id + 1;
   playlists
 }
 #[get("/player/playlists")]
 async fn get_playlists() -> String {
   println!("Starting getting directory items");
-  let playlists: Vec<PlaylistItems> = get_directories();
+  let playlists: Vec<PlaylistItems> = create_playlists_from_dir();
   serde_json::to_string(&playlists).unwrap()
 }
 
 #[tauri::command]
 async fn playlist() -> String {
-  let playlists = get_directories();
+  let playlists = create_playlists_from_dir();
   serde_json::to_string(&playlists).unwrap()
 }
 

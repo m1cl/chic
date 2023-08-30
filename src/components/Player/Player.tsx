@@ -1,6 +1,5 @@
-import React, {useEffect, useState} from "react";
+import React, { useState } from "react";
 
-import {invoke} from "@tauri-apps/api/tauri";
 import styled from "styled-components";
 //import play from "./play.png";
 //import next from "./next.png";
@@ -13,19 +12,18 @@ import {
   ProgressUI,
   VolumeSliderPlacement,
 } from "react-modern-audio-player/dist/types/components/AudioPlayer/Context";
-import {useStore} from "../Card/Card";
+import { useStore } from "../../store";
 
 // TODO: Create playlist object in the backend for $HOME/.config/chic directory and send it to frontend
 const playlists = [
   {
-    name: "bdfaf",
-    writer: "writer",
+    name: "",
+    writer: "",
     img: "",
     src: "",
     id: 1,
   },
 ];
-var isFetched = false;
 
 const MediaPlayer = styled.div`
   position: absolute;
@@ -42,35 +40,7 @@ const MediaPlayer = styled.div`
   z-index: 99;
 `;
 
-async function getPlaylist() {
-  //@ts-ignore
-  if (window.__TAURI__) {
-    //@ts-ignore
-    const {invoke} = window.__TAURI__;
-    invoke("playlist").then((message: any) => {
-      console.log("LOl");
-      const res = JSON.parse(message);
-      playlists.push(...res);
-    }).catch((err: any) => console.error("somethign went wrong", err));
-  } else {
-    isFetched = true;
-    return fetch("http://localhost:3000/api/player/playlists", {
-      mode: "cors",
-    })
-      .then((res) => res.json())
-      .then((res) => playlists.push(...res) && res)
-      .catch((err) => console.error(err));
-  }
-}
-
 const Player = () => {
-  const playlistrs = useStore().playlists;
-  useEffect(() => {
-    if (!isFetched) {
-      getPlaylist();
-      console.log("LOL");
-    }
-  }, []);
   const [progressType, _] = useState<ProgressUI>("waveform");
   const [volumeSliderPlacement, _setVolumeSliderPlacement] = useState<
     VolumeSliderPlacement
@@ -81,6 +51,10 @@ const Player = () => {
   const [playListPlacement, _setPlayListPlacement] = useState<
     PlayListPlacement
   >("bottom");
+
+  const fetchedPLaylists = useStore((state) => state.playlists);
+  playlists.push(...fetchedPLaylists);
+  if (!fetchedPLaylists) return <div />;
   return (
     <MediaPlayer>
       <AudioPlayer

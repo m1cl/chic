@@ -1,5 +1,7 @@
-import { BrowserRouter as Router } from "react-router-dom";
+import {useCallback, useEffect} from "react";
+import {BrowserRouter as Router} from "react-router-dom";
 import styled from "styled-components";
+import {getPlaylist} from "./api";
 import Albums from "./components/Albums/Albums";
 import Artists from "./components/Artists/Artists";
 import Content from "./components/Content/Content";
@@ -11,6 +13,7 @@ import {
 } from "./components/RouteTransition/RouteTransition";
 import SideBar from "./components/SideBar/SideBar";
 import Songs from "./components/Songs/Songs";
+import {useStore} from "./store";
 
 const Container = styled.div`
   background-color: #121212;
@@ -34,7 +37,12 @@ const SwitchContainer = styled.div`
     display: none;
   }
 `;
+
 function App() {
+  const fetchPlaylists = useStore((state) => state.fetch);
+  useEffect(() => {
+    fetchPlaylists();
+  }, [fetchPlaylists]);
   return (
     <Router>
       <Container>
@@ -58,7 +66,7 @@ function App() {
             </SwitchContainer>
           </AnimatedRoutes>
         </Content>
-        <Player></Player>
+        <Player />
       </Container>
     </Router>
   );
