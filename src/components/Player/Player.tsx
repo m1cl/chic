@@ -52,9 +52,9 @@ const Player = () => {
     PlayListPlacement
   >("bottom");
 
-  const fetchedPLaylists = useStore((state) => state.playlists);
-  playlists.push(...fetchedPLaylists);
-  if (!fetchedPLaylists) return <div />;
+  const fetchedPlaylists = useStore((state) => state.playlists);
+  playlists.push(...fetchedPlaylists);
+  if (!fetchedPlaylists) return <div />;
   return (
     <MediaPlayer>
       <AudioPlayer

@@ -1,7 +1,8 @@
 import React from "react";
-import { Link as L, BrowserRouter as Router } from "react-router-dom";
+import { BrowserRouter as Router, Link as L } from "react-router-dom";
 import styled from "styled-components";
 import { black, grey } from "../../colors";
+import { useStore } from "../../store";
 
 const Container = styled.div`
   display: flex;
@@ -38,37 +39,42 @@ const Link = styled(L)`
     color: white;
   }
 `;
-const SideBar = () => (
-  <Main id="sidebar">
-    <Container id="sidebar-container">
-      <MenuContainer id="menu-container">
-        <MenuContent>
-          <h3>Your Music</h3>
-          <MenuItem>
-            <Link to="/songs">Songs</Link>
-          </MenuItem>
-          <MenuItem>
-            <Link to="/albums">Albums</Link>
-          </MenuItem>
-          <MenuItem>
-            <Link to="/artists">Artists</Link>
-          </MenuItem>
-        </MenuContent>
-        <MenuContent>
-          <h3>Playlists</h3>
-          <MenuItem>
-            <Link to="/playlists/:id">Playlist #1</Link>
-          </MenuItem>
-          <MenuItem>
-            <Link to="/playlists/:id">Playlist #2</Link>
-          </MenuItem>
-          <MenuItem>
-            <Link to="/playlists/:id">Playlist #3</Link>
-          </MenuItem>
-        </MenuContent>
-      </MenuContainer>
-    </Container>
-  </Main>
-);
+const SideBar = () => {
+  const playlists = useStore((state) => state.playlists);
+  const pl = new Set();
+  let MenuItems = [];
+  playlists.map((p) => pl.add(p.playlist));
+  pl.forEach((p) =>
+    MenuItems.push(
+      <MenuItem>
+        <Link to="/playlists/:id">{p}</Link>
+      </MenuItem>,
+    )
+  );
+  return (
+    <Main id="sidebar">
+      <Container id="sidebar-container">
+        <MenuContainer id="menu-container">
+          <MenuContent>
+            <h3>Your Music</h3>
+            <MenuItem>
+              <Link to="/songs">Songs</Link>
+            </MenuItem>
+            <MenuItem>
+              <Link to="/albums">Albums</Link>
+            </MenuItem>
+            <MenuItem>
+              <Link to="/artists">Artists</Link>
+            </MenuItem>
+          </MenuContent>
+          <MenuContent>
+            <h3>Playlists</h3>
+            {MenuItems.map((m) => m)}
+          </MenuContent>
+        </MenuContainer>
+      </Container>
+    </Main>
+  );
+};
 
 export default SideBar;
