@@ -69,9 +69,9 @@ fn create_playlists_from_dir() -> Vec<PlaylistItems> {
         src,
         id: id.to_string(),
       });
+      id = id + 1;
     }
   }
-  id = id + 1;
   playlists
 }
 #[get("/player/playlists")]
