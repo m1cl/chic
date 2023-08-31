@@ -50,6 +50,9 @@ dependencies:
   framer-motion:
     specifier: ^4.1.17
     version: 4.1.17(react-dom@17.0.2)(react@17.0.2)
+  fuse.js:
+    specifier: ^6.6.2
+    version: 6.6.2
   http-proxy-middleware:
     specifier: ^2.0.1
     version: 2.0.1
@@ -6983,6 +6986,11 @@ packages:
 
   /functions-have-names@1.2.3:
     resolution: {integrity: sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==}
+    dev: false
+
+  /fuse.js@6.6.2:
+    resolution: {integrity: sha512-cJaJkxCCxC8qIIcPBF9yGxY0W/tVZS3uEISDxhYIdtk8OL93pe+6Zj7LjCqVV4dzbqcriOZ+kQ/NE4RXZHsIGA==}
+    engines: {node: '>=10'}
     dev: false
 
   /gauge@2.7.4:
