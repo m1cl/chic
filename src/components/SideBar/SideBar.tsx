@@ -1,8 +1,8 @@
-import React, {TouchEvent, useState} from "react";
-import {BrowserRouter as Router, Link as L} from "react-router-dom";
+import React, { TouchEvent, useState } from "react";
+import { BrowserRouter as Router, Link as L } from "react-router-dom";
 import styled from "styled-components";
-import {black, grey} from "../../colors";
-import {useStore} from "../../store";
+import { black, grey } from "../../colors";
+import { useStore } from "../../store";
 
 const Container = styled.div`
   display: flex;
@@ -16,6 +16,7 @@ const Main = styled.div`
   background-color: #000000;
   display: flex;
   justify-content: space-around;
+  height: 1920;
 `;
 
 const MenuContainer = styled.ul`
@@ -64,7 +65,7 @@ const SideBar = () => {
     }
     // add your conditional logic here
   };
-  const setCurrentPlaylist = useStore((state) => state.setCurrentPlaylist);
+  const setCurrentPlaylist = useStore((state) => state.setSelectedPlaylist);
   const playlists = useStore((state) => state.playlists);
   const pl = new Set();
   let MenuItems: any = [];

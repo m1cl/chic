@@ -1,12 +1,12 @@
 import React from "react";
-import { withRouter } from "react-router-dom";
+import {withRouter} from "react-router-dom";
 import styled from "styled-components";
-import { useStore } from "../../store";
+import {useStore} from "../../store";
 
 const Container = styled.div`
 `;
 const Artists = () => {
-  const currentPlaylist = useStore((state) => state.currentPlaylist);
+  const currentPlaylist = useStore((state) => state.selectedPlaylist);
   const playlists = useStore((state) => state.playlists).filter((p) =>
     p.playlist === currentPlaylist
   );
