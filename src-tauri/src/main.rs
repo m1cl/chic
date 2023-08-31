@@ -23,6 +23,14 @@ mod youtube;
 
 static CHIC_CONFIG_DIR: &'static str = "~/.config/chic/";
 
+//     src: string;
+//     id: number;
+//     name?: string | ReactNode;
+//     writer?: string | ReactNode;
+//     img?: string;
+//     description?: string | ReactNode;
+//     customTrackInfo?: string | ReactNode;
+
 #[derive(Default, Serialize)]
 struct PlaylistItems {
   name: String,
@@ -63,8 +71,8 @@ fn create_playlists_from_dir() -> Vec<PlaylistItems> {
     if f_name.ends_with(".mp3") {
       playlists.push(PlaylistItems {
         name: f_name.clone(),
-        playlist: playlist_name,
-        writer: f_name.clone(),
+        playlist: playlist_name.clone(),
+        writer: playlist_name.clone(),
         img: "https://vinyl-records.nl/thrash-metal/photo-gallery/hellbastard/HELLBASTARD---NATURAL-ORDER-8672.jpg".into(),
         src,
         id: id.to_string(),
