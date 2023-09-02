@@ -22,6 +22,7 @@ export const useStore = create<PlaylistState>(persist(
       const options = {
         keys: [
           "playlist",
+          "src",
         ],
       };
       const currentPlaylist = new Fuse(playlists, options)
