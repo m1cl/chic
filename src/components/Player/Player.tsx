@@ -10,8 +10,8 @@ import {
   ProgressUI,
   VolumeSliderPlacement,
 } from "react-modern-audio-player/dist/types/components/AudioPlayer/Context";
-import {useStore} from "../../store";
-import React, {useEffect, useRef, useState} from "react";
+import { useStore } from "../../store";
+import React, { useEffect, useRef, useState } from "react";
 
 // TODO: Create playlist object in the backend for $HOME/.config/chic directory and send it to frontend
 const playlists = [
@@ -52,25 +52,25 @@ const Player = () => {
     PlayListPlacement
   >("bottom");
 
-  let pl;
-  const fetchedPlaylists = useStore((state) => state.playlists);
+  const allPlaylists = useStore((state) => state.playlists);
   const currentPlaylist = useStore((state) => state.currentPlaylist);
   const [_players, setPlaylists] = useState([]);
 
+  let playList: PlayList[] = [];
   if (currentPlaylist) {
-    pl = [...playlists, ...currentPlaylist];
+    // TODO: need to be fixed
+    playList = [...playlists, ...currentPlaylist];
   } else {
-    pl = [...playlists, ...fetchedPlaylists];
+    playList = [...playlists, ...allPlaylists];
   }
   useEffect(() => {
-    setPlaylists(pl);
+    setPlaylists(playList);
   }, []);
-  if (!fetchedPlaylists) return <div />;
+  if (!allPlaylists) return <div />;
   return (
     <MediaPlayer>
       <AudioPlayer
-        audioRef={pl}
-        playList={pl}
+        playList={playList}
         activeUI={{
           all: true,
           progress: progressType,

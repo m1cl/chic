@@ -65,9 +65,14 @@ const SideBar = () => {
     }
     // add your conditional logic here
   };
-  const setCurrentPlaylist = useStore((state) => state.setSelectedPlaylist);
+  const setSelectedPlaylist = useStore((state) => state.setSelectedPlaylist);
+  const setCurrentPlaylist = useStore((state) => state.setCurrentPlaylist);
   const playlists = useStore((state) => state.playlists);
   const pl = new Set();
+  const handleClick = (playlist: string) => {
+    setCurrentPlaylist(playlist);
+    setSelectedPlaylist(playlist);
+  };
   let MenuItems: any = [];
   playlists.map((p) => pl.add(p.playlist));
   pl.forEach((p) =>
@@ -77,7 +82,7 @@ const SideBar = () => {
       >
         <Link
           to="/artists"
-          onClick={() => setCurrentPlaylist(p)}
+          onClick={() => handleClick(p)}
         >
           {p}
         </Link>
