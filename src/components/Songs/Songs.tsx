@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 //@ts-ignore
 import Card, { item } from "../Card/Card";
-import { invoke } from "@tauri-apps/api/tauri";
 import create from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -33,11 +32,6 @@ const Container = styled.div`
   margin-bottom: 84px;
 `;
 
-const Hr = styled.hr`
-  margin-top: 42px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-`;
-
 interface SongsZustand {
   items: item[];
   addItem: (item: item[]) => void;
@@ -49,7 +43,7 @@ const useStore = create<SongsZustand>(
     (set, get) => ({
       addItem: (item: item[]) => {
         console.log(item);
-        set((state) => ({
+        set(() => ({
           items: [...get().items, ...item],
         }));
       },
@@ -63,30 +57,10 @@ const useStore = create<SongsZustand>(
 );
 
 const Songs = () => {
-  const { items, addItem } = useStore(useCallback((state) => state, []));
+  const { items } = useStore(useCallback((state) => state, []));
 
-  const [isExpanded, x] = useState(false);
+  const [isExpanded] = useState(false);
 
-  function getWantlistItems() {
-    //@ts-ignore
-    if (window.__TAURI__) {
-      //@ts-ignore
-      const invoke = window.__TAURI__.invoke;
-      // TODO:  REMOVE YOUR USERNAME and make it generic
-      invoke("get_want_list_information", { username: "m1cl" })
-        .then((message: any) => {
-          addItem(JSON.parse(message));
-        })
-        .catch(console.error);
-    } else {
-      fetch("http://localhost:3000/api/discogs/get_want_list/m1cl", {
-        mode: "cors",
-      })
-        .then((res) => res.json())
-        .then(addItem)
-        .catch((err) => console.error("the error", err));
-    }
-  }
   useEffect(() => {
     //getWantlistItems();
   }, []);

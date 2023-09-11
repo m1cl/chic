@@ -1,7 +1,7 @@
-import {useCallback, useEffect} from "react";
-import {BrowserRouter as Router} from "react-router-dom";
+import React from "react";
+import { useEffect } from "react";
+import { BrowserRouter as Router } from "react-router-dom";
 import styled from "styled-components";
-import {getPlaylist} from "./api";
 import Albums from "./components/Albums/Albums";
 import Artists from "./components/Artists/Artists";
 import Content from "./components/Content/Content";
@@ -13,7 +13,7 @@ import {
 } from "./components/RouteTransition/RouteTransition";
 import SideBar from "./components/SideBar/SideBar";
 import Songs from "./components/Songs/Songs";
-import {useStore} from "./store";
+import { useStore } from "./store";
 
 const Container = styled.div`
   background-color: #121212;

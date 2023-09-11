@@ -12,7 +12,7 @@ import {
   VolumeSliderPlacement,
 } from "react-modern-audio-player/dist/types/components/AudioPlayer/Context";
 import { useStore } from "../../store";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PlaylistState } from "../../types";
 
 // TODO: Create playlist object in the backend for $HOME/.config/chic directory and send it to frontend
@@ -42,7 +42,6 @@ const MediaPlayer = styled.div`
 `;
 
 const Player = () => {
-  const player = useRef();
   const [progressType, _] = useState<ProgressUI>("waveform");
   const [volumeSliderPlacement, _setVolumeSliderPlacement] = useState<
     VolumeSliderPlacement

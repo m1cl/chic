@@ -1,9 +1,9 @@
-import React from "react";
-import { useState } from "react";
+import React, {FormEvent} from "react";
+import {useState} from "react";
 import styled from "styled-components";
-import { black, grey, lightblack, white } from "../../colors";
-import { borderradius, paddinglg, paddingsm } from "../../spacing";
-import { useStore } from "../../store";
+import {black, grey, lightblack} from "../../colors";
+import {borderradius, paddinglg, paddingsm} from "../../spacing";
+import {useStore} from "../../store";
 
 const Container = styled.div`
   background: ${lightblack};
@@ -46,7 +46,7 @@ const Content = styled.div`
 const NavBar = () => {
   const setCurrentPlaylist = useStore((state) => state.setCurrentPlaylist);
   const [searchValue, setSearchValue] = useState("");
-  const handleOnChange = (e) => {
+  const handleOnChange = (e: FormEvent) => {
     e.preventDefault();
     setCurrentPlaylist(searchValue);
   };
