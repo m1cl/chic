@@ -5,6 +5,7 @@ import AudioPlayer from "react-modern-audio-player";
 import {
   //  InterfaceGridTemplateArea,
   PlayerPlacement,
+  PlayList,
   // PlayList,
   PlayListPlacement,
   ProgressUI,
@@ -12,6 +13,7 @@ import {
 } from "react-modern-audio-player/dist/types/components/AudioPlayer/Context";
 import { useStore } from "../../store";
 import React, { useEffect, useRef, useState } from "react";
+import { PlaylistState } from "../../types";
 
 // TODO: Create playlist object in the backend for $HOME/.config/chic directory and send it to frontend
 const playlists = [
@@ -52,11 +54,13 @@ const Player = () => {
     PlayListPlacement
   >("bottom");
 
-  const allPlaylists = useStore((state) => state.playlists);
-  const currentPlaylist = useStore((state) => state.currentPlaylist);
-  const [_players, setPlaylists] = useState([]);
+  const allPlaylists = useStore((state: PlaylistState) => state.playlists);
+  const currentPlaylist = useStore((state: PlaylistState) =>
+    state.currentPlaylist
+  );
+  const [_players, setPlaylists] = useState<PlayList>([]);
 
-  let playList: PlayList[] = [];
+  let playList: PlayList = [];
   if (currentPlaylist) {
     // TODO: need to be fixed
     playList = [...playlists, ...currentPlaylist];
