@@ -1,9 +1,9 @@
-import React, {useState} from "react";
-import {Link as L} from "react-router-dom";
+import React, { useState } from "react";
+import { Link as L } from "react-router-dom";
 import styled from "styled-components";
-import {black, grey} from "../../colors";
-import {useStore} from "../../store";
-import {PlaylistType} from "../../types";
+import { black, grey } from "../../colors";
+import { useStore } from "../../store";
+import { PlaylistType } from "../../types";
 
 const Container = styled.div`
 display: flex;
@@ -109,8 +109,10 @@ const SideBar = () => {
               <Link to="/artists">Artists</Link>
             </MenuItem>
           </MenuContent>
-          <MenuContent onClick={() => setShowPlaylistNav(!showPlaylistNav)}>
-            <h3>{showPlaylistNav ? "" : "..."}Playlists</h3>
+          <MenuContent>
+            <h3 onClick={() => setShowPlaylistNav(!showPlaylistNav)}>
+              {showPlaylistNav ? "" : "..."}Playlists
+            </h3>
             {showPlaylistNav && MenuItems}
           </MenuContent>
         </MenuContainer>
