@@ -8,13 +8,12 @@ import { PlaylistType } from "../../types";
 const Container = styled.div`
 display: flex;
 background-color: ${black};
-height: 1080px;
+height: 100%;
 padding: 80px 15px 80px 15px;
 min-width: 240px;
 width: 15vw;
 max-width: 15vw;
-overflow-y:scroll;
-overflow-x: scroll;
+overflow: hidden;
 min-height:0;
 `;
 const Main = styled.div`
@@ -29,6 +28,15 @@ color: ${grey};
 `;
 const MenuContent = styled.div`
 margin-bottom: 80px;
+`;
+
+const PlaylistContent = styled.div`
+display: flex;
+flex-direction: column;
+height: 55vh;
+margin-bottom: 280px;
+background-color: ${black};
+overflow-y:scroll;
 `;
 
 const MenuItem = styled.li`
@@ -109,12 +117,12 @@ const SideBar = () => {
               <Link to="/artists">Artists</Link>
             </MenuItem>
           </MenuContent>
-          <MenuContent>
+          <PlaylistContent>
             <h3 onClick={() => setShowPlaylistNav(!showPlaylistNav)}>
               {showPlaylistNav ? "" : "..."}Playlists
             </h3>
             {showPlaylistNav && MenuItems}
-          </MenuContent>
+          </PlaylistContent>
         </MenuContainer>
       </Container>
     </Main>
