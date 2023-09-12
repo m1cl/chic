@@ -5,20 +5,20 @@ import AudioPlayer from "react-modern-audio-player";
 import {
   //  InterfaceGridTemplateArea,
   PlayerPlacement,
-  PlayList,
   // PlayList,
   PlayListPlacement,
   ProgressUI,
   VolumeSliderPlacement,
 } from "react-modern-audio-player/dist/types/components/AudioPlayer/Context";
-import {useStore} from "../../store";
-import React, {useEffect, useState} from "react";
-import {PlaylistState} from "../../types";
-import {playerRef} from "../../App";
+import { useStore } from "../../store";
+import React, { useEffect, useState } from "react";
+import { PlaylistState, PlaylistType } from "../../types";
+import { playerRef } from "../../App";
 
 // TODO: Create playlist object in the backend for $HOME/.config/chic directory and send it to frontend
 const playlists = [
   {
+    playlist: "",
     name: "",
     writer: "",
     img: "",
@@ -58,9 +58,9 @@ const Player = () => {
   const currentPlaylist = useStore((state: PlaylistState) =>
     state.currentPlaylist
   );
-  const [_players, setPlaylists] = useState<PlayList>([]);
+  const [_players, setPlaylists] = useState<PlaylistType>();
 
-  let playList: PlayList = [];
+  let playList: PlaylistType[] = [];
   if (currentPlaylist) {
     // TODO: need to be fixed
     playList = [...playlists, ...currentPlaylist];
@@ -69,7 +69,9 @@ const Player = () => {
   }
 
   useEffect(() => {
-    setPlaylists(playList);
+    if (playList.length !== 0) {
+      setPlaylists(playList);
+    }
   }, []);
   if (!allPlaylists) return <div />;
 

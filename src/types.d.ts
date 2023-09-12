@@ -1,4 +1,4 @@
-import {PlayList} from "react-modern-audio-player";
+import { PlayList } from "react-modern-audio-player";
 
 export interface PlaylistState {
   playlists: PlaylistType[];
@@ -15,5 +15,5 @@ export type PlaylistType = {
   writer: string;
   img: string;
   src: string;
-  id: string;
+  id: number;
 };
