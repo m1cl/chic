@@ -28,9 +28,16 @@ color: ${grey};
 `;
 const MenuContent = styled.div`
 margin-bottom: 80px;
+
+text-decoration: none;
+color: grey;
+&:hover {
+  cursor: pointer;
+  color: white;
+}
 `;
 
-const PlaylistContent = styled.div`
+const PlaylistContent = styled(MenuContent)`
 display: flex;
 flex-direction: column;
 height: 55vh;
@@ -119,7 +126,7 @@ const SideBar = () => {
           </MenuContent>
           <PlaylistContent>
             <h3 onClick={() => setShowPlaylistNav(!showPlaylistNav)}>
-              {showPlaylistNav ? "" : "..."}Playlists
+              Playlists{showPlaylistNav ? "" : "..."}
             </h3>
             {showPlaylistNav && MenuItems}
           </PlaylistContent>
