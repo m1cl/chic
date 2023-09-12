@@ -12,10 +12,12 @@ export const useStore = create<PlaylistState>(persist(
     playlists: [],
     currentPlaylist: [],
     selectedPlaylist: "",
-    fetch: async () => {
-      let isUpdated = get().playlists;
-      const playlists = await getPlaylist();
-      set({ playlists });
+    fetch: async (api: string) => {
+      if (api === "playlist") {
+        let isUpdated = get().playlists;
+        const playlists = await getPlaylist();
+        set({ playlists });
+      }
     },
     setCurrentPlaylist: (playlist: string) => {
       const playlists = get().playlists;
