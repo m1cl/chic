@@ -1,10 +1,10 @@
-import {AnimateSharedLayout} from "framer-motion";
-import {AnimatePresence} from "framer-motion";
-import {motion} from "framer-motion";
-import React, {FC, MouseEvent, ReactNode, useState} from "react";
+import { AnimateSharedLayout } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import React, { FC, MouseEvent, ReactNode, useState } from "react";
 import styled from "styled-components";
-import {playerRef} from "../../App";
-import {H2} from "../Songs/Songs";
+import { playerRef } from "../../App";
+import { H2 } from "../Songs/Songs";
 import cover from "./album.png";
 // import {emit, listen} from "@tauri-apps/api/event";
 // With the Tauri API npm package:
@@ -44,14 +44,14 @@ const Title = styled.h3`
   color: white;
 `;
 
-const AlbumCover = styled(motion.img) <{isOpen: boolean}>`
+const AlbumCover = styled(motion.img)<{ isOpen: boolean }>`
   filter: ${(props) =>
-    props.isOpen ? "drop-shadow(5px 5px 3px rgba(0,0,0,0.7))" : "opacity(100%)"};
+  props.isOpen ? "drop-shadow(5px 5px 3px rgba(0,0,0,0.7))" : "opacity(100%)"};
 `;
 
 const Container = styled(AnimateSharedLayout)`
   overflow-y: auto;
-  width: 100%;
+  width: 120%;
   flex: 1;
   height: 100%;
   cursor: pointer;
@@ -87,6 +87,8 @@ const Row = styled.div`
   border-radius: 10px;
   margin-top: 12px;
 `;
+
+const itemWidth = "240px";
 export type PlaylistType = {
   name: string;
   writer: string;
@@ -106,7 +108,7 @@ const handleClick = (e: MouseEvent<HTMLElement>) => {
   }
 };
 
-const Card = ({items}: CardProps) => {
+const Card = ({ items }: CardProps) => {
   console.log(items);
   items = items.map((item: any) => {
     item.artist = item.artist?.replace(/['"]+/g, "");
@@ -123,7 +125,7 @@ const Card = ({items}: CardProps) => {
     </Container>
   );
 };
-const Item: FC<{item: item}> = ({item}) => {
+const Item: FC<{ item: PlaylistType }> = ({ item }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   function handleIsOpen() {
@@ -147,8 +149,8 @@ const Item: FC<{item: item}> = ({item}) => {
       onMouseEnter={fastExpander}
       onMouseLeave={handleMouseLeave}
       animate={{
-        width: isOpen ? "220px" : "120px",
-        height: isOpen ? "220px" : "120px",
+        width: isOpen ? "320px" : itemWidth,
+        height: isOpen ? "320px" : itemWidth,
         marginRight: "100px",
       }}
     >
@@ -170,20 +172,20 @@ const Item: FC<{item: item}> = ({item}) => {
   );
 };
 
-const Content: FC<{item: item}> = ({item}) => {
+const Content: FC<{ item: PlaylistType }> = ({ item }) => {
   return (
     <ContentContainer
       layout
-      style={{zIndex: 0}}
-      initial={{opacity: 0}}
-      animate={{opacity: 1}}
-      transition={{duration: 1.5}}
-      exit={{opacity: 0}}
+      style={{ zIndex: 0 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1.5 }}
+      exit={{ opacity: 0 }}
     >
       <Title className="row">{item.name}</Title>
       <Row className="row">{item.writer}</Row>
-      <Row className="row">{item.year}</Row>
-      <Row className="row">{item.genres}</Row>
+      <Row className="row">{item.src}</Row>
+      <Row className="row">{item.img}</Row>
     </ContentContainer>
   );
 };
