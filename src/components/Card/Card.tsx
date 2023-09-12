@@ -1,8 +1,10 @@
-import { AnimateSharedLayout } from "framer-motion";
-import { AnimatePresence } from "framer-motion";
-import { motion } from "framer-motion";
-import React, { FC, useState } from "react";
-import styled, { keyframes } from "styled-components";
+import {AnimateSharedLayout} from "framer-motion";
+import {AnimatePresence} from "framer-motion";
+import {motion} from "framer-motion";
+import React, {FC, MouseEvent, ReactNode, useState} from "react";
+import styled from "styled-components";
+import {playerRef} from "../../App";
+import {H2} from "../Songs/Songs";
 import cover from "./album.png";
 // import {emit, listen} from "@tauri-apps/api/event";
 // With the Tauri API npm package:
@@ -10,6 +12,8 @@ import cover from "./album.png";
 // Invoke the command
 
 export type item = {
+  name: ReactNode;
+  writer: ReactNode;
   id: string;
   notes?: string;
   genres?: string[];
@@ -23,6 +27,7 @@ export type item = {
 type CardProps = {
   items: any;
   isExpanded: boolean;
+  handleClick: any;
 };
 
 // .saturate { filter: saturate(3); }
@@ -39,15 +44,9 @@ const Title = styled.h3`
   color: white;
 `;
 
-const AlbumCover = styled(motion.img)<{ isOpen: boolean }>`
+const AlbumCover = styled(motion.img) <{isOpen: boolean}>`
   filter: ${(props) =>
-  props.isOpen ? "drop-shadow(5px 5px 3px rgba(0,0,0,0.7))" : "opacity(100%)"};
-`;
-const hoverAnimation = keyframes`
- 0% { height: 100px; width: 100px; }
- 30% { height: 110px; width: 110px}
- 40% { height: 115px; width: 115px }
- 100% { height: 125px; width: 125px }
+    props.isOpen ? "drop-shadow(5px 5px 3px rgba(0,0,0,0.7))" : "opacity(100%)"};
 `;
 
 const Container = styled(AnimateSharedLayout)`
@@ -97,18 +96,34 @@ export type PlaylistType = {
 };
 const ContentContainer = styled(motion.div)``;
 
-const Card = ({ items, isExpanded }: CardProps) => {
+const handleClick = (e: MouseEvent<HTMLElement>) => {
+  // TODO: some songs are not playing because of string escape issue like quotes
+  const songId = e.currentTarget.id;
+  console.log("id", songId);
+  if (playerRef.current) {
+    playerRef.current.src = `${songId}`;
+    playerRef.current.play();
+  }
+};
+
+const Card = ({items}: CardProps) => {
+  console.log(items);
   items = items.map((item: any) => {
     item.artist = item.artist?.replace(/['"]+/g, "");
     return item;
   });
   return (
     <Container>
-      {items.map((item: any) => <Item item={item} />)}
+      {items.map((item: any) => (
+        <div>
+          <Item item={item} />
+          <H2 id={item.src} onClick={handleClick}>{item.name}</H2>
+        </div>
+      ))}
     </Container>
   );
 };
-const Item: FC<{ item: item }> = ({ children, item }) => {
+const Item: FC<{item: item}> = ({item}) => {
   const [isOpen, setIsOpen] = useState(false);
 
   function handleIsOpen() {
@@ -118,14 +133,17 @@ const Item: FC<{ item: item }> = ({ children, item }) => {
     isOpen && handleIsOpen();
   }
 
-  function fastExpander() {}
+  function fastExpander() {
+    handleIsOpen();
+  }
   const toggleOpen = () => setIsOpen(!isOpen);
 
   return (
     <ItemContainer
+      id={item.src}
       layout
       drag
-      onClick={handleIsOpen}
+      onClick={handleClick}
       onMouseEnter={fastExpander}
       onMouseLeave={handleMouseLeave}
       animate={{
@@ -152,15 +170,15 @@ const Item: FC<{ item: item }> = ({ children, item }) => {
   );
 };
 
-const Content: FC<{ item: item }> = ({ item }) => {
+const Content: FC<{item: item}> = ({item}) => {
   return (
     <ContentContainer
       layout
-      style={{ zIndex: 0 }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 1.5 }}
-      exit={{ opacity: 0 }}
+      style={{zIndex: 0}}
+      initial={{opacity: 0}}
+      animate={{opacity: 1}}
+      transition={{duration: 1.5}}
+      exit={{opacity: 0}}
     >
       <Title className="row">{item.name}</Title>
       <Row className="row">{item.writer}</Row>

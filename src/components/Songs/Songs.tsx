@@ -1,34 +1,40 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import styled from "styled-components";
 //@ts-ignore
-import Card, { item } from "../Card/Card";
+import Card, {item} from "../Card/Card";
 import create from "zustand";
-import { persist } from "zustand/middleware";
+import {persist} from "zustand/middleware";
 
-const Main = styled.div`
+export const Main = styled.div`
   display: table-row;
   &::-webkit-scrollbar {
     display: none;
   }
 `;
 
-const H1 = styled.h3`
+export const H1 = styled.h3`
   color: #b7b4b9;
 `;
-const Row = styled.div`
+
+export const H2 = styled.h5`
+width: 150px;
+  color: #b7b4b9;
+`;
+export const Row = styled.div`
   display: flex;
   flex-direction: row;
 `;
 
-const CardList = styled(Row)``;
+export const CardList = styled(Row)``;
 
-const PlaceHolder = styled.div`
+export const PlaceHolder = styled.div`
   margin-bottom: 10px;
   width: 100%;
   height: 30px;
   flex-direction: column;
 `;
-const Container = styled.div`
+export const Container = styled.div`
+  width: 80%;
   margin-bottom: 84px;
 `;
 
@@ -57,7 +63,7 @@ const useStore = create<SongsZustand>(
 );
 
 const Songs = () => {
-  const { items } = useStore(useCallback((state) => state, []));
+  const {items} = useStore(useCallback((state) => state, []));
 
   const [isExpanded] = useState(false);
 
