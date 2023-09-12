@@ -3,6 +3,7 @@ import { withRouter } from "react-router-dom";
 import styled from "styled-components";
 import { playerRef } from "../../App";
 import { useStore } from "../../store";
+import Card from "../Card/Card";
 
 const Container = styled.div`
 `;
@@ -21,11 +22,7 @@ const Artists = () => {
   // create a function which adds the song to the playlist
   return (
     <Container>
-      {playlists.map((p) => (
-        <div id={p.src} onClick={handleClick}>
-          {p.name}
-        </div>
-      ))}
+      <Card items={playlists} />
     </Container>
   );
 };

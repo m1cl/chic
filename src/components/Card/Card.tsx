@@ -11,17 +11,17 @@ import cover from "./album.png";
 
 export type item = {
   id: string;
-  notes: string;
-  genres: string[];
+  notes?: string;
+  genres?: string[];
   album: string;
-  label: string;
+  label?: string;
   artist: string;
   artistUri: string;
-  videos: any;
-  year: string;
+  videos?: any;
+  year?: string;
 };
 type CardProps = {
-  items: item[];
+  items: any;
   isExpanded: boolean;
 };
 
@@ -98,13 +98,13 @@ export type PlaylistType = {
 const ContentContainer = styled(motion.div)``;
 
 const Card = ({ items, isExpanded }: CardProps) => {
-  items = items.map((item) => {
+  items = items.map((item: any) => {
     item.artist = item.artist?.replace(/['"]+/g, "");
     return item;
   });
   return (
     <Container>
-      {items.map((item) => <Item item={item} />)}
+      {items.map((item: any) => <Item item={item} />)}
     </Container>
   );
 };
@@ -162,8 +162,8 @@ const Content: FC<{ item: item }> = ({ item }) => {
       transition={{ duration: 1.5 }}
       exit={{ opacity: 0 }}
     >
-      <Title className="row">{item.artist}</Title>
-      <Row className="row">{item.album}</Row>
+      <Title className="row">{item.name}</Title>
+      <Row className="row">{item.writer}</Row>
       <Row className="row">{item.year}</Row>
       <Row className="row">{item.genres}</Row>
     </ContentContainer>
