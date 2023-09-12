@@ -12,8 +12,9 @@ import {
   VolumeSliderPlacement,
 } from "react-modern-audio-player/dist/types/components/AudioPlayer/Context";
 import { useStore } from "../../store";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { PlaylistState } from "../../types";
+import { playerRef } from "../../App";
 
 // TODO: Create playlist object in the backend for $HOME/.config/chic directory and send it to frontend
 const playlists = [
@@ -66,13 +67,17 @@ const Player = () => {
   } else {
     playList = [...playlists, ...allPlaylists];
   }
+
   useEffect(() => {
     setPlaylists(playList);
   }, []);
   if (!allPlaylists) return <div />;
+
   return (
     <MediaPlayer>
       <AudioPlayer
+        // @ts-ignore
+        audioRef={playerRef}
         playList={playList}
         activeUI={{
           all: true,
