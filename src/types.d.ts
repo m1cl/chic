@@ -1,7 +1,7 @@
 import {PlayList} from "react-modern-audio-player";
 
 export interface PlaylistState {
-  playlists: PlayList;
+  playlists: PlaylistType[];
   selectedPlaylist: string;
   currentPlaylist: [];
   setCurrentPlaylist: Function;

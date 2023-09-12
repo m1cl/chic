@@ -1,4 +1,4 @@
-import React from "react";
+import React, { MouseEvent } from "react";
 import { withRouter } from "react-router-dom";
 import styled from "styled-components";
 import { playerRef } from "../../App";
@@ -11,12 +11,14 @@ const Artists = () => {
   const playlists = useStore((state) => state.playlists).filter((p) =>
     p.playlist === currentPlaylist
   );
-  const handleClick = (e) => {
-    const songId = e.target.id;
-    console.log("songid", songId);
-    playerRef.current.src = songId;
-    playerRef.current.play();
+  const handleClick = (e: MouseEvent<HTMLElement>) => {
+    const songId = e.currentTarget.id;
+    if (playerRef.current) {
+      playerRef.current.src = songId;
+      playerRef.current.play();
+    }
   };
+  // create a function which adds the song to the playlist
   return (
     <Container>
       {playlists.map((p) => (

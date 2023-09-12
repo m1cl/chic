@@ -1,6 +1,6 @@
-import React, { createRef } from "react";
-import { useEffect } from "react";
-import { BrowserRouter as Router } from "react-router-dom";
+import React, {createRef, RefObject} from "react";
+import {useEffect} from "react";
+import {BrowserRouter as Router} from "react-router-dom";
 import styled from "styled-components";
 import Albums from "./components/Albums/Albums";
 import Artists from "./components/Artists/Artists";
@@ -13,7 +13,7 @@ import {
 } from "./components/RouteTransition/RouteTransition";
 import SideBar from "./components/SideBar/SideBar";
 import Songs from "./components/Songs/Songs";
-import { useStore } from "./store";
+import {useStore} from "./store";
 
 const Container = styled.div`
   background-color: #121212;
@@ -38,7 +38,7 @@ const SwitchContainer = styled.div`
   }
 `;
 
-export const playerRef = createRef();
+export const playerRef: RefObject<HTMLAudioElement> = createRef();
 
 function App() {
   const fetchApi = useStore((state) => state.fetch);
