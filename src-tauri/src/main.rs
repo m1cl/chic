@@ -131,9 +131,6 @@ async fn accept_connection(stream: TcpStream) {
     .expect("failed to forward message")
 }
 
-// fn spawn_new_window() {
-//   tauri::Builder::default()
-// }
 async fn websocket_server() {
   let ws_addr = "127.0.0.1:9002";
   let try_socket = TcpListener::bind(&ws_addr).await;
