@@ -45,3 +45,7 @@ coreaudio-sys = "0.2.12"
 tauri = { version = "1.4.1", features = ["api-all"] }
 tauri-macros = "1.4.0"
 regex = "1.9.3"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
