@@ -10,10 +10,10 @@ import {
   ProgressUI,
   VolumeSliderPlacement,
 } from "react-modern-audio-player/dist/types/components/AudioPlayer/Context";
-import {useStore} from "../../store";
-import React, {MutableRefObject, useEffect, useRef, useState} from "react";
-import {PlaylistState, PlaylistType} from "../../types";
-import {playerRef} from "../../App";
+import { useStore } from "../../store";
+import React, { MutableRefObject, useEffect, useRef, useState } from "react";
+import { PlaylistState, PlaylistType } from "../../types";
+import { playerRef } from "../../App";
 
 // TODO: Create playlist object in the backend for $HOME/.config/chic directory and send it to frontend
 const playlists = [

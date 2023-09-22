@@ -2,8 +2,8 @@ export async function getPlaylist() {
   //@ts-ignore
   if (window.__TAURI__) {
     //@ts-ignore
-    const {invoke} = window.__TAURI__;
-    return invoke("playlist").then((message: any) => {
+    const { invoke } = window.__TAURI__;
+    return invoke("get_playlists").then((message: any) => {
       console.log("tauri desktop");
       const res = JSON.parse(message);
       return res;
