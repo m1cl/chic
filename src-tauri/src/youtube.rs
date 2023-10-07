@@ -118,7 +118,8 @@ pub async fn download_playlist() -> Result<(), Box<dyn Error>> {
 
 pub async fn search_and_get_url(query: String) -> String {
   log::info!("GETTING THE URL FROM YOUTUBE");
-  let query = query.replace("\"", "");
+  let query = query.replace(&['(', ')', ',', '\"', '.', ';', ':','\\' , '\''][..], "");
+  log::warn!("the query {}", query);
   let youtube = YouTube::new().unwrap();
   let res = youtube.search(query, None).await;
   if res.as_ref().unwrap().len() < 1 {

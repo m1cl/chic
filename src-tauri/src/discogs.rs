@@ -72,7 +72,7 @@ pub async fn get_want_list_information(username: String) -> String {
   //   let release = get_release_information(w).await;
   //   discogs_releases.push(release);
   // };
-  for n in 2..pagi_pages {
+  for n in 5..pagi_pages {
     log::info!("Currently on page: {}", n);
     let url = format!("{}/users/{}/wants?page={}", discogs_url, username, n);
     let data = get_data_from_response(&url).await;
