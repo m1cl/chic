@@ -45,6 +45,11 @@ coreaudio-sys = "0.2.12"
 tauri = { version = "1.4.1", features = ["api-all"] }
 tauri-macros = "1.4.0"
 regex = "1.9.3"
+rusty_ytdl = "0.6.3"
+wsd = "1.1.1"
+reqwest = { version = "0.11.22", features = ["json"] }
+youtube_search = "1.0.2"
+rs-youtube = "0.2.2"
 
 [features]
 default = ["custom-protocol"]

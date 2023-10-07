@@ -1,3 +1,4 @@
+use rusty_ytdl::search::{SearchResult, Video, YouTube};
 use serde::Serialize;
 use std::error::Error;
 use walkdir::{DirEntry, WalkDir};
@@ -65,7 +66,6 @@ pub fn create_playlists_from_dir() -> Vec<PlaylistItems> {
   {
     let path = entry.path().to_string_lossy();
     let playlist_name = get_playlist_name(&entry);
-    println!("{}", playlist_name);
     let url = "http://localhost:8000/music/";
     let f_name = entry.file_name().to_string_lossy().to_string();
     let src = format!("{}{}", url, path);
@@ -85,6 +85,20 @@ pub fn create_playlists_from_dir() -> Vec<PlaylistItems> {
   playlists
 }
 
+pub async fn download_video(url: String, dir: String) -> Result<(), Box<dyn Error>> {
+  let dir = format!("{}{}", CHIC_CONFIG_DIR, "discogs_wantlist");
+  let yt_dlp_path = download_yt_dlp(CHIC_CONFIG_DIR).await?;
+  let output = YoutubeDl::new(url)
+    .download(true)
+    .extract_audio(true)
+    .output_directory(dir)
+    .youtube_dl_path(yt_dlp_path)
+    .run_async()
+    .await?;
+  let title = output.into_single_video().unwrap().title;
+  println!("Video title: {}", title);
+  Ok(())
+}
 pub async fn download_playlist() -> Result<(), Box<dyn Error>> {
   let yt_dlp_path = download_yt_dlp(CHIC_CONFIG_DIR).await?;
   let output = YoutubeDl::new("https://www.youtube.com/channel/UCutUJrVebur4VvGimDaW3Rw/playlists")
@@ -98,4 +112,23 @@ pub async fn download_playlist() -> Result<(), Box<dyn Error>> {
   let title = output.into_single_video().unwrap().title;
   println!("Video title: {}", title);
   Ok(())
+}
+
+pub async fn search_and_get_url(query: String) -> String {
+  println!("GETTING THE URL FROM YOUTUBE");
+  let query = query.replace("\"", "");
+  let youtube = YouTube::new().unwrap();
+  let res = youtube.search(query, None).await;
+  let results = &res.unwrap()[0];
+  let mut url = format!("");
+  match results {
+    SearchResult::Video(video) => {
+      url = video.url.to_owned();
+      println!("{url:#?}");
+      ()
+    }
+    _ => println!("Nothing "),
+  }
+  // let url = results.url.clone();
+  url.to_owned()
 }

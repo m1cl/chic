@@ -11,7 +11,7 @@ import {
   VolumeSliderPlacement,
 } from "react-modern-audio-player/dist/types/components/AudioPlayer/Context";
 import { useStore } from "../../store";
-import React, { MutableRefObject, useEffect, useRef, useState } from "react";
+import React, { MutableRefObject, useEffect, useState } from "react";
 import { PlaylistState, PlaylistType } from "../../types";
 import { playerRef } from "../../App";
 

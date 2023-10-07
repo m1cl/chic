@@ -63,12 +63,35 @@ const useStore = create<SongsZustand>(
 );
 
 const Songs = () => {
-  const {items} = useStore(useCallback((state) => state, []));
+  const {items, addItem} = useStore(useCallback((state) => state, []));
+
+  const [_, x] = useState(false);
+  function getWantlistItems() {
+    //@ts-ignore
+    if (window.__TAURI__) {
+      //@ts-ignore
+      const invoke = window.__TAURI__.invoke;
+      // TODO:  REMOVE YOUR USERNAME and make it generic
+      invoke("get_want_list_information", {username: "m1cl"})
+        .then((message: any) => {
+          console.log('discogs', message )
+          // addItem(JSON.parse(message));
+        })
+        .catch(console.error);
+    } else {
+      fetch("http://localhost:3000/api/discogs/get_want_list/m1cl", {
+        mode: "cors",
+      })
+        .then((res) => res.json())
+        .then(addItem)
+        .catch((err) => console.error("the error", err));
+    }
+  }
 
   const [isExpanded] = useState(false);
 
   useEffect(() => {
-    //getWantlistItems();
+    getWantlistItems();
   }, []);
 
   // TODO: make cards expand when switch to another card fast
