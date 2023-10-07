@@ -24,12 +24,12 @@ pub struct PlaylistItems {
 //     description?: string | ReactNode;
 //     customTrackInfo?: string | ReactNode;
 
-pub static CHIC_CONFIG_DIR: &'static str = "~/.config/chic/";
+pub static CHIC_CONFIG_DIR: &'static str = "/Users/m1cl/.config/chic/";
 // Get all playlists and titles
 // youtube-dl --download-archive archive.txt -o '%(playlist_title)s/%(title)s-%(id)s.%(ext)s' "$url"
 //
 pub async fn get_playlists_from_user() {
-  println!("getting playlist data ");
+  log::info!("getting playlist data ");
   let user_channel_url = "https://www.youtube.com/playlist?list=PL_f5dGKW0s3PZPuEy5901LqLQ9vo7HCE8";
   match YoutubeDl::new(user_channel_url).socket_timeout("10").run() {
     Ok(data) => print!(
@@ -85,23 +85,23 @@ pub fn create_playlists_from_dir() -> Vec<PlaylistItems> {
   playlists
 }
 
-pub async fn download_video(url: String, dir: String) -> Result<(), Box<dyn Error>> {
+pub async fn download_audio(url: String, dir: String) -> Result<(), Box<dyn Error>> {
+  log::warn!("...DOWNLOADING VIDEO");
   let dir = format!("{}{}", CHIC_CONFIG_DIR, "discogs_wantlist");
   let yt_dlp_path = download_yt_dlp(CHIC_CONFIG_DIR).await?;
-  let output = YoutubeDl::new(url)
+  YoutubeDl::new(url)
     .download(true)
     .extract_audio(true)
     .output_directory(dir)
     .youtube_dl_path(yt_dlp_path)
     .run_async()
     .await?;
-  let title = output.into_single_video().unwrap().title;
-  println!("Video title: {}", title);
   Ok(())
 }
 pub async fn download_playlist() -> Result<(), Box<dyn Error>> {
+  log::warn!("...DOWNLOADING PLAYLISTS");
   let yt_dlp_path = download_yt_dlp(CHIC_CONFIG_DIR).await?;
-  let output = YoutubeDl::new("https://www.youtube.com/channel/UCutUJrVebur4VvGimDaW3Rw/playlists")
+  YoutubeDl::new("https://www.youtube.com/channel/UCutUJrVebur4VvGimDaW3Rw/playlists")
     .download(true)
     .flat_playlist(true)
     .extract_audio(true)
@@ -109,25 +109,25 @@ pub async fn download_playlist() -> Result<(), Box<dyn Error>> {
     .youtube_dl_path(yt_dlp_path)
     .run_async()
     .await?;
-  let title = output.into_single_video().unwrap().title;
-  println!("Video title: {}", title);
   Ok(())
 }
 
 pub async fn search_and_get_url(query: String) -> String {
-  println!("GETTING THE URL FROM YOUTUBE");
+  log::info!("GETTING THE URL FROM YOUTUBE");
   let query = query.replace("\"", "");
   let youtube = YouTube::new().unwrap();
   let res = youtube.search(query, None).await;
+  if res.as_ref().unwrap().len() < 1 {
+    return String::from("")
+  };
   let results = &res.unwrap()[0];
   let mut url = format!("");
   match results {
     SearchResult::Video(video) => {
       url = video.url.to_owned();
-      println!("{url:#?}");
       ()
     }
-    _ => println!("Nothing "),
+    _ => println!(" "),
   }
   // let url = results.url.clone();
   url.to_owned()
