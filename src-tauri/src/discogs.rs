@@ -1,9 +1,5 @@
-use std::time::Duration;
-
-use rusty_ytdl::reqwest::Client;
 use serde::Serialize;
 use serde_json::{Value,json};
-use tauri::api::http::{ClientBuilder, HttpRequestBuilder, ResponseType};
 use wsd::json::JSON;
 extern crate reqwest;
 
@@ -25,7 +21,7 @@ async fn get_data_from_response(url: &str) -> Value {
     .user_agent("chic app")
     .build();
   let res = client.expect("Something went wrong").get(url).send().await.unwrap();
-  log::info!("The headers: {:#?}", res.headers());
+  // log::info!("The headers: {:#?}", res.headers());
   let res = res.text().await.unwrap();
   let res = serde_json::from_str(res.as_str()).unwrap();
   res
@@ -63,17 +59,11 @@ pub async fn get_want_list_information(username: String) -> String {
   let data = get_data_from_response(&url).await;
   let _want_lists = data["wants"].as_array();
 
-  // let mut pagi_curr = data["pagination"]["page"].as_i64().unwrap();
-  let pagi_pages = data["pagination"]["pages"].as_i64().unwrap() - 1;
-  // let pagi_per_page = data["pagination"]["per_page"].as_i64().unwrap();
-  // let total_items =  data["pagination"]["items"].as_i64().unwrap();
+  // TODO: get total items count
+  let pagi_pages = data["pagination"]["pages"].as_i64().unwrap();
 
-  // for w in want_lists.unwrap().into_iter() {
-  //   let release = get_release_information(w).await;
-  //   discogs_releases.push(release);
-  // };
-  for n in 5..pagi_pages {
-    log::info!("Currently on page: {}", n);
+  for n in 1..pagi_pages {
+    log::info!("CURRENTLY ON PAGE: {}", n);
     let url = format!("{}/users/{}/wants?page={}", discogs_url, username, n);
     let data = get_data_from_response(&url).await;
     let want_lists = data["wants"].as_array();

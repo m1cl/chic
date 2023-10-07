@@ -1,6 +1,6 @@
 use rusty_ytdl::search::{SearchResult, Video, YouTube};
 use serde::Serialize;
-use std::error::Error;
+use std::{error::Error, time::Duration};
 use walkdir::{DirEntry, WalkDir};
 use youtube_dl::{download_yt_dlp, YoutubeDl};
 
@@ -92,6 +92,7 @@ pub async fn download_audio(url: String, dir: String) -> Result<(), Box<dyn Erro
   let output = YoutubeDl::new(url)
     .download(true)
     .extract_audio(true)
+    .process_timeout(Duration::new(0, 30))
     .output_directory(dir)
     .youtube_dl_path(yt_dlp_path)
     .run_async()
