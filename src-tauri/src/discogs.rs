@@ -25,6 +25,7 @@ async fn get_data_from_response(url: &str) -> Value {
     .user_agent("chic app")
     .build();
   let res = client.expect("Something went wrong").get(url).send().await.unwrap();
+  log::info!("The headers: {:#?}", res.headers());
   let res = res.text().await.unwrap();
   let res = serde_json::from_str(res.as_str()).unwrap();
   res
@@ -41,7 +42,7 @@ async fn get_release_information(want_list: &Value) -> DiscogsRelease {
   let query = format!("{} {}", artist, album);
   let youtube_url = youtube::search_and_get_url(query).await;
   let dir = String::from("discogs_wantlist");
-  let _ = youtube::download_audio(youtube_url.to_owned(), dir).await;
+  youtube::download_audio(youtube_url.to_owned(), dir).await;
   DiscogsRelease {
     id,
     year,

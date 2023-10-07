@@ -86,22 +86,24 @@ pub fn create_playlists_from_dir() -> Vec<PlaylistItems> {
 }
 
 pub async fn download_audio(url: String, dir: String) -> Result<(), Box<dyn Error>> {
-  log::warn!("...DOWNLOADING VIDEO");
+  log::warn!("...DOWNLOADING AUDIO {}", url);
   let dir = format!("{}{}", CHIC_CONFIG_DIR, "discogs_wantlist");
-  let yt_dlp_path = download_yt_dlp(CHIC_CONFIG_DIR).await?;
-  YoutubeDl::new(url)
+  let yt_dlp_path = format!("{}{}", CHIC_CONFIG_DIR, "yt-dlp");
+  let output = YoutubeDl::new(url)
     .download(true)
     .extract_audio(true)
     .output_directory(dir)
     .youtube_dl_path(yt_dlp_path)
     .run_async()
     .await?;
+  let title = output.into_single_video().unwrap().title;
+  log::info!("Video title: {}", title);
   Ok(())
 }
 pub async fn download_playlist() -> Result<(), Box<dyn Error>> {
   log::warn!("...DOWNLOADING PLAYLISTS");
   let yt_dlp_path = download_yt_dlp(CHIC_CONFIG_DIR).await?;
-  YoutubeDl::new("https://www.youtube.com/channel/UCutUJrVebur4VvGimDaW3Rw/playlists")
+  let output = YoutubeDl::new("https://www.youtube.com/channel/UCutUJrVebur4VvGimDaW3Rw/playlists")
     .download(true)
     .flat_playlist(true)
     .extract_audio(true)
@@ -109,6 +111,8 @@ pub async fn download_playlist() -> Result<(), Box<dyn Error>> {
     .youtube_dl_path(yt_dlp_path)
     .run_async()
     .await?;
+  let title = output.into_single_video().unwrap().title;
+  println!("Video title: {}", title);
   Ok(())
 }
 
