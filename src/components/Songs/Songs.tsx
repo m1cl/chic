@@ -91,7 +91,7 @@ const Songs = () => {
   const [isExpanded] = useState(false);
 
   useEffect(() => {
-    getWantlistItems();
+    // getWantlistItems();
   }, []);
 
   // TODO: make cards expand when switch to another card fast
