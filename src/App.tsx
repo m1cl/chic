@@ -14,6 +14,7 @@ import {
 import SideBar from "./components/SideBar/SideBar";
 import Songs from "./components/Songs/Songs";
 import { useStore } from "./store";
+import { Settings } from "./components/Settings/Settings";
 
 const Container = styled.div`
   background-color: #121212;
@@ -64,6 +65,9 @@ function App() {
               </RouteTransition>
               <RouteTransition exact path="/">
                 <Songs />
+              </RouteTransition>
+              <RouteTransition path="/settings">
+                <Settings />
               </RouteTransition>
             </SwitchContainer>
           </AnimatedRoutes>

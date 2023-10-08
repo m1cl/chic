@@ -14,8 +14,8 @@ mod music_player;
 mod youtube;
 
 pub static CHIC_CONFIG_DIR: &'static str = "~/.config/chic/";
-pub static mut DISCOGS_USER: String = String::from("");
-pub static mut YOUTUBE_USER: String = String::from("");
+pub static mut DISCOGS_USER:&'static str = "";
+pub static mut YOUTUBE_USER: &'static str = "";
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct Log {
