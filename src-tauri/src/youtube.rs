@@ -1,6 +1,6 @@
 use rusty_ytdl::search::{SearchResult, Video, YouTube};
 use serde::Serialize;
-use std::{error::Error, time::Duration};
+use std::{error::Error, fs::FileType, time::Duration};
 use walkdir::{DirEntry, WalkDir};
 use youtube_dl::{download_yt_dlp, YoutubeDl};
 
@@ -66,6 +66,9 @@ pub fn create_playlists_from_dir() -> Vec<PlaylistItems> {
   {
     let path = entry.path().to_string_lossy();
     let playlist_name = get_playlist_name(&entry);
+    if playlist_name.contains("mp3") {
+      continue;
+    }
     let url = "http://localhost:8000/music/";
     let f_name = entry.file_name().to_string_lossy().to_string();
     let src = format!("{}{}", url, path);
@@ -119,12 +122,12 @@ pub async fn download_playlist() -> Result<(), Box<dyn Error>> {
 
 pub async fn search_and_get_url(query: String) -> String {
   log::info!("GETTING THE URL FROM YOUTUBE");
-  let query = query.replace(&['(', ')', ',', '\"', '.', ';', ':','\\' , '\''][..], "");
+  let query = query.replace(&['(', ')', ',', '\"', '.', ';', ':', '\\', '\''][..], "");
   log::warn!("the query {}", query);
   let youtube = YouTube::new().unwrap();
   let res = youtube.search(query, None).await;
   if res.as_ref().unwrap().len() < 1 {
-    return String::from("")
+    return String::from("");
   };
   let results = &res.unwrap()[0];
   let mut url = format!("");

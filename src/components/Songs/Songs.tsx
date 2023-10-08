@@ -22,10 +22,18 @@ width: 150px;
 `;
 export const Row = styled.div`
   display: flex;
-  flex-direction: row;
+  justify-content: space-between;
+flex-wrap: wrap;
 `;
 
-export const CardList = styled(Row)``;
+export const Column = styled.div`
+  display: flex;
+  flex-direction: row;
+`
+
+export const CardList = styled(Row)`
+height: auto;
+`;
 
 export const PlaceHolder = styled.div`
   margin-bottom: 10px;
@@ -34,7 +42,7 @@ export const PlaceHolder = styled.div`
   flex-direction: column;
 `;
 export const Container = styled.div`
-  width: 80%;
+  width: 30px;
   margin-bottom: 84px;
 `;
 

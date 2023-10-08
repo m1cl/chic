@@ -13,29 +13,29 @@ import {
 } from "./components/RouteTransition/RouteTransition";
 import SideBar from "./components/SideBar/SideBar";
 import Songs from "./components/Songs/Songs";
-import { useStore } from "./store";
+ import { useStore } from "./store";
 
 const Container = styled.div`
-  background-color: #121212;
-  display: flex;
-  overflow-x: auto;
-  overflow-y: hidden;
-  flex-direction: row;
-  margin: 0px;
-  flex-wrap: wrap;
+background-color: #121212;
+display: flex;
+height: auto;
+overflow-x: auto;
+overflow-y: hidden;
+margin: 0px;
+flex-wrap: wrap;
 
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
+scrollbar-width: none;
+&::-webkit-scrollbar {
+display: none;
+}
 `;
 const SwitchContainer = styled.div`
-  padding-top: 100px;
-  padding-left: 100px;
-  overflow-y: auto;
-  &::-webkit-scrollbar {
-    display: none;
-  }
+padding-top: 100px;
+padding-left: 100px;
+overflow-y: auto;
+&::-webkit-scrollbar {
+display: none;
+}
 `;
 
 export const playerRef: RefObject<HTMLAudioElement> = createRef();
