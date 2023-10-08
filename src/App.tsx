@@ -11,6 +11,7 @@ import {
   AnimatedRoutes,
   RouteTransition,
 } from "./components/RouteTransition/RouteTransition";
+import { Settings } from "./components/Settings/Settings";
 import SideBar from "./components/SideBar/SideBar";
 import Songs from "./components/Songs/Songs";
  import { useStore } from "./store";
@@ -64,6 +65,9 @@ function App() {
               </RouteTransition>
               <RouteTransition exact path="/">
                 <Songs />
+              </RouteTransition>
+              <RouteTransition path="/settings">
+                <Settings />
               </RouteTransition>
             </SwitchContainer>
           </AnimatedRoutes>

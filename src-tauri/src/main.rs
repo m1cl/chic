@@ -1,7 +1,10 @@
 extern crate dirs;
+
 use crate::youtube::{create_playlists_from_dir, PlaylistItems};
+use config::{ConfigError, Environment, File};
 use rocket::fs::{FileServer, Options};
 
+use serde::Deserialize;
 use tokio::task;
 
 #[macro_use]
@@ -12,6 +15,33 @@ mod music_player;
 mod youtube;
 
 pub static CHIC_CONFIG_DIR: &'static str = "~/.config/chic/";
+pub static mut DISCOGS_USER: &'static str = "";
+pub static mut YOUTUBE_USER: &'static str = "";
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct Log {
+  pub level: String,
+}
+#[derive(Debug, Deserialize, Clone)]
+pub struct Settings {
+  pub log: Log,
+}
+
+impl Settings {
+  pub fn new() -> Result<Self, ConfigError> {
+    let env = std::env::var("RUN_ENV").unwrap_or_else(|_| "Development".into());
+    let mut s = config::Config::new();
+    s.set("env", env.clone())?;
+
+    s.merge(File::with_name(CHIC_CONFIG_DIR))?;
+    // s.merge(File::with_name(&format!("{}{}", CONFIG_FILE_PREFIX, env)))?;
+
+    // This makes it so "EA_SERVER__PORT overrides server.port
+    s.merge(Environment::with_prefix("ea").separator("__"))?;
+
+    s.try_into()
+  }
+}
 
 //     src: string;
 //     id: number;

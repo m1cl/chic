@@ -6,59 +6,59 @@ import { useStore } from "../../store";
 import { PlaylistType } from "../../types";
 
 const Container = styled.div`
-display: flex;
-background-color: ${black};
-height: 100%;
-padding: 80px 15px 80px 15px;
-min-width: 240px;
-width: 15vw;
-max-width: 15vw;
-overflow: hidden;
-min-height:0;
+  display: flex;
+  background-color: ${black};
+  height: 100%;
+  padding: 80px 15px 80px 15px;
+  min-width: 240px;
+  width: 15vw;
+  max-width: 15vw;
+  overflow: hidden;
+  min-height: 0;
 `;
 const Main = styled.div`
-background-color: #000000;
-display: flex;
-justify-content: space-around;
-height: 1920;
+  background-color: #000000;
+  display: flex;
+  justify-content: space-around;
+  height: 1920;
 `;
 
 const MenuContainer = styled.ul`
-color: ${grey};
+  color: ${grey};
 `;
 const MenuContent = styled.div`
-margin-bottom: 80px;
+  margin-bottom: 80px;
 
-text-decoration: none;
-color: grey;
-&:hover {
-  cursor: pointer;
-  color: white;
-}
+  text-decoration: none;
+  color: grey;
+  &:hover {
+    cursor: pointer;
+    color: white;
+  }
 `;
 
 const PlaylistContent = styled(MenuContent)`
-display: flex;
-flex-direction: column;
-height: 55vh;
-margin-bottom: 280px;
-background-color: ${black};
-overflow-y:scroll;
+  display: flex;
+  flex-direction: column;
+  height: 55vh;
+  margin-bottom: 280px;
+  background-color: ${black};
+  overflow-y: scroll;
 `;
 
 const MenuItem = styled.li`
-list-style: none;
-margin-left: 22px;
-margin-bottom: 14px;
+  list-style: none;
+  margin-left: 22px;
+  margin-bottom: 14px;
 `;
 
-const Link = styled(L)`
-text-decoration: none;
-color: grey;
-&:hover {
-  cursor: pointer;
-  color: white;
-}
+export const Link = styled(L)`
+  text-decoration: none;
+  color: grey;
+  &:hover {
+    cursor: pointer;
+    color: white;
+  }
 `;
 const SideBar = () => {
   const [_touchStart, setTouchStart] = useState(null);
@@ -97,16 +97,11 @@ const SideBar = () => {
   playlists.map((p: any) => pl.add(p.playlist));
   pl.forEach((p) =>
     MenuItems.push(
-      <MenuItem
-        onTouchStart={onTouchStart}
-      >
-        <Link
-          to="/artists"
-          onClick={() => handleClick(p)}
-        >
+      <MenuItem onTouchStart={onTouchStart}>
+        <Link to="/artists" onClick={() => handleClick(p)}>
           {p}
         </Link>
-      </MenuItem>,
+      </MenuItem>
     )
   );
   return (
@@ -129,9 +124,7 @@ const SideBar = () => {
             <h3 onClick={() => setShowPlaylistNav(!showPlaylistNav)}>
               Playlists{showPlaylistNav ? "" : "..."}
             </h3>
-            <PlaylistContent>
-              {showPlaylistNav && MenuItems}
-            </PlaylistContent>
+            <PlaylistContent>{showPlaylistNav && MenuItems}</PlaylistContent>
           </MenuContent>
         </MenuContainer>
       </Container>

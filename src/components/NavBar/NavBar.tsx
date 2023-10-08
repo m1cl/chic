@@ -1,9 +1,10 @@
-import React, {FormEvent} from "react";
-import {useState} from "react";
+import React, { FormEvent } from "react";
+import { useState } from "react";
 import styled from "styled-components";
-import {black, grey, lightblack} from "../../colors";
-import {borderradius, paddinglg, paddingsm} from "../../spacing";
-import {useStore} from "../../store";
+import { black, grey, lightblack } from "../../colors";
+import { borderradius, paddinglg, paddingsm } from "../../spacing";
+import { useStore } from "../../store";
+import { Link } from "../SideBar/SideBar";
 
 const Container = styled.div`
   background: ${lightblack};
@@ -50,15 +51,17 @@ const NavBar = () => {
     e.preventDefault();
     setCurrentPlaylist(searchValue);
   };
+  const handleSettingsClick = () => {};
   return (
     <Container id="NavBar">
-      <Content>chic</Content>
+      <Link to="/settings">
+        <Content>chic</Content>
+      </Link>
       <form onSubmit={handleOnChange}>
         <SearchInput
           placeholder="Suchen.."
           onChange={(e) => setSearchValue(e.target.value)}
-        >
-        </SearchInput>
+        ></SearchInput>
       </form>
     </Container>
   );
