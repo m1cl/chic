@@ -42,7 +42,7 @@ export const PlaceHolder = styled.div`
   flex-direction: column;
 `;
 export const Container = styled.div`
-  width: 30px;
+  width: auto;
   margin-bottom: 84px;
 `;
 

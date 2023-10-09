@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { Container } from "../Songs/Songs";
 
 const Form = styled.form`
-  width: 1800px;
+  width: auto;
   height: auto;
 `;
 const Input = styled.input`
