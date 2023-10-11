@@ -11,15 +11,21 @@ export const useStore = create<PlaylistState>(persist(
   (set, get) => ({
     playlists: [],
     currentPlaylist: [],
+    searchResults: "",
     selectedPlaylist: "",
     fetch: async (api: string) => {
       if (api === "playlist") {
+        // TODO: DEV MODE if is updated
+        // if (isUpdated) return
         let isUpdated = get().playlists;
         const playlists = await getPlaylist();
         set({ playlists });
       }
     },
-    setCurrentPlaylist: (playlist: string) => {
+    setSearchResults: (searchResults: string) => set({searchResults}),
+    
+    setCurrentPlaylist: ( playlist: string) => {
+      if(playlist) get().setSearchResults(playlist)
       const playlists = get().playlists;
       const options = {
         keys: [
@@ -39,7 +45,7 @@ export const useStore = create<PlaylistState>(persist(
       return set({ currentPlaylist });
     },
     setSelectedPlaylist: (currentPlaylist: string) =>
-      set({ selectedPlaylist: currentPlaylist }),
+      set({ selectedPlaylist: currentPlaylist, searchResults: "" }),
   }),
   {
     name: "playlists-storage", // unique name

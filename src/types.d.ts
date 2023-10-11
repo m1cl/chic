@@ -6,6 +6,8 @@ export interface PlaylistState {
   currentPlaylist: [];
   setCurrentPlaylist: Function;
   setSelectedPlaylist: Function;
+  setSearchResults: Function;
+  searchResults: string;
   fetch: any;
 }
 
