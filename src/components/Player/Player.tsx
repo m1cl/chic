@@ -11,10 +11,10 @@ import {
   ProgressUI,
   VolumeSliderPlacement,
 } from "react-modern-audio-player/dist/types/components/AudioPlayer/Context";
-import {useStore} from "../../store";
-import React, {MutableRefObject, useEffect, useState} from "react";
-import {PlaylistState, PlaylistType} from "../../types";
-import {playerRef} from "../../App";
+import { useStore } from "../../store";
+import React, { MutableRefObject, useEffect, useState } from "react";
+import { PlaylistState, PlaylistType } from "../../types";
+import { playerRef } from "../../App";
 import ReactPlayer from "react-player";
 
 // TODO: Create playlist object in the backend for $HOME/.config/chic directory and send it to frontend
@@ -37,7 +37,7 @@ z-index: 99;
 
 const Buttons = styled.div`
     display: flex;
-    width: 20px;
+    width: 60px;
     height: 100%;
     margin: 0px;
     padding: 0px;
@@ -239,14 +239,14 @@ const Player = () => {
         // onEnablePIP={this.handleEnablePIP}
         // onDisablePIP={this.handleDisablePIP}
         onPause={() => console.log("onPause")}
-      // onBuffer={() => console.log('onBuffer')}
-      // onPlaybackRateChange={this.handleOnPlaybackRateChange}
-      // onSeek={e => console.log('onSeek', e)}
-      // onEnded={this.handleEnded}
-      // onError={e => console.log('onError', e)}
-      // onProgress={this.handleProgress}
-      // // onDuration={this.handleDuration}
-      // onPlaybackQualityChange={e => console.log('onPlaybackQualityChange', e)}
+        // onBuffer={() => console.log('onBuffer')}
+        // onPlaybackRateChange={this.handleOnPlaybackRateChange}
+        // onSeek={e => console.log('onSeek', e)}
+        // onEnded={this.handleEnded}
+        // onError={e => console.log('onError', e)}
+        // onProgress={this.handleProgress}
+        // // onDuration={this.handleDuration}
+        // onPlaybackQualityChange={e => console.log('onPlaybackQualityChange', e)}
       />
 
       <MediaPlayer>
@@ -257,8 +257,8 @@ const Player = () => {
             stroke-width="0"
             version="1.1"
             viewBox="0 0 16 16"
-            height="10em"
-            width="10em"
+            height="120px"
+            width="120px"
             xmlns="http://www.w3.org/2000/svg"
           >
             <path d="M8 0c-4.418 0-8 3.582-8 8s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8zM8 14.5c-3.59 0-6.5-2.91-6.5-6.5s2.91-6.5 6.5-6.5 6.5 2.91 6.5 6.5-2.91 6.5-6.5 6.5z">
@@ -278,25 +278,28 @@ const Player = () => {
                 fill="currentColor"
                 stroke-width="0"
                 viewBox="0 0 24 24"
-                height="10em"
-                width="10em"
+                height="120px"
+                width="120px"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path fill="none" d="M0 0h24v24H0z"></path>
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z">
                 </path>
               </svg>
             </Buttons>
           )
           : (
-            <Buttons className="play-btn" onClick={() => toggleIsPlaying(true)}>
+            <Buttons
+              className="pause-btn"
+              onClick={() => toggleIsPlaying(true)}
+            >
               <svg
                 stroke="currentColor"
                 fill="currentColor"
                 stroke-width="0"
                 viewBox="0 0 24 24"
-                height="10em"
-                width="10em"
+                height="130px"
+                width="130px"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path fill="none" d="M0 0h24v24H0z"></path>
@@ -313,8 +316,8 @@ const Player = () => {
             stroke-width="0"
             version="1.1"
             viewBox="0 0 16 16"
-            height="10em"
-            width="10em"
+            height="120px"
+            width="120px"
             xmlns="http://www.w3.org/2000/svg"
           >
             <path d="M8 0c4.418 0 8 3.582 8 8s-3.582 8-8 8-8-3.582-8-8 3.582-8 8-8zM8 14.5c3.59 0 6.5-2.91 6.5-6.5s-2.91-6.5-6.5-6.5-6.5 2.91-6.5 6.5 2.91 6.5 6.5 6.5z">
@@ -332,8 +335,8 @@ const Player = () => {
             viewBox="0 0 24 24"
             stroke-linecap="round"
             stroke-linejoin="round"
-            height="10em"
-            width="10em"
+            height="120px"
+            width="120px"
             xmlns="http://www.w3.org/2000/svg"
           >
             <desc></desc>
