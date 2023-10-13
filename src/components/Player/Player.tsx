@@ -21,18 +21,18 @@ import ReactPlayer from "react-player";
 const playlists = [];
 
 const PlayerWrapper = styled.div`
-position: absolute;
-display: flex;
-flex-direction: row;
-justify-content: center;
-justify-items: center;
-flex-wrap: nowrap;
-bottom: 0px;
-vertical-align: center;
-background-color: #282828;
-width: 100vw;
-height: 100px;
-z-index: 99;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    justify-items: center;
+    flex-wrap: nowrap;
+    bottom: 0px;
+    vertical-align: center;
+    background-color: #282828;
+    width: 100vw;
+    height: 100px;
+    z-index: 99;
 `;
 
 const Buttons = styled.div`
@@ -48,18 +48,14 @@ const Buttons = styled.div`
 `;
 
 const MediaPlayer = styled.div`
-position: absolute;
-display: flex;
-flex - direction: row;
-justify-content: center;
-justify-items: center;
-flex-wrap: nowrap;
-bottom: 0px;
-vertical-align: center;
-background-color: #282828;
-width: 100vw;
-height: 100px;
-z-index: 99;
+    position: absolute;
+    display: flex;
+    flex - direction: row;
+    bottom: 0px;
+    background-color: #282828;
+    width: 100vw;
+    height: 140px;
+    z-index: 99;
 `;
 
 const Player = () => {
@@ -79,8 +75,28 @@ const Player = () => {
     state.currentPlaylist
   );
   const [_players, setPlaylists] = useState<PlaylistType[]>();
-  const [isPlaying, toggleIsPlaying] = useState(false);
-  const [isLooping, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLooping, setIsLooping] = useState(false);
+  const [currentSong, setCurrentSong] = useState(0);
+
+  const getSongTitle = (song: PlaylistType) => {
+    return song.name.split(".mp3")[0].split(" - ")[1];
+  };
+  const getSongArtist = (song: PlaylistType) => {
+    return song.name.split(".mp3")[0].split(" - ")[0];
+  };
+  const getArtistAndSong = (song: PlaylistType) => {
+    return `${getSongArtist(song)} - ${getSongTitle(song)}`;
+  };
+
+  const parseSongInformation = (playlistItem: PlaylistType) => {
+    if (!playlistItem) return "";
+    return playlistItem.name.replace(".mp3", "").slice(0, -12);
+  };
+  const handleNextSong = (prevNext: string) => {
+    if (prevNext) return setCurrentSong(currentSong + 1);
+    if ((currentSong) > 0) return setCurrentSong(currentSong - 1);
+  };
 
   let playList: PlaylistType[] = [];
   if (currentPlaylist) {
@@ -225,7 +241,7 @@ const Player = () => {
         className="react-player"
         width="100%"
         height="100%"
-        url={allPlaylists}
+        url={allPlaylists.length > 0 ? allPlaylists[currentSong].src : ""}
         playing={isPlaying}
         controls={true}
         light={false}
@@ -235,7 +251,7 @@ const Player = () => {
         muted={false}
         onReady={() => console.log("onReady")}
         onStart={() => console.log("onStart")}
-        onPlay={() => toggleIsPlaying(true)}
+        onPlay={() => setIsPlaying(true)}
         // onEnablePIP={this.handleEnablePIP}
         // onDisablePIP={this.handleDisablePIP}
         onPause={() => console.log("onPause")}
@@ -250,7 +266,7 @@ const Player = () => {
       />
 
       <MediaPlayer>
-        <Buttons className="">
+        <Buttons className="" onClick={handleNextSong}>
           <svg
             stroke="currentColor"
             fill="currentColor"
@@ -271,7 +287,7 @@ const Player = () => {
           ? (
             <Buttons
               className="play-btn"
-              onClick={() => toggleIsPlaying(false)}
+              onClick={() => setIsPlaying(false)}
             >
               <svg
                 stroke="currentColor"
@@ -291,7 +307,7 @@ const Player = () => {
           : (
             <Buttons
               className="pause-btn"
-              onClick={() => toggleIsPlaying(true)}
+              onClick={() => setIsPlaying(true)}
             >
               <svg
                 stroke="currentColor"
@@ -309,7 +325,7 @@ const Player = () => {
             </Buttons>
           )}
 
-        <Buttons className="">
+        <Buttons className="" onClick={() => handleNextSong("next")}>
           <svg
             stroke="currentColor"
             fill="currentColor"
@@ -360,6 +376,13 @@ const Player = () => {
             <path d="M3 10h11v2H3zM3 6h11v2H3zM3 14h7v2H3zM16 13v8l6-4z"></path>
           </svg>
         </Buttons>
+        <marquee
+          behavior=""
+          direction=""
+          style={{ fontSize: "42px", color: "cyan" }}
+        >
+          {allPlaylists ? parseSongInformation(allPlaylists[currentSong]) : ""}
+        </marquee>
       </MediaPlayer>
     </PlayerWrapper>
   );
