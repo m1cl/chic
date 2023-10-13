@@ -11,10 +11,10 @@ import {
   ProgressUI,
   VolumeSliderPlacement,
 } from "react-modern-audio-player/dist/types/components/AudioPlayer/Context";
-import { useStore } from "../../store";
-import React, { MutableRefObject, useEffect, useState } from "react";
-import { PlaylistState, PlaylistType } from "../../types";
-import { playerRef } from "../../App";
+import {useStore} from "../../store";
+import React, {MutableRefObject, useEffect, useState} from "react";
+import {PlaylistState, PlaylistType} from "../../types";
+import {playerRef} from "../../App";
 import ReactPlayer from "react-player";
 
 // TODO: Create playlist object in the backend for $HOME/.config/chic directory and send it to frontend
@@ -23,27 +23,19 @@ const playlists = [];
 const PlayerWrapper = styled.div`
     position: absolute;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    justify-items: center;
-    flex-wrap: nowrap;
+    flex-direction: row;
     bottom: 0px;
-    vertical-align: center;
     background-color: #282828;
-    width: 100vw;
+    width: 100%;
     height: 100px;
     z-index: 99;
 `;
 
 const Buttons = styled.div`
-    display: flex;
-    width: 60px;
-    height: 100%;
-    margin: 0px;
-    padding: 0px;
+    margin: auto;
+    padding: auto;
     background: transparent;
     cursor: pointer;
-    vertical-align: baseline;
     border: 0px;
 `;
 
@@ -255,136 +247,137 @@ const Player = () => {
         // onEnablePIP={this.handleEnablePIP}
         // onDisablePIP={this.handleDisablePIP}
         onPause={() => console.log("onPause")}
-        // onBuffer={() => console.log('onBuffer')}
-        // onPlaybackRateChange={this.handleOnPlaybackRateChange}
-        // onSeek={e => console.log('onSeek', e)}
-        // onEnded={this.handleEnded}
-        // onError={e => console.log('onError', e)}
-        // onProgress={this.handleProgress}
-        // // onDuration={this.handleDuration}
-        // onPlaybackQualityChange={e => console.log('onPlaybackQualityChange', e)}
+      // onBuffer={() => console.log('onBuffer')}
+      // onPlaybackRateChange={this.handleOnPlaybackRateChange}
+      // onSeek={e => console.log('onSeek', e)}
+      // onEnded={this.handleEnded}
+      // onError={e => console.log('onError', e)}
+      // onProgress={this.handleProgress}
+      // // onDuration={this.handleDuration}
+      // onPlaybackQualityChange={e => console.log('onPlaybackQualityChange', e)}
       />
 
-      <MediaPlayer>
-        <Buttons className="" onClick={handleNextSong}>
-          <svg
-            stroke="currentColor"
-            fill="currentColor"
-            stroke-width="0"
-            version="1.1"
-            viewBox="0 0 16 16"
-            height="120px"
-            width="120px"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M8 0c-4.418 0-8 3.582-8 8s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8zM8 14.5c-3.59 0-6.5-2.91-6.5-6.5s2.91-6.5 6.5-6.5 6.5 2.91 6.5 6.5-2.91 6.5-6.5 6.5z">
-            </path>
-            <path d="M7 8l4-3v6z"></path>
-            <path d="M5 5h2v6h-2v-6z"></path>
-          </svg>
-        </Buttons>
-        {isPlaying
-          ? (
-            <Buttons
-              className="play-btn"
-              onClick={() => setIsPlaying(false)}
-            >
-              <svg
-                stroke="currentColor"
-                fill="currentColor"
-                stroke-width="0"
-                viewBox="0 0 24 24"
-                height="120px"
-                width="120px"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path fill="none" d="M0 0h24v24H0z"></path>
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z">
-                </path>
-              </svg>
-            </Buttons>
-          )
-          : (
-            <Buttons
-              className="pause-btn"
-              onClick={() => setIsPlaying(true)}
-            >
-              <svg
-                stroke="currentColor"
-                fill="currentColor"
-                stroke-width="0"
-                viewBox="0 0 24 24"
-                height="130px"
-                width="130px"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path fill="none" d="M0 0h24v24H0z"></path>
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z">
-                </path>
-              </svg>
-            </Buttons>
-          )}
-
-        <Buttons className="" onClick={() => handleNextSong("next")}>
-          <svg
-            stroke="currentColor"
-            fill="currentColor"
-            stroke-width="0"
-            version="1.1"
-            viewBox="0 0 16 16"
-            height="120px"
-            width="120px"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M8 0c4.418 0 8 3.582 8 8s-3.582 8-8 8-8-3.582-8-8 3.582-8 8-8zM8 14.5c3.59 0 6.5-2.91 6.5-6.5s-2.91-6.5-6.5-6.5-6.5 2.91-6.5 6.5 2.91 6.5 6.5 6.5z">
-            </path>
-            <path d="M9 8l-4-3v6z"></path>
-            <path d="M11 5h-2v6h2v-6z"></path>
-          </svg>
-        </Buttons>
-
-        <Buttons className="">
-          <svg
-            stroke="currentColor"
-            fill="none"
-            stroke-width="2"
-            viewBox="0 0 24 24"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            height="120px"
-            width="120px"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <desc></desc>
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-            <path d="M4 12v-3a3 3 0 0 1 3 -3h13m-3 -3l3 3l-3 3"></path>
-            <path d="M20 12v3a3 3 0 0 1 -3 3h-13m3 3l-3 -3l3 -3"></path>
-          </svg>
-        </Buttons>
-
-        <Buttons className="">
-          <svg
-            stroke="currentColor"
-            fill="currentColor"
-            stroke-width="0"
-            viewBox="0 0 24 24"
-            height="100%"
-            width="100%"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path fill="none" d="M0 0h24v24H0z"></path>
-            <path d="M3 10h11v2H3zM3 6h11v2H3zM3 14h7v2H3zM16 13v8l6-4z"></path>
-          </svg>
-        </Buttons>
-        <marquee
-          behavior=""
-          direction=""
-          style={{ fontSize: "42px", color: "cyan" }}
+      <Buttons className="" onClick={handleNextSong}>
+        <svg
+          stroke="currentColor"
+          fill="currentColor"
+          stroke-width="0"
+          version="1.1"
+          viewBox="0 0 16 16"
+          height="40px"
+          width="40px"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          {allPlaylists ? parseSongInformation(allPlaylists[currentSong]) : ""}
-        </marquee>
-      </MediaPlayer>
+          <path d="M8 0c-4.418 0-8 3.582-8 8s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8zM8 14.5c-3.59 0-6.5-2.91-6.5-6.5s2.91-6.5 6.5-6.5 6.5 2.91 6.5 6.5-2.91 6.5-6.5 6.5z">
+          </path>
+          <path d="M7 8l4-3v6z"></path>
+          <path d="M5 5h2v6h-2v-6z"></path>
+        </svg>
+      </Buttons>
+      <marquee
+        behavior=""
+        direction=""
+        style={{fontSize: "42px", color: "cyan"}}
+      >
+        {allPlaylists ? parseSongInformation(allPlaylists[currentSong]) : ""}
+      </marquee>
+      <Buttons className="" onClick={() => handleNextSong("next")}>
+        <svg
+          stroke="currentColor"
+          fill="currentColor"
+          stroke-width="0"
+          version="1.1"
+          viewBox="0 0 16 16"
+          height="40px"
+          width="40px"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M8 0c4.418 0 8 3.582 8 8s-3.582 8-8 8-8-3.582-8-8 3.582-8 8-8zM8 14.5c3.59 0 6.5-2.91 6.5-6.5s-2.91-6.5-6.5-6.5-6.5 2.91-6.5 6.5 2.91 6.5 6.5 6.5z">
+          </path>
+          <path d="M9 8l-4-3v6z"></path>
+          <path d="M11 5h-2v6h2v-6z"></path>
+        </svg>
+      </Buttons>
     </PlayerWrapper>
+    // <MediaPlayer>
+    //   {isPlaying
+    //     ? (
+    //       <Buttons
+    //         className="play-btn"
+    //         onClick={() => setIsPlaying(false)}
+    //       >
+    //         <svg
+    //           stroke="currentColor"
+    //           fill="currentColor"
+    //           stroke-width="0"
+    //           viewBox="0 0 24 24"
+    //           height="120px"
+    //           width="120px"
+    //           xmlns="http://www.w3.org/2000/svg"
+    //         >
+    //           <path fill="none" d="M0 0h24v24H0z"></path>
+    //           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z">
+    //           </path>
+    //         </svg>
+    //       </Buttons>
+    //     )
+    //     : (
+    //       <Buttons
+    //         className="pause-btn"
+    //         onClick={() => setIsPlaying(true)}
+    //       >
+    //         <svg
+    //           stroke="currentColor"
+    //           fill="currentColor"
+    //           stroke-width="0"
+    //           viewBox="0 0 24 24"
+    //           height="130px"
+    //           width="130px"
+    //           xmlns="http://www.w3.org/2000/svg"
+    //         >
+    //           <path fill="none" d="M0 0h24v24H0z"></path>
+    //           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z">
+    //           </path>
+    //         </svg>
+    //       </Buttons>
+    //     )}
+    //
+    //
+    //   <Buttons className="">
+    //     <svg
+    //       stroke="currentColor"
+    //       fill="none"
+    //       stroke-width="2"
+    //       viewBox="0 0 24 24"
+    //       stroke-linecap="round"
+    //       stroke-linejoin="round"
+    //       height="120px"
+    //       width="120px"
+    //       xmlns="http://www.w3.org/2000/svg"
+    //     >
+    //       <desc></desc>
+    //       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    //       <path d="M4 12v-3a3 3 0 0 1 3 -3h13m-3 -3l3 3l-3 3"></path>
+    //       <path d="M20 12v3a3 3 0 0 1 -3 3h-13m3 3l-3 -3l3 -3"></path>
+    //     </svg>
+    //   </Buttons>
+    //
+    //   <Buttons className="">
+    //     <svg
+    //       stroke="currentColor"
+    //       fill="currentColor"
+    //       stroke-width="0"
+    //       viewBox="0 0 24 24"
+    //       height="100%"
+    //       width="100%"
+    //       xmlns="http://www.w3.org/2000/svg"
+    //     >
+    //       <path fill="none" d="M0 0h24v24H0z"></path>
+    //       <path d="M3 10h11v2H3zM3 6h11v2H3zM3 14h7v2H3zM16 13v8l6-4z"></path>
+    //     </svg>
+    //   </Buttons>
+    //
+    // </MediaPlayer>
   );
 };
 
