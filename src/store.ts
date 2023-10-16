@@ -1,8 +1,8 @@
 import create from "zustand";
 import createContext from "zustand/context";
-import { persist } from "zustand/middleware";
-import { getPlaylist } from "./api";
-import { PlaylistState } from "./types";
+import {persist} from "zustand/middleware";
+import {getPlaylist} from "./api";
+import {PlaylistState} from "./types";
 import Fuse from "fuse.js";
 
 export const Provider = createContext();
@@ -13,19 +13,22 @@ export const useStore = create<PlaylistState>(persist(
     currentPlaylist: [],
     searchResults: "",
     selectedPlaylist: "",
+    currentSongIndex: 0,
+    setCurrentSongIndex: (currentSongIndex: number) =>
+      set({currentSongIndex}),
     fetch: async (api: string) => {
       if (api === "playlist") {
         // TODO: DEV MODE if is updated
         // if (isUpdated) return
         let isUpdated = get().playlists;
         const playlists = await getPlaylist();
-        set({ playlists });
+        set({playlists});
       }
     },
     setSearchResults: (searchResults: string) => set({searchResults}),
-    
-    setCurrentPlaylist: ( playlist: string) => {
-      if(playlist) get().setSearchResults(playlist)
+
+    setCurrentPlaylist: (playlist: string) => {
+      if (playlist) get().setSearchResults(playlist)
       const playlists = get().playlists;
       const options = {
         keys: [
@@ -33,19 +36,20 @@ export const useStore = create<PlaylistState>(persist(
           "src",
         ],
       };
+      // TODO: something odd here
       const currentPlaylist = new Fuse(playlists, options)
         .search(playlist)
         .map((c) => c.item)
         .map((c, i) => {
-          c.id = i + 1;
+          c.id = i;
           return c;
         });
-      if (!playlist) return set({ currentPlaylist: [] });
+      if (!playlist) return set({currentPlaylist: []});
 
-      return set({ currentPlaylist });
+      return set({currentPlaylist});
     },
     setSelectedPlaylist: (currentPlaylist: string) =>
-      set({ selectedPlaylist: currentPlaylist, searchResults: "" }),
+      set({selectedPlaylist: currentPlaylist, searchResults: ""}),
   }),
   {
     name: "playlists-storage", // unique name

@@ -1,9 +1,7 @@
 import styled from "styled-components";
 //import play from "./play.png";
 //import next from "./next.png";
-import AudioPlayer from "react-modern-audio-player";
 import {
-  AudioPlayerStateContext,
   //  InterfaceGridTemplateArea,
   PlayerPlacement,
   // PlayList,
@@ -12,9 +10,8 @@ import {
   VolumeSliderPlacement,
 } from "react-modern-audio-player/dist/types/components/AudioPlayer/Context";
 import {useStore} from "../../store";
-import React, {MutableRefObject, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {PlaylistState, PlaylistType} from "../../types";
-import {playerRef} from "../../App";
 import ReactPlayer from "react-player";
 
 // TODO: Create playlist object in the backend for $HOME/.config/chic directory and send it to frontend
@@ -109,10 +106,19 @@ const Player = () => {
   const currentPlaylist = useStore((state: PlaylistState) =>
     state.currentPlaylist
   );
+  const setCurrentPlaylist = useStore(
+    (state: PlaylistState) => state.setCurrentPlaylist
+  )
+  const setCurrentSongIndex = useStore(
+    (state: PlaylistState) => state.setCurrentSongIndex
+  )
+  const currentSongIndex = useStore(
+    (state: PlaylistState) => state.currentSongIndex
+  )
+
   const [_players, setPlaylists] = useState<PlaylistType[]>();
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLooping, setIsLooping] = useState(false);
-  const [currentSong, setCurrentSong] = useState(0);
 
   const getSongTitle = (song: PlaylistType) => {
     return song.name.split(".mp3")[0].split(" - ")[1];
@@ -125,27 +131,20 @@ const Player = () => {
   };
 
   const parseSongInformation = (playlistItem: PlaylistType) => {
-    if (!playlistItem.name) return "";
+    if (!playlistItem || !playlistItem.name) return "";
     return playlistItem.name.replace(".mp3", "").slice(0, -12);
   };
   const handleNextSong = (prevNext: string) => {
-    if (prevNext) return setCurrentSong(currentSong + 1);
-    if ((currentSong) > 0) return setCurrentSong(currentSong - 1);
+    if (prevNext) return setCurrentSongIndex(currentSongIndex + 1);
+    if (currentSongIndex > 0) return setCurrentSongIndex(currentSongIndex - 1);
   };
 
-  let playList: PlaylistType[] = [];
-  if (currentPlaylist) {
-    // TODO: clean up this
-    playList = [...playlists, ...currentPlaylist];
-  } else {
-    playList = [...playlists, ...allPlaylists];
-  }
-
   useEffect(() => {
-    if (playList) {
-      setPlaylists(playList);
+    if (!currentPlaylist) {
+      setCurrentPlaylist(allPlaylists[0])
     }
-  }, [isPlaying]);
+  }, [allPlaylists]);
+
   if (!allPlaylists) return <div />;
 
   /** you can get audioPlayerState by props */
@@ -269,6 +268,7 @@ const Player = () => {
     // this.player = player
   };
 
+  console.log("current playlist", currentPlaylist)
   return (
     <PlayerWrapper>
 
@@ -277,7 +277,7 @@ const Player = () => {
         className="react-player"
         width="100%"
         height="100%"
-        url={currentPlaylist.length > 0 ? currentPlaylist[currentSong].src : ""}
+        url={currentPlaylist.length > 0 ? currentPlaylist[currentSongIndex].src : ""}
         playing={isPlaying}
         controls={false}
         light={false}
@@ -306,7 +306,7 @@ const Player = () => {
         direction=""
       >
         <Center>
-          {parseSongInformation(currentPlaylist[currentSong])}
+          {parseSongInformation(currentPlaylist[currentSongIndex])}
         </Center>
       </Marquee>
 

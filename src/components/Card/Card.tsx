@@ -1,11 +1,12 @@
-import { AnimateSharedLayout } from "framer-motion";
-import { AnimatePresence } from "framer-motion";
-import { motion } from "framer-motion";
-import React, { FC, MouseEvent, ReactNode, useState } from "react";
+import {AnimateSharedLayout} from "framer-motion";
+import {AnimatePresence} from "framer-motion";
+import {motion} from "framer-motion";
+import React, {FC, MouseEvent, ReactNode, useState} from "react";
 import styled from "styled-components";
-import { playerRef } from "../../App";
-import { H2 } from "../Songs/Songs";
+import {playerRef} from "../../App";
+import {H2} from "../Songs/Songs";
 import cover from "./album.png";
+import {useStore} from "../../store";
 // import {emit, listen} from "@tauri-apps/api/event";
 // With the Tauri API npm package:
 
@@ -44,9 +45,9 @@ const Title = styled.h3`
   color: white;
 `;
 
-const AlbumCover = styled(motion.img)<{ isOpen: boolean }>`
+const AlbumCover = styled(motion.img) <{isOpen: boolean}>`
   filter: ${(props) =>
-  props.isOpen ? "drop-shadow(5px 5px 3px rgba(0,0,0,0.7))" : "opacity(100%)"};
+    props.isOpen ? "drop-shadow(5px 5px 3px rgba(0,0,0,0.7))" : "opacity(100%)"};
 `;
 
 const Container = styled(AnimateSharedLayout)`
@@ -98,34 +99,32 @@ export type PlaylistType = {
 };
 const ContentContainer = styled(motion.div)``;
 
-const handleClick = (e: MouseEvent<HTMLElement>) => {
-  // TODO: some songs are not playing because of string escape issue like quotes
-  const songId = e.currentTarget.id;
-  console.log("id", songId);
-  if (playerRef.current) {
-    playerRef.current.src = `${songId}`;
-    playerRef.current.play();
-  }
-};
 
-const Card = ({ items }: CardProps) => {
-  console.log(items);
+const Card = ({items}: CardProps) => {
+  const setCurrentSongIndex = useStore((state) => state.setCurrentSongIndex);
   items = items.map((item: any) => {
     item.artist = item.artist?.replace(/['"]+/g, "");
     return item;
   });
+  //TODO: something odd with id 
+  const handleClick = (e) => {
+    e.preventDefault();
+    setCurrentSongIndex(e.target.id - 1);
+  }
   return (
     <Container>
       {items.map((item: any) => (
         <div>
           <Item item={item} />
-          <H2 id={item.src} onClick={handleClick}>{item.name}</H2>
+          <H2 id={item.id} src={item.src} onClick={handleClick}>{item.name}</H2>
         </div>
       ))}
     </Container>
   );
 };
-const Item: FC<{ item: PlaylistType }> = ({ item }) => {
+const Item: FC<{item: PlaylistType}> = ({item}) => {
+
+  const setCurrentSongIndex = useStore((state) => state.setCurrentSongIndex);
   const [isOpen, setIsOpen] = useState(false);
 
   function handleIsOpen() {
@@ -137,6 +136,11 @@ const Item: FC<{ item: PlaylistType }> = ({ item }) => {
 
   function fastExpander() {
     handleIsOpen();
+  }
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    setCurrentSongIndex(e.target.id - 1);
   }
   const toggleOpen = () => setIsOpen(!isOpen);
 
@@ -172,15 +176,15 @@ const Item: FC<{ item: PlaylistType }> = ({ item }) => {
   );
 };
 
-const Content: FC<{ item: PlaylistType }> = ({ item }) => {
+const Content: FC<{item: PlaylistType}> = ({item}) => {
   return (
     <ContentContainer
       layout
-      style={{ zIndex: 0 }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 1.5 }}
-      exit={{ opacity: 0 }}
+      style={{zIndex: 0}}
+      initial={{opacity: 0}}
+      animate={{opacity: 1}}
+      transition={{duration: 1.5}}
+      exit={{opacity: 0}}
     >
       <Title className="row">{item.name}</Title>
       <Row className="row">{item.writer}</Row>
