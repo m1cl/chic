@@ -23,17 +23,20 @@ const playlists = [];
 const PlayerWrapper = styled.div`
     position: absolute;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    align-items: center;
     bottom: 0px;
     background-color: #282828;
     width: 100%;
-    height: 100px;
+    height: 150px;
     z-index: 99;
 `;
 
 const Buttons = styled.div`
     margin: auto;
     padding: auto;
+    margin-left: 2px;
+    margin-right: 23px;
     background: transparent;
     cursor: pointer;
     border: 0px;
@@ -41,14 +44,54 @@ const Buttons = styled.div`
 
 const MediaPlayer = styled.div`
     position: absolute;
+    margin-right: 120px;
+    margin-bottom: 60px;
+    margin-top: 62px;
     display: flex;
-    flex - direction: row;
-    bottom: 0px;
-    background-color: #282828;
-    width: 100vw;
-    height: 140px;
-    z-index: 99;
+    background-color: rgba(0, 0, 0, 0.0);
 `;
+// https://codepen.io/G-Mariem/pen/gOvBjMP
+const Center = styled.div`
+  transform:prespective(1000px) translate(-50%,-50%);
+  transform:skewY(15deg);
+  transition:0.5s;
+  transform:translate(-50%,-50%);
+  margin:30px;
+  margin-left: 120px;
+  width: 70vw;
+  text-transform:uppercase;
+  font-size:2em;
+  color:#fff;
+  transform-style:preserve-3d;
+  transition:0.8s;
+  // &:hover{
+  //       transform:prespective(100px) translate(-30%,-30%);
+  //   transform:skewY(0deg);
+  // }
+`;
+
+
+const Marquee = styled.marquee`
+  transition:0.5s;
+  transform:translate(-50%,-50%);
+  width: 70vw;
+  text-transform:uppercase;
+  font-size:1em;
+  color:#fff;
+  transform-style:preserve-3d;
+  transition:0.8s;
+`
+const Span = styled.div`
+  transform:translate(-50%,-50%);
+  text-transform:uppercase;
+  font-size:1rem;
+  color:#fff;
+  transform-style:preserve-3d;
+  transition:0.8s;
+  &:nth-child(1){
+  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+`;
+const H1 = styled(Span);
 
 const Player = () => {
   const [progressType, _] = useState<ProgressUI>("waveform");
@@ -82,7 +125,7 @@ const Player = () => {
   };
 
   const parseSongInformation = (playlistItem: PlaylistType) => {
-    if (!playlistItem) return "";
+    if (!playlistItem.name) return "";
     return playlistItem.name.replace(".mp3", "").slice(0, -12);
   };
   const handleNextSong = (prevNext: string) => {
@@ -228,14 +271,15 @@ const Player = () => {
 
   return (
     <PlayerWrapper>
+
       <ReactPlayer
         // ref={this.ref}
         className="react-player"
         width="100%"
         height="100%"
-        url={allPlaylists.length > 0 ? allPlaylists[currentSong].src : ""}
+        url={currentPlaylist.length > 0 ? currentPlaylist[currentSong].src : ""}
         playing={isPlaying}
-        controls={true}
+        controls={false}
         light={false}
         loop={false}
         playbackRate={1.0}
@@ -257,90 +301,95 @@ const Player = () => {
       // onPlaybackQualityChange={e => console.log('onPlaybackQualityChange', e)}
       />
 
-      <Buttons className="" onClick={handleNextSong}>
-        <svg
-          stroke="currentColor"
-          fill="currentColor"
-          stroke-width="0"
-          version="1.1"
-          viewBox="0 0 16 16"
-          height="40px"
-          width="40px"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M8 0c-4.418 0-8 3.582-8 8s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8zM8 14.5c-3.59 0-6.5-2.91-6.5-6.5s2.91-6.5 6.5-6.5 6.5 2.91 6.5 6.5-2.91 6.5-6.5 6.5z">
-          </path>
-          <path d="M7 8l4-3v6z"></path>
-          <path d="M5 5h2v6h-2v-6z"></path>
-        </svg>
-      </Buttons>
-      <marquee
+      <Marquee
         behavior=""
         direction=""
-        style={{fontSize: "42px", color: "cyan"}}
       >
-        {allPlaylists ? parseSongInformation(allPlaylists[currentSong]) : ""}
-      </marquee>
-      <Buttons className="" onClick={() => handleNextSong("next")}>
-        <svg
-          stroke="currentColor"
-          fill="currentColor"
-          stroke-width="0"
-          version="1.1"
-          viewBox="0 0 16 16"
-          height="40px"
-          width="40px"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M8 0c4.418 0 8 3.582 8 8s-3.582 8-8 8-8-3.582-8-8 3.582-8 8-8zM8 14.5c3.59 0 6.5-2.91 6.5-6.5s-2.91-6.5-6.5-6.5-6.5 2.91-6.5 6.5 2.91 6.5 6.5 6.5z">
-          </path>
-          <path d="M9 8l-4-3v6z"></path>
-          <path d="M11 5h-2v6h2v-6z"></path>
-        </svg>
-      </Buttons>
+        <Center>
+          {parseSongInformation(currentPlaylist[currentSong])}
+        </Center>
+      </Marquee>
+
+      <MediaPlayer>
+        <Buttons className="" onClick={handleNextSong}>
+          <svg
+            stroke="currentColor"
+            fill="currentColor"
+            stroke-width="0"
+            version="1.1"
+            viewBox="0 0 16 16"
+            height="40px"
+            width="40px"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M8 0c-4.418 0-8 3.582-8 8s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8zM8 14.5c-3.59 0-6.5-2.91-6.5-6.5s2.91-6.5 6.5-6.5 6.5 2.91 6.5 6.5-2.91 6.5-6.5 6.5z">
+            </path>
+            <path d="M7 8l4-3v6z"></path>
+            <path d="M5 5h2v6h-2v-6z"></path>
+          </svg>
+        </Buttons>
+
+        {isPlaying
+          ? (
+            <Buttons
+              className="play-btn"
+              onClick={() => setIsPlaying(false)}
+            >
+              <svg
+                stroke="currentColor"
+                fill="currentColor"
+                stroke-width="0"
+                viewBox="0 0 24 24"
+                height="50px"
+                width="50px"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path fill="none" d="M0 0h24v24H0z"></path>
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z">
+                </path>
+              </svg>
+            </Buttons>
+          )
+          : (
+            <Buttons
+              className="pause-btn"
+              onClick={() => setIsPlaying(true)}
+            >
+              <svg
+                stroke="currentColor"
+                fill="currentColor"
+                stroke-width="0"
+                viewBox="0 0 24 24"
+                height="50px"
+                width="50px"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path fill="none" d="M0 0h24v24H0z"></path>
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z">
+                </path>
+              </svg>
+            </Buttons>
+          )}
+        <Buttons className="" onClick={() => handleNextSong("next")}>
+          <svg
+            stroke="currentColor"
+            fill="currentColor"
+            stroke-width="0"
+            version="1.1"
+            viewBox="0 0 16 16"
+            height="40px"
+            width="40px"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M8 0c4.418 0 8 3.582 8 8s-3.582 8-8 8-8-3.582-8-8 3.582-8 8-8zM8 14.5c3.59 0 6.5-2.91 6.5-6.5s-2.91-6.5-6.5-6.5-6.5 2.91-6.5 6.5 2.91 6.5 6.5 6.5z">
+            </path>
+            <path d="M9 8l-4-3v6z"></path>
+            <path d="M11 5h-2v6h2v-6z"></path>
+          </svg>
+        </Buttons>
+      </MediaPlayer>
     </PlayerWrapper>
     // <MediaPlayer>
-    //   {isPlaying
-    //     ? (
-    //       <Buttons
-    //         className="play-btn"
-    //         onClick={() => setIsPlaying(false)}
-    //       >
-    //         <svg
-    //           stroke="currentColor"
-    //           fill="currentColor"
-    //           stroke-width="0"
-    //           viewBox="0 0 24 24"
-    //           height="120px"
-    //           width="120px"
-    //           xmlns="http://www.w3.org/2000/svg"
-    //         >
-    //           <path fill="none" d="M0 0h24v24H0z"></path>
-    //           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z">
-    //           </path>
-    //         </svg>
-    //       </Buttons>
-    //     )
-    //     : (
-    //       <Buttons
-    //         className="pause-btn"
-    //         onClick={() => setIsPlaying(true)}
-    //       >
-    //         <svg
-    //           stroke="currentColor"
-    //           fill="currentColor"
-    //           stroke-width="0"
-    //           viewBox="0 0 24 24"
-    //           height="130px"
-    //           width="130px"
-    //           xmlns="http://www.w3.org/2000/svg"
-    //         >
-    //           <path fill="none" d="M0 0h24v24H0z"></path>
-    //           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z">
-    //           </path>
-    //         </svg>
-    //       </Buttons>
-    //     )}
     //
     //
     //   <Buttons className="">
