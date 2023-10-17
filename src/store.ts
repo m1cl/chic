@@ -13,6 +13,10 @@ export const useStore = create<PlaylistState>(persist(
     currentPlaylist: [],
     searchResults: "",
     selectedPlaylist: "",
+    getCurrentSong: () => {
+      if (!get().currentPlaylist[get().currentSongIndex]) return null
+      return get().currentPlaylist[get().currentSongIndex].src;
+    },
     currentSongIndex: 0,
     setCurrentSongIndex: (currentSongIndex: number) =>
       set({currentSongIndex}),
@@ -44,9 +48,10 @@ export const useStore = create<PlaylistState>(persist(
           c.id = i;
           return c;
         });
+      console.log("currentSong is ", currentPlaylist[get().currentSongIndex]);
       if (!playlist) return set({currentPlaylist: []});
 
-      return set({currentPlaylist});
+      return set({currentPlaylist, currentSongIndex: 0});
     },
     setSelectedPlaylist: (currentPlaylist: string) =>
       set({selectedPlaylist: currentPlaylist, searchResults: ""}),

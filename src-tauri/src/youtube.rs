@@ -57,7 +57,7 @@ fn get_playlist_name(entry: &DirEntry) -> String {
 }
 
 pub fn create_playlists_from_dir() -> Vec<PlaylistItems> {
-  let mut id = 1;
+  let mut id = 0;
   let mut playlists: Vec<PlaylistItems> = Vec::new();
   for entry in WalkDir::new("chic/")
     .follow_links(true)

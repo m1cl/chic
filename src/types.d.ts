@@ -3,10 +3,11 @@ import {PlayList} from "react-modern-audio-player";
 export interface PlaylistState {
   playlists: PlaylistType[];
   selectedPlaylist: string;
-  currentPlaylist: [];
+  currentPlaylist: PlaylistType[];
   setCurrentPlaylist: Function;
   setSelectedPlaylist: Function;
   setSearchResults: Function;
+  getCurrentSong: Function;
   searchResults: string;
   currentSongIndex: number;
   setCurrentSongIndex: Function;

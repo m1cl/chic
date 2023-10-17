@@ -13,9 +13,14 @@ import {useStore} from "../../store";
 import React, {useEffect, useState} from "react";
 import {PlaylistState, PlaylistType} from "../../types";
 import ReactPlayer from "react-player";
+import Draggable from 'react-draggable';
 
 // TODO: Create playlist object in the backend for $HOME/.config/chic directory and send it to frontend
-const playlists = [];
+//
+export const parseSongInformation = (playlistItem: PlaylistType) => {
+  if (!playlistItem || !playlistItem.name) return "";
+  return playlistItem.name.replace(".mp3", "").slice(0, -12);
+};
 
 const PlayerWrapper = styled.div`
     position: absolute;
@@ -88,7 +93,6 @@ const Span = styled.div`
   &:nth-child(1){
   clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
 `;
-const H1 = styled(Span);
 
 const Player = () => {
   const [progressType, _] = useState<ProgressUI>("waveform");
@@ -116,9 +120,14 @@ const Player = () => {
     (state: PlaylistState) => state.currentSongIndex
   )
 
+  const getCurrentSong = useStore(
+    (state: PlaylistState) => state.getCurrentSong
+  )
+
   const [_players, setPlaylists] = useState<PlaylistType[]>();
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLooping, setIsLooping] = useState(false);
+  const [url, setUrl] = useState("");
 
   const getSongTitle = (song: PlaylistType) => {
     return song.name.split(".mp3")[0].split(" - ")[1];
@@ -126,158 +135,31 @@ const Player = () => {
   const getSongArtist = (song: PlaylistType) => {
     return song.name.split(".mp3")[0].split(" - ")[0];
   };
-  const getArtistAndSong = (song: PlaylistType) => {
-    return `${getSongArtist(song)} - ${getSongTitle(song)}`;
-  };
 
-  const parseSongInformation = (playlistItem: PlaylistType) => {
-    if (!playlistItem || !playlistItem.name) return "";
-    return playlistItem.name.replace(".mp3", "").slice(0, -12);
-  };
   const handleNextSong = (prevNext: string) => {
     if (prevNext) return setCurrentSongIndex(currentSongIndex + 1);
     if (currentSongIndex > 0) return setCurrentSongIndex(currentSongIndex - 1);
   };
 
   useEffect(() => {
-    if (!currentPlaylist) {
-      setCurrentPlaylist(allPlaylists[0])
+    if (allPlaylists) {
+      if (!currentPlaylist) {
+        console.log("set current playlist",)
+        setCurrentPlaylist(allPlaylists)
+      }
     }
-  }, [allPlaylists]);
+  }, [url]);
 
-  if (!allPlaylists) return <div />;
+  if (!currentPlaylist) return <div />;
 
-  /** you can get audioPlayerState by props */
-  // const load = url => {
-  // this.setState({
-  // url,
-  // played: 0,
-  // loaded: 0,
-  // pip: false
-  // })
-  // }
-
-  const handlePlayPause = () => {
-    // this.setState({ playing: !this.state.playing })
-  };
-
-  const handleStop = () => {
-    // this.setState({ url: null, playing: false })
-  };
-
-  const handleToggleControls = () => {
-    // const url = this.state.url
-    // this.setState({
-    // controls: !this.state.controls,
-    // url: null
-    // }, () => this.load(url))
-  };
-
-  const handleToggleLight = () => {
-    // this.setState({ light: !this.state.light })
-  };
-
-  const handleToggleLoop = () => {
-    // this.setState({ loop: !this.state.loop })
-  };
-
-  const handleVolumeChange = (e) => {
-    // this.setState({ volume: parseFloat(e.target.value) })
-  };
-
-  const handleToggleMuted = () => {
-    // this.setState({ muted: !this.state.muted })
-  };
-
-  const handleSetPlaybackRate = (e) => {
-    // this.setState({ playbackRate: parseFloat(e.target.value) })
-  };
-
-  const handleOnPlaybackRateChange = (speed) => {
-    // this.setState({ playbackRate: parseFloat(speed) })
-  };
-
-  const handleTogglePIP = () => {
-    // this.setState({ pip: !this.state.pip })
-  };
-
-  const handlePlay = () => {
-    console.log("onPlay");
-    // this.setState({ playing: true })
-  };
-
-  const handleEnablePIP = () => {
-    console.log("onEnablePIP");
-    // this.setState({ pip: true })
-  };
-
-  const handleDisablePIP = () => {
-    console.log("onDisablePIP");
-    // this.setState({ pip: false })
-  };
-
-  const handlePause = () => {
-    console.log("onPause");
-    // this.setState({ playing: false })
-  };
-
-  const handleSeekMouseDown = (e) => {
-    // this.setState({ seeking: true })
-  };
-
-  const handleSeekChange = (e) => {
-    // this.setState({ played: parseFloat(e.target.value) })
-  };
-
-  const handleSeekMouseUp = (e) => {
-    // this.setState({ seeking: false })
-    // this.player.seekTo(parseFloat(e.target.value))
-  };
-
-  const handleProgress = (state) => {
-    // console.log('onProgress', state)
-    // We only want to update time slider if we are not currently seeking
-    // if (!this.state.seeking) {
-    // this.setState(state)
-    // }
-  };
-
-  const handleEnded = () => {
-    console.log("onEnded");
-    // this.setState({ playing: this.state.loop })
-  };
-
-  const handleDuration = (duration) => {
-    console.log("onDuration", duration);
-    // this.setState({ duration })
-  };
-
-  const handleClickFullscreen = () => {
-    // screenfull.request(document.querySelector('.react-player'))
-  };
-
-  // const renderLoadButton = (url, label) => {
-  //   return (
-  //     <button onClick={() => this.load(url)}>
-  //       {label}
-  //     </button>
-  //   )
-  // }
-
-  const ref = (player) => {
-    // this.player = player
-  };
-
-  console.log("current playlist", currentPlaylist)
   return (
     <PlayerWrapper>
-
       <ReactPlayer
         // ref={this.ref}
         className="react-player"
         width="100%"
         height="100%"
-        url={currentPlaylist.length > 0 ? currentPlaylist[currentSongIndex].src : ""}
+        url={getCurrentSong()}
         playing={isPlaying}
         controls={false}
         light={false}
@@ -389,6 +271,9 @@ const Player = () => {
         </Buttons>
       </MediaPlayer>
     </PlayerWrapper>
+
+
+
     // <MediaPlayer>
     //
     //

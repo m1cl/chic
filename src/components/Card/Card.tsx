@@ -7,6 +7,7 @@ import {playerRef} from "../../App";
 import {H2} from "../Songs/Songs";
 import cover from "./album.png";
 import {useStore} from "../../store";
+import {parseSongInformation} from "../Player/Player";
 // import {emit, listen} from "@tauri-apps/api/event";
 // With the Tauri API npm package:
 
@@ -27,8 +28,6 @@ export type item = {
 };
 type CardProps = {
   items: any;
-  isExpanded: boolean;
-  handleClick: any;
 };
 
 // .saturate { filter: saturate(3); }
@@ -109,14 +108,16 @@ const Card = ({items}: CardProps) => {
   //TODO: something odd with id 
   const handleClick = (e) => {
     e.preventDefault();
-    setCurrentSongIndex(e.target.id - 1);
+    console.log("ccurent index", e.target.id);
+    setCurrentSongIndex(e.target.id);
   }
+  // TODO: don t parse if discogs_wantlist
   return (
     <Container>
       {items.map((item: any) => (
-        <div>
+        <div key={item.id}>
           <Item item={item} />
-          <H2 id={item.id} src={item.src} onClick={handleClick}>{item.name}</H2>
+          <H2 id={item.id} onClick={handleClick}>{item.playlist === "discogs_wantlist" ? item.name.replace(".mp3", "") : parseSongInformation(item)}</H2>
         </div>
       ))}
     </Container>
@@ -140,13 +141,13 @@ const Item: FC<{item: PlaylistType}> = ({item}) => {
 
   const handleClick = (e) => {
     e.preventDefault();
-    setCurrentSongIndex(e.target.id - 1);
+    setCurrentSongIndex(e.target.id);
   }
   const toggleOpen = () => setIsOpen(!isOpen);
 
   return (
     <ItemContainer
-      id={item.src}
+      id={item.id}
       layout
       drag
       onClick={handleClick}
