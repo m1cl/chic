@@ -10,7 +10,7 @@ import {
   VolumeSliderPlacement,
 } from "react-modern-audio-player/dist/types/components/AudioPlayer/Context";
 import {useStore} from "../../store";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {PlaylistState, PlaylistType} from "../../types";
 import ReactPlayer from "react-player";
 import Draggable from 'react-draggable';
@@ -95,6 +95,7 @@ const Span = styled.div`
 `;
 
 const Player = () => {
+  const ref = useRef(null)
   const [progressType, _] = useState<ProgressUI>("waveform");
   const [volumeSliderPlacement, _setVolumeSliderPlacement] = useState<
     VolumeSliderPlacement
@@ -148,20 +149,26 @@ const Player = () => {
         setCurrentPlaylist(allPlaylists)
       }
     }
-  }, [url]);
+  }, [currentPlaylist, currentSongIndex]);
+  if (ref) {
+    console.log(ref.current);
+  }
 
   if (!currentPlaylist) return <div />;
 
+  // TODO: write an data strucutre or algo like:
+  // put currently playing song to the start of the playlist and all songs before it to the end
   return (
     <PlayerWrapper>
       <ReactPlayer
         // ref={this.ref}
         className="react-player"
+        ref={ref}
         width="100%"
         height="100%"
-        url={getCurrentSong()}
+        url={currentPlaylist[currentSongIndex] ? currentPlaylist[currentSongIndex].src : ""}
         playing={isPlaying}
-        controls={false}
+        controls={true}
         light={false}
         loop={false}
         playbackRate={1.0}
@@ -170,6 +177,9 @@ const Player = () => {
         onReady={() => console.log("onReady")}
         onStart={() => console.log("onStart")}
         onPlay={() => setIsPlaying(true)}
+        // ENDED is the solution
+        onEnded={() => handleNextSong("next")}
+        onBufferEnd={() => console.log("buffer ends")}
         // onEnablePIP={this.handleEnablePIP}
         // onDisablePIP={this.handleDisablePIP}
         onPause={() => console.log("onPause")}
