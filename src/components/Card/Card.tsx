@@ -115,7 +115,7 @@ const Card = ({items}: CardProps) => {
   return (
     <Container>
       {items.map((item: any) => (
-        <div key={item.id}>
+        <div id={`container-${item.id}`}>
           <Item item={item} />
           <H2 id={item.id} onClick={handleClick}>{item.playlist === "discogs_wantlist" ? item.name.replace(".mp3", "") : parseSongInformation(item)}</H2>
         </div>
@@ -147,7 +147,7 @@ const Item: FC<{item: PlaylistType}> = ({item}) => {
 
   return (
     <ItemContainer
-      id={item.id}
+      id={`item-container-${item.id}`}
       layout
       drag
       onClick={handleClick}
@@ -180,6 +180,7 @@ const Item: FC<{item: PlaylistType}> = ({item}) => {
 const Content: FC<{item: PlaylistType}> = ({item}) => {
   return (
     <ContentContainer
+      key={item.src}
       layout
       style={{zIndex: 0}}
       initial={{opacity: 0}}
