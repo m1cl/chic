@@ -147,10 +147,8 @@ const Item: FC<{item: PlaylistType}> = ({item}) => {
 
   return (
     <ItemContainer
-      id={`item-container-${item.id}`}
       layout
       drag
-      onClick={handleClick}
       onMouseEnter={fastExpander}
       onMouseLeave={handleMouseLeave}
       animate={{
@@ -163,6 +161,8 @@ const Item: FC<{item: PlaylistType}> = ({item}) => {
 
       <AnimatePresence>
         <AlbumCover
+          id={item.id}
+          onClick={handleClick}
           animate={{
             width: isOpen ? "40%" : "100%",
             height: isOpen ? "40%" : "100%",
