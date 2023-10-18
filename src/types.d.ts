@@ -9,6 +9,8 @@ export interface PlaylistState {
   setSearchResults: Function;
   getCurrentSong: Function;
   searchResults: string;
+  isPlaying: boolean;
+  setIsPlaying: Function;
   currentSongIndex: number;
   setCurrentSongIndex: Function;
   fetch: any;

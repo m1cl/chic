@@ -13,7 +13,6 @@ import {useStore} from "../../store";
 import React, {useEffect, useRef, useState} from "react";
 import {PlaylistState, PlaylistType} from "../../types";
 import ReactPlayer from "react-player";
-import Draggable from 'react-draggable';
 
 // TODO: Create playlist object in the backend for $HOME/.config/chic directory and send it to frontend
 //
@@ -83,16 +82,6 @@ const Marquee = styled.marquee`
   transform-style:preserve-3d;
   transition:0.8s;
 `
-const Span = styled.div`
-  transform:translate(-50%,-50%);
-  text-transform:uppercase;
-  font-size:1rem;
-  color:#fff;
-  transform-style:preserve-3d;
-  transition:0.8s;
-  &:nth-child(1){
-  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
-`;
 
 const Player = () => {
   const ref = useRef(null)
@@ -121,21 +110,15 @@ const Player = () => {
     (state: PlaylistState) => state.currentSongIndex
   )
 
-  const getCurrentSong = useStore(
-    (state: PlaylistState) => state.getCurrentSong
-  )
+
+  const isPlaying = useStore((state: PlaylistState) => state.isPlaying);
+  const setIsPlaying = useStore((state: PlaylistState) => state.setIsPlaying);
+
 
   const [_players, setPlaylists] = useState<PlaylistType[]>();
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isLooping, setIsLooping] = useState(false);
   const [url, setUrl] = useState("");
 
-  const getSongTitle = (song: PlaylistType) => {
-    return song.name.split(".mp3")[0].split(" - ")[1];
-  };
-  const getSongArtist = (song: PlaylistType) => {
-    return song.name.split(".mp3")[0].split(" - ")[0];
-  };
 
   const handleNextSong = (prevNext: string) => {
     if (prevNext) return setCurrentSongIndex(currentSongIndex + 1);
@@ -176,7 +159,7 @@ const Player = () => {
         muted={false}
         onReady={() => console.log("onReady")}
         onStart={() => console.log("onStart")}
-        onPlay={() => setIsPlaying(true)}
+        onPlay={() => console.log("is playing")}
         // ENDED is the solution
         onEnded={() => handleNextSong("next")}
         onBufferEnd={() => console.log("buffer ends")}

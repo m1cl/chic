@@ -101,6 +101,7 @@ const ContentContainer = styled(motion.div)``;
 
 const Card = ({items}: CardProps) => {
   const setCurrentSongIndex = useStore((state) => state.setCurrentSongIndex);
+  const {isPlaying, setIsPlaying} = useStore();
   items = items.map((item: any) => {
     item.artist = item.artist?.replace(/['"]+/g, "");
     return item;
@@ -108,6 +109,8 @@ const Card = ({items}: CardProps) => {
   //TODO: something odd with id 
   const handleClick = (e) => {
     e.preventDefault();
+
+    if (!isPlaying) setIsPlaying(true);
     console.log("ccurent index", e.target.id);
     setCurrentSongIndex(e.target.id);
   }
@@ -126,6 +129,7 @@ const Card = ({items}: CardProps) => {
 const Item: FC<{item: PlaylistType}> = ({item}) => {
 
   const setCurrentSongIndex = useStore((state) => state.setCurrentSongIndex);
+  const {isPlaying, setIsPlaying} = useStore();
   const [isOpen, setIsOpen] = useState(false);
 
   function handleIsOpen() {
@@ -141,6 +145,8 @@ const Item: FC<{item: PlaylistType}> = ({item}) => {
 
   const handleClick = (e) => {
     e.preventDefault();
+    if (!isPlaying) setIsPlaying(true);
+    console.log("ccurent index", e.target.id);
     setCurrentSongIndex(e.target.id);
   }
   const toggleOpen = () => setIsOpen(!isOpen);
