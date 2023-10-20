@@ -60,7 +60,11 @@ async fn create_web_server() {
       )
       .mount(
         "/api",
-        routes![discogs::get_want_list_information, get_playlists],
+        routes![
+          youtube::get_youtube_search_results,
+          discogs::get_want_list_information,
+          get_playlists
+        ],
       )
       .launch(),
   );
@@ -72,6 +76,7 @@ async fn create_tauri_window() {
     .invoke_handler(tauri::generate_handler![
       music_player::play_song,
       discogs::get_want_list_information,
+      youtube::get_youtube_search_results,
       get_playlists,
     ])
     .run(tauri::generate_context!())
@@ -89,7 +94,11 @@ async fn get_playlists() -> String {
 // the user
 #[tokio::main]
 async fn main() {
-  // youtube::download_playlist().await;
+  // TODO: when downloading the playlist, add a progress bar
+  // match youtube::download_playlist().await {
+  //   Ok(outout) => println!("Download was successful"),
+  //   Err(e) => println!("Something went wrong {:?}", e),
+  // };
   // youtube::get_playlists_from_user().await;
   tokio::spawn(create_web_server());
   create_tauri_window().await;
