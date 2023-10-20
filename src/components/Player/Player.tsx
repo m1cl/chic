@@ -30,7 +30,6 @@ const PlayerWrapper = styled.div`
     background-color: #282828;
     width: 100%;
     height: 150px;
-    z-index: 99;
 `;
 
 const Buttons = styled.div`
