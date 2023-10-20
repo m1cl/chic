@@ -1,13 +1,12 @@
-import {AnimateSharedLayout} from "framer-motion";
-import {AnimatePresence} from "framer-motion";
-import {motion} from "framer-motion";
-import React, {FC, MouseEvent, ReactNode, useState} from "react";
+import { AnimateSharedLayout } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import React, { FC, ReactNode, useState } from "react";
 import styled from "styled-components";
-import {playerRef} from "../../App";
-import {H2} from "../Songs/Songs";
+import { H2 } from "../Songs/Songs";
 import cover from "./album.png";
-import {useStore} from "../../store";
-import {parseSongInformation} from "../Player/Player";
+import { useStore } from "../../store";
+import { parseSongInformation } from "../Player/Player";
 // import {emit, listen} from "@tauri-apps/api/event";
 // With the Tauri API npm package:
 
@@ -44,7 +43,7 @@ const Title = styled.h3`
   color: white;
 `;
 
-const AlbumCover = styled(motion.img) <{isOpen: boolean}>`
+const AlbumCover = styled(motion.img) <{ isOpen: boolean }>`
   filter: ${(props) =>
     props.isOpen ? "drop-shadow(5px 5px 3px rgba(0,0,0,0.7))" : "opacity(100%)"};
 `;
@@ -99,9 +98,9 @@ export type PlaylistType = {
 const ContentContainer = styled(motion.div)``;
 
 
-const Card = ({items}: CardProps) => {
+const Card = ({ items }: CardProps) => {
   const setCurrentSongIndex = useStore((state) => state.setCurrentSongIndex);
-  const {isPlaying, setIsPlaying} = useStore();
+  const { isPlaying, setIsPlaying } = useStore();
   items = items.map((item: any) => {
     item.artist = item.artist?.replace(/['"]+/g, "");
     return item;
@@ -126,10 +125,10 @@ const Card = ({items}: CardProps) => {
     </Container>
   );
 };
-const Item: FC<{item: PlaylistType}> = ({item}) => {
+const Item: FC<{ item: PlaylistType }> = ({ item }) => {
 
   const setCurrentSongIndex = useStore((state) => state.setCurrentSongIndex);
-  const {isPlaying, setIsPlaying} = useStore();
+  const { isPlaying, setIsPlaying } = useStore();
   const [isOpen, setIsOpen] = useState(false);
 
   function handleIsOpen() {
@@ -183,16 +182,16 @@ const Item: FC<{item: PlaylistType}> = ({item}) => {
   );
 };
 
-const Content: FC<{item: PlaylistType}> = ({item}) => {
+const Content: FC<{ item: PlaylistType }> = ({ item }) => {
   return (
     <ContentContainer
       key={item.src}
       layout
-      style={{zIndex: 0}}
-      initial={{opacity: 0}}
-      animate={{opacity: 1}}
-      transition={{duration: 1.5}}
-      exit={{opacity: 0}}
+      style={{ zIndex: 0 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1.5 }}
+      exit={{ opacity: 0 }}
     >
       <Title className="row">{item.name}</Title>
       <Row className="row">{item.writer}</Row>

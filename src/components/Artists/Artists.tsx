@@ -1,4 +1,4 @@
-import React, {} from "react";
+import React from "react";
 import { withRouter } from "react-router-dom";
 import styled from "styled-components";
 import { useStore } from "../../store";
@@ -6,6 +6,7 @@ import Card from "../Card/Card";
 import { CardList, H1, Main, PlaceHolder } from "../Songs/Songs";
 
 const Container = styled.div`
+ height: 30vh;
 `;
 const Artists = () => {
   const currentPlaylistTitle = useStore((state) => state.selectedPlaylist);
@@ -19,7 +20,7 @@ const Artists = () => {
     <Main>
       <Container>
         <PlaceHolder>
-          <H1> {searchResults ? `🔎 ${ searchResults }` : `Playlist ${currentPlaylistTitle}`}</H1>
+          <H1> {searchResults ? `🔎 ${searchResults}` : `Playlist ${currentPlaylistTitle}`}</H1>
         </PlaceHolder>
         <CardList>
           <Card

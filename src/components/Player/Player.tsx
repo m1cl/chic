@@ -9,9 +9,9 @@ import {
   ProgressUI,
   VolumeSliderPlacement,
 } from "react-modern-audio-player/dist/types/components/AudioPlayer/Context";
-import {useStore} from "../../store";
-import React, {useEffect, useRef, useState} from "react";
-import {PlaylistState, PlaylistType} from "../../types";
+import { useStore } from "../../store";
+import React, { useEffect, useRef, useState } from "react";
+import { PlaylistState, PlaylistType } from "../../types";
 import ReactPlayer from "react-player";
 
 // TODO: Create playlist object in the backend for $HOME/.config/chic directory and send it to frontend
@@ -74,13 +74,10 @@ const Center = styled.div`
 
 const Marquee = styled.marquee`
   transition:0.5s;
-  transform:translate(-50%,-50%);
-  width: 70vw;
-  text-transform:uppercase;
+  behavior: slide;
+  width: 37vw;
   font-size:1em;
   color:#fff;
-  transform-style:preserve-3d;
-  transition:0.8s;
 `
 
 const Player = () => {
@@ -176,10 +173,7 @@ const Player = () => {
       // onPlaybackQualityChange={e => console.log('onPlaybackQualityChange', e)}
       />
 
-      <Marquee
-        behavior=""
-        direction=""
-      >
+      <Marquee>
         <Center>
           {parseSongInformation(currentPlaylist[currentSongIndex])}
         </Center>
@@ -263,7 +257,7 @@ const Player = () => {
           </svg>
         </Buttons>
       </MediaPlayer>
-    </PlayerWrapper>
+    </PlayerWrapper >
 
 
 

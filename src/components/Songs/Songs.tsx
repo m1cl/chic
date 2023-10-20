@@ -1,9 +1,9 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 //@ts-ignore
-import Card, {item} from "../Card/Card";
+import Card, { item } from "../Card/Card";
 import create from "zustand";
-import {persist} from "zustand/middleware";
+import { persist } from "zustand/middleware";
 
 export const Main = styled.div`
   display: table-row;
@@ -71,7 +71,7 @@ const useStore = create<SongsZustand>(
 );
 
 const Songs = () => {
-  const {items, addItem} = useStore(useCallback((state) => state, []));
+  const { items, addItem } = useStore(useCallback((state) => state, []));
 
   const [_, x] = useState(false);
   function getWantlistItems() {
@@ -80,9 +80,9 @@ const Songs = () => {
       //@ts-ignore
       const invoke = window.__TAURI__.invoke;
       // TODO:  REMOVE YOUR USERNAME and make it generic
-      invoke("get_want_list_information", {username: "m1cl"})
+      invoke("get_want_list_information", { username: "m1cl" })
         .then((message: any) => {
-          console.log('discogs', message )
+          console.log('discogs', message)
           // addItem(JSON.parse(message));
         })
         .catch(console.error);
