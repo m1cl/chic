@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@dnd-kit/core": "^6.0.8",
+    "@dnd-kit/utilities": "^3.2.1",
     "@tauri-apps/api": "^1.0.0-beta.8",
     "@tauri-apps/cli": "^1.4.0",
     "@testing-library/jest-dom": "^5.11.4",
