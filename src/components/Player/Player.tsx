@@ -9,16 +9,16 @@ import {
   ProgressUI,
   VolumeSliderPlacement,
 } from "react-modern-audio-player/dist/types/components/AudioPlayer/Context";
-import { useStore } from "../../store";
-import React, { useEffect, useRef, useState } from "react";
-import { PlaylistState, PlaylistType } from "../../types";
+import {useStore} from "../../store";
+import React, {useEffect, useRef, useState} from "react";
+import {PlaylistState, PlaylistType} from "../../types";
 import ReactPlayer from "react-player";
 
 // TODO: Create playlist object in the backend for $HOME/.config/chic directory and send it to frontend
 //
 export const parseSongInformation = (playlistItem: PlaylistType) => {
   if (!playlistItem || !playlistItem.name) return "";
-  return playlistItem.name.replace(".mp3", "").slice(0, -12);
+  return playlistItem.name.replace(".mp3", "");
 };
 
 const PlayerWrapper = styled.div`

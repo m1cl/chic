@@ -70,6 +70,9 @@ async fn create_web_server() {
   );
 }
 
+// TODO: Create user dialog for configuration 
+// https://tauri.app/v1/guides/features/multiwindow/
+//
 async fn create_tauri_window() {
   tauri::Builder::default()
     // .plugin(TauriWebsocket::default())
@@ -99,7 +102,7 @@ async fn main() {
   //   Ok(outout) => println!("Download was successful"),
   //   Err(e) => println!("Something went wrong {:?}", e),
   // };
-  // youtube::get_playlists_from_user().await;
-  // tokio::spawn(create_web_server());
+  youtube::get_playlists_from_user().await;
+  tokio::spawn(create_web_server());
   create_tauri_window().await;
 }

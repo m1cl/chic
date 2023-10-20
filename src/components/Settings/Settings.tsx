@@ -1,12 +1,13 @@
 import styled from "styled-components";
-import { Container } from "../Songs/Songs";
+import {Container} from "../Songs/Songs";
 
 const Form = styled.form`
   width: auto;
   height: auto;
+  background: -webkit-linear-gradient(#eee, #000, #eee, #000, #eee, #000));
 `;
 const Input = styled.input`
-  background: -webkit-linear-gradient(#eee, #333);
+  background: -webkit-linear-gradient(#eee, #000);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   width: auto;

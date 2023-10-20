@@ -1,6 +1,6 @@
-import React, { createRef, RefObject } from "react";
-import { useEffect } from "react";
-import { BrowserRouter as Router } from "react-router-dom";
+import React, {createRef, RefObject, useState} from "react";
+import {useEffect} from "react";
+import {BrowserRouter as Router} from "react-router-dom";
 import styled from "styled-components";
 import Albums from "./components/Albums/Albums";
 import Artists from "./components/Artists/Artists";
@@ -11,10 +11,11 @@ import {
   AnimatedRoutes,
   RouteTransition,
 } from "./components/RouteTransition/RouteTransition";
-import { Settings } from "./components/Settings/Settings";
+import {Settings} from "./components/Settings/Settings";
 import SideBar from "./components/SideBar/SideBar";
 import Songs from "./components/Songs/Songs";
-import { useStore } from "./store";
+import {useStore} from "./store";
+import Modal from 'react-modal';
 
 const Container = styled.div`
 background-color: #121212;
@@ -39,17 +40,40 @@ overflow-y: auto;
 display: none;
 }
 `;
+const modalStyles = {
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+    backgroundColor: "rgba(5, 5, 5, 0.8)",
+  },
+  Overlay: {
+    backgroundColor: "rgba(5, 5, 5, 0.8)",
+  }
+};
 
 export const playerRef: RefObject<HTMLAudioElement> = createRef();
 
 function App() {
+  const [modalIsOpen, setIsOpen] = useState(false);
   const fetchApi = useStore((state) => state.fetch);
   useEffect(() => {
     fetchApi("playlist");
   }, [fetchApi]);
   return (
     <Router>
-      <Container>
+      <Container onClick={() => setIsOpen(false)}>
+        <Modal
+          isOpen={modalIsOpen}
+          style={modalStyles}
+          contentLabel="Config"
+          overlayClassName="Overlay"
+        >
+          <Settings />
+        </Modal>
         <Content>
           <NavBar />
           <SideBar />
