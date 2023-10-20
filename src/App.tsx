@@ -1,3 +1,5 @@
+import React, { createRef, RefObject } from "react";
+import { useEffect } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import styled from "styled-components";
 import Albums from "./components/Albums/Albums";
@@ -9,32 +11,42 @@ import {
   AnimatedRoutes,
   RouteTransition,
 } from "./components/RouteTransition/RouteTransition";
+import { Settings } from "./components/Settings/Settings";
 import SideBar from "./components/SideBar/SideBar";
 import Songs from "./components/Songs/Songs";
+import { useStore } from "./store";
 
 const Container = styled.div`
-  background-color: #121212;
-  display: flex;
-  overflow-x: auto;
-  overflow-y: hidden;
-  flex-direction: row;
-  margin: 0px;
-  flex-wrap: wrap;
+background-color: #121212;
+display: flex;
+height: auto;
+overflow-x: auto;
+overflow-y: hidden;
+margin: 0px;
+flex-wrap: wrap;
 
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
+scrollbar-width: none;
+&::-webkit-scrollbar {
+display: none;
+}
 `;
 const SwitchContainer = styled.div`
-  padding-top: 100px;
-  padding-left: 100px;
-  overflow-y: auto;
-  &::-webkit-scrollbar {
-    display: none;
-  }
+padding-top: 100px;
+padding-left: 100px;
+margin-bottom: 190px;
+overflow-y: auto;
+&::-webkit-scrollbar {
+display: none;
+}
 `;
+
+export const playerRef: RefObject<HTMLAudioElement> = createRef();
+
 function App() {
+  const fetchApi = useStore((state) => state.fetch);
+  useEffect(() => {
+    fetchApi("playlist");
+  }, [fetchApi]);
   return (
     <Router>
       <Container>
@@ -55,10 +67,13 @@ function App() {
               <RouteTransition exact path="/">
                 <Songs />
               </RouteTransition>
+              <RouteTransition path="/settings">
+                <Settings />
+              </RouteTransition>
             </SwitchContainer>
           </AnimatedRoutes>
         </Content>
-        <Player></Player>
+        <Player />
       </Container>
     </Router>
   );

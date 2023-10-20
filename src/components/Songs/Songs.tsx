@@ -2,40 +2,48 @@ import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 //@ts-ignore
 import Card, { item } from "../Card/Card";
-import { invoke } from "@tauri-apps/api/tauri";
 import create from "zustand";
 import { persist } from "zustand/middleware";
 
-const Main = styled.div`
+export const Main = styled.div`
   display: table-row;
   &::-webkit-scrollbar {
     display: none;
   }
 `;
 
-const H1 = styled.h3`
+export const H1 = styled.h3`
   color: #b7b4b9;
 `;
-const Row = styled.div`
+
+export const H2 = styled.h5`
+width: 150px;
+  color: #b7b4b9;
+`;
+export const Row = styled.div`
   display: flex;
-  flex-direction: row;
+  justify-content: space-between;
+flex-wrap: wrap;
 `;
 
-const CardList = styled(Row)``;
+export const Column = styled.div`
+  display: flex;
+  flex-direction: row;
+`
 
-const PlaceHolder = styled.div`
+export const CardList = styled(Row)`
+height: auto;
+`;
+
+export const PlaceHolder = styled.div`
   margin-bottom: 10px;
   width: 100%;
   height: 30px;
   flex-direction: column;
 `;
-const Container = styled.div`
+export const Container = styled.div`
+  width: auto;
   margin-bottom: 84px;
-`;
-
-const Hr = styled.hr`
-  margin-top: 42px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 `;
 
 interface SongsZustand {
@@ -49,7 +57,7 @@ const useStore = create<SongsZustand>(
     (set, get) => ({
       addItem: (item: item[]) => {
         console.log(item);
-        set((state) => ({
+        set(() => ({
           items: [...get().items, ...item],
         }));
       },
@@ -58,15 +66,14 @@ const useStore = create<SongsZustand>(
     {
       name: "songs-storage",
       getStorage: () => sessionStorage,
-    }
-  )
+    },
+  ),
 );
 
 const Songs = () => {
   const { items, addItem } = useStore(useCallback((state) => state, []));
 
-  const [isExpanded, x] = useState(false);
-
+  const [_, x] = useState(false);
   function getWantlistItems() {
     //@ts-ignore
     if (window.__TAURI__) {
@@ -75,7 +82,8 @@ const Songs = () => {
       // TODO:  REMOVE YOUR USERNAME and make it generic
       invoke("get_want_list_information", { username: "m1cl" })
         .then((message: any) => {
-          addItem(JSON.parse(message));
+          console.log('discogs', message)
+          // addItem(JSON.parse(message));
         })
         .catch(console.error);
     } else {
@@ -87,8 +95,11 @@ const Songs = () => {
         .catch((err) => console.error("the error", err));
     }
   }
+
+  const [isExpanded] = useState(false);
+
   useEffect(() => {
-    getWantlistItems();
+    // getWantlistItems();
   }, []);
 
   // TODO: make cards expand when switch to another card fast
@@ -123,7 +134,7 @@ const Songs = () => {
       </Main>
     );
   }
-  return <div> No data here yet</div>;
+  return <div>No data here yet</div>;
 };
 
 export default Songs;

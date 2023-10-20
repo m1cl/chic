@@ -1,28 +1,32 @@
-import { AnimateSharedLayout, useCycle } from "framer-motion";
+import { AnimateSharedLayout } from "framer-motion";
 import { AnimatePresence } from "framer-motion";
 import { motion } from "framer-motion";
-import React, { FC, useEffect, useState } from "react";
-import styled, { keyframes } from "styled-components";
+import React, { FC, ReactNode, useState } from "react";
+import styled from "styled-components";
+import { H2 } from "../Songs/Songs";
 import cover from "./album.png";
+import { useStore } from "../../store";
+import { parseSongInformation } from "../Player/Player";
 // import {emit, listen} from "@tauri-apps/api/event";
 // With the Tauri API npm package:
 
 // Invoke the command
 
 export type item = {
+  name: ReactNode;
+  writer: ReactNode;
   id: string;
-  notes: string;
-  genres: string[];
+  notes?: string;
+  genres?: string[];
   album: string;
-  label: string;
+  label?: string;
   artist: string;
   artistUri: string;
-  videos: any;
-  year: string;
+  videos?: any;
+  year?: string;
 };
 type CardProps = {
-  items: item[];
-  isExpanded: boolean;
+  items: any;
 };
 
 // .saturate { filter: saturate(3); }
@@ -39,22 +43,14 @@ const Title = styled.h3`
   color: white;
 `;
 
-const AlbumCover = styled(motion.img)<{ isOpen: boolean }>`
+const AlbumCover = styled(motion.img) <{ isOpen: boolean }>`
   filter: ${(props) =>
-    props.isOpen
-      ? "drop-shadow(5px 5px 3px rgba(0,0,0,0.7))"
-      : "opacity(100%)"};
-`;
-const hoverAnimation = keyframes`
- 0% { height: 100px; width: 100px; }
- 30% { height: 110px; width: 110px}
- 40% { height: 115px; width: 115px }
- 100% { height: 125px; width: 125px }
+    props.isOpen ? "drop-shadow(5px 5px 3px rgba(0,0,0,0.7))" : "opacity(100%)"};
 `;
 
 const Container = styled(AnimateSharedLayout)`
   overflow-y: auto;
-  width: 100%;
+  width: 120%;
   flex: 1;
   height: 100%;
   cursor: pointer;
@@ -91,22 +87,48 @@ const Row = styled.div`
   margin-top: 12px;
 `;
 
+const itemWidth = "240px";
+export type PlaylistType = {
+  name: string;
+  writer: string;
+  img: string;
+  src: string;
+  id: string;
+};
 const ContentContainer = styled(motion.div)``;
 
-const Card = ({ items, isExpanded }: CardProps) => {
-  items = items.map((item) => {
+
+const Card = ({ items }: CardProps) => {
+  const setCurrentSongIndex = useStore((state) => state.setCurrentSongIndex);
+  const { isPlaying, setIsPlaying } = useStore();
+  items = items.map((item: any) => {
     item.artist = item.artist?.replace(/['"]+/g, "");
     return item;
   });
+  //TODO: something odd with id 
+  const handleClick = (e) => {
+    e.preventDefault();
+
+    if (!isPlaying) setIsPlaying(true);
+    console.log("ccurent index", e.target.id);
+    setCurrentSongIndex(e.target.id);
+  }
+  // TODO: don t parse if discogs_wantlist
   return (
     <Container>
-      {items.map((item) => (
-        <Item item={item} />
+      {items.map((item: any) => (
+        <div id={`container-${item.id}`}>
+          <Item item={item} />
+          <H2 id={item.id} onClick={handleClick}>{item.playlist === "discogs_wantlist" ? item.name.replace(".mp3", "") : parseSongInformation(item)}</H2>
+        </div>
       ))}
     </Container>
   );
 };
-const Item: FC<{ item: item }> = ({ children, item }) => {
+const Item: FC<{ item: PlaylistType }> = ({ item }) => {
+
+  const setCurrentSongIndex = useStore((state) => state.setCurrentSongIndex);
+  const { isPlaying, setIsPlaying } = useStore();
   const [isOpen, setIsOpen] = useState(false);
 
   function handleIsOpen() {
@@ -116,19 +138,27 @@ const Item: FC<{ item: item }> = ({ children, item }) => {
     isOpen && handleIsOpen();
   }
 
-  function fastExpander() {}
+  function fastExpander() {
+    handleIsOpen();
+  }
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    if (!isPlaying) setIsPlaying(true);
+    console.log("ccurent index", e.target.id);
+    setCurrentSongIndex(e.target.id);
+  }
   const toggleOpen = () => setIsOpen(!isOpen);
 
   return (
     <ItemContainer
       layout
       drag
-      onClick={handleIsOpen}
       onMouseEnter={fastExpander}
       onMouseLeave={handleMouseLeave}
       animate={{
-        width: isOpen ? "220px" : "120px",
-        height: isOpen ? "220px" : "120px",
+        width: isOpen ? "320px" : itemWidth,
+        height: isOpen ? "320px" : itemWidth,
         marginRight: "100px",
       }}
     >
@@ -136,6 +166,8 @@ const Item: FC<{ item: item }> = ({ children, item }) => {
 
       <AnimatePresence>
         <AlbumCover
+          id={item.id}
+          onClick={handleClick}
           animate={{
             width: isOpen ? "40%" : "100%",
             height: isOpen ? "40%" : "100%",
@@ -150,9 +182,10 @@ const Item: FC<{ item: item }> = ({ children, item }) => {
   );
 };
 
-const Content: FC<{ item: item }> = ({ item }) => {
+const Content: FC<{ item: PlaylistType }> = ({ item }) => {
   return (
     <ContentContainer
+      key={item.src}
       layout
       style={{ zIndex: 0 }}
       initial={{ opacity: 0 }}
@@ -160,10 +193,10 @@ const Content: FC<{ item: item }> = ({ item }) => {
       transition={{ duration: 1.5 }}
       exit={{ opacity: 0 }}
     >
-      <Title className="row">{item.artist}</Title>
-      <Row className="row">{item.album}</Row>
-      <Row className="row">{item.year}</Row>
-      <Row className="row">{item.genres}</Row>
+      <Title className="row">{item.name}</Title>
+      <Row className="row">{item.writer}</Row>
+      <Row className="row">{item.src}</Row>
+      <Row className="row">{item.img}</Row>
     </ContentContainer>
   );
 };
