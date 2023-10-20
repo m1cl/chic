@@ -14,7 +14,7 @@ import {
 import { Settings } from "./components/Settings/Settings";
 import SideBar from "./components/SideBar/SideBar";
 import Songs from "./components/Songs/Songs";
- import { useStore } from "./store";
+import { useStore } from "./store";
 
 const Container = styled.div`
 background-color: #121212;
@@ -33,6 +33,7 @@ display: none;
 const SwitchContainer = styled.div`
 padding-top: 100px;
 padding-left: 100px;
+margin-bottom: 190px;
 overflow-y: auto;
 &::-webkit-scrollbar {
 display: none;
