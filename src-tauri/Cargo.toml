@@ -9,6 +9,9 @@ default-run = "chic"
 edition = "2018"
 build = "src/build.rs"
 
+[build]
+rustflags = ["-Z", "threads=8"]
+
 [build-dependencies]
 tauri-build = { version = "1.0.0-beta.4", features = [] }
 
@@ -54,3 +57,4 @@ rs-youtube = "0.2.2"
 [features]
 default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
+
