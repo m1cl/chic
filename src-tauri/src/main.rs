@@ -43,14 +43,6 @@ impl Settings {
   }
 }
 
-//     src: string;
-//     id: number;
-//     name?: string | ReactNode;
-//     writer?: string | ReactNode;
-//     img?: string;
-//     description?: string | ReactNode;
-//     customTrackInfo?: string | ReactNode;
-
 async fn create_web_server() {
   task::spawn(
     rocket::build()
