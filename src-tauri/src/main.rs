@@ -1,10 +1,16 @@
 extern crate dirs;
 
+use std::env;
+use std::future;
+use tokio::net::TcpStream;
+
 use crate::youtube::{create_playlists_from_dir, PlaylistItems};
 use config::{ConfigError, Environment, File};
+use log::info;
 use rocket::fs::{FileServer, Options};
 
 use serde::Deserialize;
+use tokio::net::{TcpListener, TcpStream};
 use tokio::task;
 
 #[macro_use]
@@ -51,6 +57,25 @@ impl Settings {
 //     description?: string | ReactNode;
 //     customTrackInfo?: string | ReactNode;
 
+async fn start_webtransport(stream: TcpStream) {
+  let addr = stream.peer_addr().expect("failed to get peer address");
+  info!("Peer add {}", addr);
+
+  let ws_stream = tokio_tungstenite::accept_async(stream)
+    .await
+    .expect("Failed to accept");
+
+  info!("WebSocket connection established: {}", addr);
+
+  let (write, read) = ws_stream.split();
+
+  read
+    .try_for_each(|msg| async { future::ready(msg.is_text()) || msg.is_binary() })
+    .forward(write)
+    .await
+    .expect("Failed to forward message");
+}
+
 async fn create_web_server() {
   task::spawn(
     rocket::build()
@@ -70,12 +95,12 @@ async fn create_web_server() {
   );
 }
 
-// TODO: Create user dialog for configuration 
+// TODO: Create user dialog for configuration
 // https://tauri.app/v1/guides/features/multiwindow/
 //
 async fn create_tauri_window() {
   tauri::Builder::default()
-    // .plugin(TauriWebsocket::default())
+    .plugin(tauri_plugin_websocket::init())
     .invoke_handler(tauri::generate_handler![
       music_player::play_song,
       discogs::get_want_list_information,
@@ -102,6 +127,20 @@ async fn main() {
   //   Ok(outout) => println!("Download was successful"),
   //   Err(e) => println!("Something went wrong {:?}", e),
   // };
+  let _ = env_logger::try_init();
+  let addr = env::args()
+    .nth(1)
+    .unwrap_or_else(|| "127.0.0.1:8080".to_string());
+
+  // Create the event loop and TCP listener we'll accept connections on.
+  let try_socket = TcpListener::bind(&addr).await;
+  let listener = try_socket.expect("Failed to bind");
+  info!("Listening on: {}", addr);
+
+  while let Ok((stream, _)) = listener.accept().await {
+    tokio::spawn(accept_connection(stream));
+  }
+
   youtube::get_playlists_from_user().await;
   tokio::spawn(create_web_server());
   create_tauri_window().await;
