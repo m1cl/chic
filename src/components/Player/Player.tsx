@@ -10,17 +10,9 @@ import {
   VolumeSliderPlacement,
 } from "react-modern-audio-player/dist/types/components/AudioPlayer/Context";
 import { useStore } from "../../store";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PlaylistState, PlaylistType } from "../../types";
 import ReactPlayer from "react-player";
-
-// import WebSocket from "tauri-plugin-websocket-api";
-//
-// const ws = await WebSocket.connect("ws://localhost:8000");
-//
-// await ws.send("Hello World");
-//
-// await ws.disconnect();
 
 // TODO: Create playlist object in the backend for $HOME/.config/chic directory and send it to frontend
 //
@@ -78,6 +70,18 @@ const Center = styled.div`
   // }
 `;
 
+enum PlayerState {
+  PLAYING = "PLAYING",
+  PAUSED = "PAUSED",
+  STOPPED = "STOPPED",
+}
+type PlayerSocketPayload = {
+  time: number;
+  currentTitle: string;
+  playerState: PlayerState;
+}
+
+let playerSocket = new WebSocket("ws://localhost:9002");
 const Marquee = styled.marquee`
   transition: 0.5s;
   behavior: slide;
@@ -87,7 +91,7 @@ const Marquee = styled.marquee`
 `;
 
 const Player = () => {
-  const ref = useRef(null);
+  const playerRef = useRef(null);
   const [progressType, _] = useState<ProgressUI>("waveform");
   const [volumeSliderPlacement, _setVolumeSliderPlacement] =
     useState<VolumeSliderPlacement>();
@@ -109,6 +113,8 @@ const Player = () => {
   const currentSongIndex = useStore(
     (state: PlaylistState) => state.currentSongIndex,
   );
+  const [currentTitle, setCurrentTitle] = useState<string>("");
+  const [currentTime, setCurrentTime] = useState(0)
 
   const isPlaying = useStore((state: PlaylistState) => state.isPlaying);
   const setIsPlaying = useStore((state: PlaylistState) => state.setIsPlaying);
@@ -117,33 +123,79 @@ const Player = () => {
   const [isLooping, setIsLooping] = useState(false);
   const [url, setUrl] = useState("");
 
+
   const handleNextSong = (prevNext: string) => {
     if (prevNext) return setCurrentSongIndex(currentSongIndex + 1);
     if (currentSongIndex > 0) return setCurrentSongIndex(currentSongIndex - 1);
   };
 
+  const sendMessage = (data: PlayerSocketPayload) => {
+    thread.postMessage(data);
+  }
+  const thread = useMemo(() => {
+    return new Worker(new URL("./player_webworker.ts", import.meta.url))
+  }, [])
+
+
   useEffect(() => {
+    thread.addEventListener("message", (event) => {
+      const { event: workerEvent, data } = event.data;
+      if (workerEvent === 'open') {
+        console.log("web worker is open")
+      }
+      else if (workerEvent === 'message') {
+        console.log("message form worker", data)
+      }
+      else if (workerEvent === 'close') {
+        console.log("web worker is closed")
+      }
+      else if (workerEvent === 'error') {
+        console.error("Worker Error:", data.error)
+      }
+    }, [])
+
+    // Example: Connect to a WebSocket
+    // sendMessage('connect', { url: 'wss://localhost:9002' });
+
+    // Example: Send data over WebSocket
+    sendMessage('send', 'Hello, WebSocket!');
+
+    // Example: Disconnect from WebSocket
+    //  sendMessage('disconnect');
+  })
+
+
+  useEffect(() => {
+    if (playerRef?.current) {
+      // @ts-ignore
+      setCurrentTime(playerRef.current.getCurrentTime());
+    }
+
     if (allPlaylists) {
       if (!currentPlaylist) {
         console.log("set current playlist");
         setCurrentPlaylist(allPlaylists);
       }
     }
-  }, [currentPlaylist, currentSongIndex]);
-  if (ref) {
-    console.log(ref.current);
-  }
+
+  }, [currentPlaylist, isPlaying]);
+
+  useEffect(() => {
+    setCurrentTitle(parseSongInformation(currentPlaylist[currentSongIndex]));
+    console.log("set new title")
+  }, [currentSongIndex])
+
 
   if (!currentPlaylist) return <div />;
+
 
   // TODO: write an data strucutre or algo like:
   // put currently playing song to the start of the playlist and all songs before it to the end
   return (
     <PlayerWrapper>
       <ReactPlayer
-        // ref={this.ref}
+        ref={playerRef}
         className="react-player"
-        ref={ref}
         width="100%"
         height="100%"
         url={
@@ -167,14 +219,14 @@ const Player = () => {
         // onEnablePIP={this.handleEnablePIP}
         // onDisablePIP={this.handleDisablePIP}
         onPause={() => console.log("onPause")}
-        // onBuffer={() => console.log('onBuffer')}
-        // onPlaybackRateChange={this.handleOnPlaybackRateChange}
-        // onSeek={e => console.log('onSeek', e)}
-        // onEnded={this.handleEnded}
-        // onError={e => console.log('onError', e)}
-        // onProgress={this.handleProgress}
-        // // onDuration={this.handleDuration}
-        // onPlaybackQualityChange={e => console.log('onPlaybackQualityChange', e)}
+      // onBuffer={() => console.log('onBuffer')}
+      // onPlaybackRateChange={this.handleOnPlaybackRateChange}
+      // onSeek={e => console.log('onSeek', e)}
+      // onEnded={this.handleEnded}
+      // onError={e => console.log('onError', e)}
+      // onProgress={this.handleProgress}
+      // // onDuration={this.handleDuration}
+      // onPlaybackQualityChange={e => console.log('onPlaybackQualityChange', e)}
       />
 
       <Marquee>
@@ -188,7 +240,7 @@ const Player = () => {
           <svg
             stroke="currentColor"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             version="1.1"
             viewBox="0 0 16 16"
             height="40px"
@@ -206,7 +258,7 @@ const Player = () => {
             <svg
               stroke="currentColor"
               fill="currentColor"
-              stroke-width="0"
+              strokeWidth="0"
               viewBox="0 0 24 24"
               height="50px"
               width="50px"
@@ -221,7 +273,7 @@ const Player = () => {
             <svg
               stroke="currentColor"
               fill="currentColor"
-              stroke-width="0"
+              strokeWidth="0"
               viewBox="0 0 24 24"
               height="50px"
               width="50px"
@@ -236,7 +288,7 @@ const Player = () => {
           <svg
             stroke="currentColor"
             fill="currentColor"
-            stroke-width="0"
+            strokeWidth="0"
             version="1.1"
             viewBox="0 0 16 16"
             height="40px"
