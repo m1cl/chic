@@ -1,8 +1,6 @@
 extern crate dirs;
 
 use std::env;
-use std::future;
-use tokio::net::TcpStream;
 
 use crate::youtube::{create_playlists_from_dir, PlaylistItems};
 use config::{ConfigError, Environment, File};
@@ -10,8 +8,16 @@ use log::info;
 use rocket::fs::{FileServer, Options};
 
 use serde::Deserialize;
-use tokio::net::{TcpListener, TcpStream};
 use tokio::task;
+
+use futures_util::{SinkExt, StreamExt};
+// use log::*;
+use std::net::SocketAddr;
+use tokio::net::{TcpListener, TcpStream};
+use tokio_tungstenite::{
+  accept_async,
+  tungstenite::{Error, Result},
+};
 
 #[macro_use]
 extern crate rocket;
@@ -31,6 +37,18 @@ pub struct Log {
 #[derive(Debug, Deserialize, Clone)]
 pub struct Settings {
   pub log: Log,
+}
+
+enum MusicPlayerState {
+  Playing,
+  Paused,
+  Stopped,
+}
+
+struct MusicPlayer {
+  pub current_song: String,
+  pub state: MusicPlayerState,
+  pub time: i32,
 }
 
 impl Settings {
@@ -57,23 +75,21 @@ impl Settings {
 //     description?: string | ReactNode;
 //     customTrackInfo?: string | ReactNode;
 
-async fn start_webtransport(stream: TcpStream) {
-  let addr = stream.peer_addr().expect("failed to get peer address");
-  info!("Peer add {}", addr);
+async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()> {
+  let mut ws_stream = accept_async(stream).await.expect("Failed to accept");
 
-  let ws_stream = tokio_tungstenite::accept_async(stream)
-    .await
-    .expect("Failed to accept");
+  info!("New WebSocket connection: {}", peer);
 
-  info!("WebSocket connection established: {}", addr);
+  while let Some(msg) = ws_stream.next().await {
+    let msg = msg?;
+    info!("Received message: {:?}", msg);
+    ws_stream.send(msg).await?;
+    // if msg.is_text() || msg.is_binary() {
+    //   ws_stream.send(msg).await?;
+    // }
+  }
 
-  let (write, read) = ws_stream.split();
-
-  read
-    .try_for_each(|msg| async { future::ready(msg.is_text()) || msg.is_binary() })
-    .forward(write)
-    .await
-    .expect("Failed to forward message");
+  Ok(())
 }
 
 async fn create_web_server() {
@@ -120,6 +136,39 @@ async fn get_playlists() -> String {
 }
 // TODO: send the authorize_url via websocket to the frontend and render it in a modal to signup
 // the user
+
+async fn accept_connection(peer: SocketAddr, stream: TcpStream) {
+  if let Err(e) = handle_connection(peer, stream).await {
+    match e {
+      Error::ConnectionClosed | Error::Protocol(_) | Error::Utf8 => (),
+      err => error!("Error processing connection: {}", err),
+    }
+  }
+}
+// #[get("/echo?stream")]
+// fn echo_stream(ws: ws::WebSocket) -> ws::Stream!['static] {
+//   ws::Stream! { ws =>
+//       for await message in ws {
+//           yield message?;
+//       }
+//   }
+// }
+
+async fn start_websocket_server(addr: &str) {
+  // FIXME: Somehow not possible to put it into a function
+  let listener = TcpListener::bind(&addr).await.expect("Can't listen");
+  info!("Listening on: {}", addr);
+
+  while let Ok((stream, _)) = listener.accept().await {
+    let peer = stream
+      .peer_addr()
+      .expect("connected streams should have a peer address");
+    info!("Peer address: {}", peer);
+    println!("Something is here !!!!");
+
+    tokio::spawn(accept_connection(peer, stream));
+  }
+}
 #[tokio::main]
 async fn main() {
   // TODO: when downloading the playlist, add a progress bar
@@ -127,20 +176,10 @@ async fn main() {
   //   Ok(outout) => println!("Download was successful"),
   //   Err(e) => println!("Something went wrong {:?}", e),
   // };
-  let _ = env_logger::try_init();
-  let addr = env::args()
-    .nth(1)
-    .unwrap_or_else(|| "127.0.0.1:8080".to_string());
+  // let _ = env_logger::try_init();
+  // env_logger::init();
 
-  // Create the event loop and TCP listener we'll accept connections on.
-  let try_socket = TcpListener::bind(&addr).await;
-  let listener = try_socket.expect("Failed to bind");
-  info!("Listening on: {}", addr);
-
-  while let Ok((stream, _)) = listener.accept().await {
-    tokio::spawn(accept_connection(stream));
-  }
-
+  tokio::spawn(start_websocket_server("localhost:9002"));
   youtube::get_playlists_from_user().await;
   tokio::spawn(create_web_server());
   create_tauri_window().await;

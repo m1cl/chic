@@ -81,7 +81,6 @@ type PlayerSocketPayload = {
   playerState: PlayerState;
 }
 
-let playerSocket = new WebSocket("ws://localhost:9002");
 const Marquee = styled.marquee`
   transition: 0.5s;
   behavior: slide;
@@ -122,47 +121,14 @@ const Player = () => {
   const [_players, setPlaylists] = useState<PlaylistType[]>();
   const [isLooping, setIsLooping] = useState(false);
   const [url, setUrl] = useState("");
+  const [thread, setThread] = useState<Worker>();
+  const [log, setLog] = useState([])
 
 
   const handleNextSong = (prevNext: string) => {
     if (prevNext) return setCurrentSongIndex(currentSongIndex + 1);
     if (currentSongIndex > 0) return setCurrentSongIndex(currentSongIndex - 1);
   };
-
-  const sendMessage = (data: PlayerSocketPayload) => {
-    thread.postMessage(data);
-  }
-  const thread = useMemo(() => {
-    return new Worker(new URL("./player_webworker.ts", import.meta.url))
-  }, [])
-
-
-  useEffect(() => {
-    thread.addEventListener("message", (event) => {
-      const { event: workerEvent, data } = event.data;
-      if (workerEvent === 'open') {
-        console.log("web worker is open")
-      }
-      else if (workerEvent === 'message') {
-        console.log("message form worker", data)
-      }
-      else if (workerEvent === 'close') {
-        console.log("web worker is closed")
-      }
-      else if (workerEvent === 'error') {
-        console.error("Worker Error:", data.error)
-      }
-    }, [])
-
-    // Example: Connect to a WebSocket
-    // sendMessage('connect', { url: 'wss://localhost:9002' });
-
-    // Example: Send data over WebSocket
-    sendMessage('send', 'Hello, WebSocket!');
-
-    // Example: Disconnect from WebSocket
-    //  sendMessage('disconnect');
-  })
 
 
   useEffect(() => {
@@ -180,14 +146,46 @@ const Player = () => {
 
   }, [currentPlaylist, isPlaying]);
 
+
   useEffect(() => {
-    setCurrentTitle(parseSongInformation(currentPlaylist[currentSongIndex]));
-    console.log("set new title")
+    const worker = new Worker(
+      new URL("./player_webworker.ts", import.meta.url),
+    );
+    setThread(worker)
+
+    return () => worker.terminate()
+
+  }, [])
+
+  useEffect(() => {
+    if (thread) {
+
+      thread?.postMessage({ connectionStatus: "init" })
+      thread.onmessage = (e) => {
+        if (typeof e.data === "string") {
+          if (e.data.includes("[")) {
+            setLog((prevLogs) => [...prevLogs, e.data])
+          }
+        }
+        else {
+          console.log("e.data", e.data)
+        }
+      }
+
+    }
+  }, [thread])
+
+  useEffect(() => {
+    const title = parseSongInformation(currentPlaylist[currentSongIndex]);
+    console.info("set new title")
+    if (thread) {
+      console.log("Send title to worker")
+      thread?.postMessage({ action: "message", title })
+    }
+    setCurrentTitle(title)
   }, [currentSongIndex])
 
-
   if (!currentPlaylist) return <div />;
-
 
   // TODO: write an data strucutre or algo like:
   // put currently playing song to the start of the playlist and all songs before it to the end

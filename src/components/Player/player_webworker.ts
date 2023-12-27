@@ -1,57 +1,66 @@
 /* eslint-disable no-restricted-globals */
 // websocket-worker.ts
-self.addEventListener('message', (event) => {
+const WEBSOCKET_URL = 'ws://localhost:9002';
 
- const { action, data } = event.data as { action: string; data: any };
+function createSocketInstance() {
+  let socket = new WebSocket(WEBSOCKET_URL);
 
- // Handle WebSocket connection
- const ws = new WebSocket('wss://localhost:9002');
+  return socket;
+}
+function socketManagement() {
+  if (socketInstance) {
+    socketInstance.onopen = function (e) {
+      console.log("[open] Connection established");
+      postMessage("[SOCKET] Connection established");
+    };
 
- ws.onopen = () => {
-  // Handle WebSocket open event
-  self.postMessage({ event: 'open' });
- };
+    socketInstance.onmessage = function (event) {
+      console.info(`[message] Data received from server: ${event.data}`);
+    };
 
- ws.onmessage = (message) => {
-  // Handle WebSocket message event
-  self.postMessage({ event: 'message', data: message.data });
- };
+    socketInstance.onclose = function (event) {
+      if (event.wasClean) {
+        console.log(`[close] Connection closed cleanly, code=${event.code}`);
+        postMessage(`[SOCKET] Connection closed cleanly, code=${event.code}`);
+      } else {
+        // e.g. server process killed or network down
+        // event.code is usually 1006 in this case
+        console.log('[close] Connection died');
+        postMessage('[SOCKET] Connection died');
+      }
+    };
 
- ws.onclose = () => {
-  // Handle WebSocket close event
-  self.postMessage({ event: 'close' });
- };
-
- // You can also add error handling for WebSocket errors
- ws.onerror = (error) => {
-  // self.postMessage({ event: 'error', error: error.message });
-  self.postMessage("error: Something went wrong ")
- };
-
- // Store the WebSocket instance to manage it later
- (self as any).ws = ws;
- if (action === 'send') {
-  // Send data over WebSocket
-  if (ws.readyState === WebSocket.OPEN) {
-   (self as any).ws.send(data);
+    socketInstance.onerror = function (error) {
+      console.log(`[error] ${error.message}`);
+      postMessage(`[SOCKET] ${error.message}`);
+      socketInstance.close();
+    };
   }
- } else if (action === 'disconnect') {
-  debugger
-  // Close the WebSocket connection
-  (self as any).ws.close();
- }
-});
+  else {
+    console.log("no socket instance")
+  }
+}
 
-//@ts-ignore
-// self.onmessage = (e: MessageEvent<string>, playerSocket: WebSocket) => {
-//  self.postMessage({ msg: "Hello from the worker!" });
+self.onmessage = function (event) {
+  const workerData = event.data;
+  postMessage("[WORKER]: Web worker onmessage established")
 
-//  while (playerSocket.readyState === WebSocket.OPEN) {
-//   playerSocket.send("YEEEEEEEEEEAH")
-//   setTimeout(() => {
-//    console.log(" loop")
-//   }, 3000)
-//  }
-// };
+  switch (workerData.connectionStatus) {
+    case "init":
+      socketInstance = createSocketInstance()
+      self.socketInstance = socketInstance
+      socketManagement()
+      break;
 
-export { };
+    case "stop":
+      socketInstance.close();
+      break;
+
+    default:
+      if (self.socketInstance) {
+        self.socketInstance.send(JSON.stringify({ title: workerData.title }))
+      }
+      socketManagement()
+      break;
+  }
+}

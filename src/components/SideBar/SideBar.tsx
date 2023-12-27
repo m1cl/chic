@@ -1,9 +1,9 @@
-import React, {useState} from "react";
-import {Link as L} from "react-router-dom";
+import React, { useState } from "react";
+import { Link as L } from "react-router-dom";
 import styled from "styled-components";
-import {black, grey} from "../../colors";
-import {useStore} from "../../store";
-import {PlaylistType} from "../../types";
+import { black, grey } from "../../colors";
+import { useStore } from "../../store";
+import { PlaylistType } from "../../types";
 
 const Container = styled.div`
   display: flex;
@@ -95,9 +95,9 @@ const SideBar = () => {
   let MenuItems: any = [];
   if (!playlists) return null;
   playlists.map((p: any) => pl.add(p.playlist));
-  pl.forEach((p) =>
+  Array.from(pl).forEach((p) =>
     MenuItems.push(
-      <MenuItem key={`menu-item-${p.src}`} onTouchStart={onTouchStart}>
+      <MenuItem key={`menu-item-${p}`} onTouchStart={onTouchStart}>
         <Link key={`link-${p.id}`} to="/artists" onClick={() => handleClick(p)}>
           {p}
         </Link>
