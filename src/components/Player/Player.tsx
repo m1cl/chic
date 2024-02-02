@@ -71,8 +71,10 @@ const Center = styled.div`
 `;
 
 enum PlayerState {
+  READY = "READY",
   PLAYING = "PLAYING",
   PAUSED = "PAUSED",
+  STARTING = "STARTING",
   STOPPED = "STOPPED",
 }
 type PlayerSocketPayload = {
@@ -123,7 +125,12 @@ const Player = () => {
   const [url, setUrl] = useState("");
   const [thread, setThread] = useState<Worker>();
   const [log, setLog] = useState([])
+  const [playerState, setPlayerState] = useState(PlayerState.STOPPED);
 
+  const handleWorkerMessage = useCallback((e) => {
+    console.log("send to worker")
+    thread?.postMessage({ action: "message", message: e })
+  }, [isPlaying]);
 
   const handleNextSong = (prevNext: string) => {
     if (prevNext) return setCurrentSongIndex(currentSongIndex + 1);
@@ -147,6 +154,7 @@ const Player = () => {
   }, [currentPlaylist, isPlaying]);
 
 
+  // Initialize WebWorker
   useEffect(() => {
     const worker = new Worker(
       new URL("./player_webworker.ts", import.meta.url),
@@ -157,6 +165,7 @@ const Player = () => {
 
   }, [])
 
+  // handle worker messages
   useEffect(() => {
     if (thread) {
 
@@ -177,13 +186,11 @@ const Player = () => {
 
   useEffect(() => {
     const title = parseSongInformation(currentPlaylist[currentSongIndex]);
-    console.info("set new title")
-    if (thread) {
-      console.log("Send title to worker")
-      thread?.postMessage({ action: "message", title })
+    if (thread && isPlaying) {
+      thread?.postMessage({ action: "message", title, playerState, time: currentTime, isPlaying })
     }
     setCurrentTitle(title)
-  }, [currentSongIndex])
+  }, [currentSongIndex, isPlaying])
 
   if (!currentPlaylist) return <div />;
 
@@ -208,22 +215,22 @@ const Player = () => {
         playbackRate={1.0}
         volume={0.8}
         muted={false}
-        onReady={() => console.log("onReady")}
-        onStart={() => console.log("onStart")}
-        onPlay={() => console.log("is playing")}
+        onReady={() => setPlayerState(PlayerState.READY)}
+        onStart={() => setPlayerState(PlayerState.STARTING)}
+        onPlay={() => setPlayerState(PlayerState.PLAYING)}
         // ENDED is the solution
         onEnded={() => handleNextSong("next")}
         onBufferEnd={() => console.log("buffer ends")}
         // onEnablePIP={this.handleEnablePIP}
         // onDisablePIP={this.handleDisablePIP}
-        onPause={() => console.log("onPause")}
-      // onBuffer={() => console.log('onBuffer')}
-      // onPlaybackRateChange={this.handleOnPlaybackRateChange}
-      // onSeek={e => console.log('onSeek', e)}
-      // onEnded={this.handleEnded}
-      // onError={e => console.log('onError', e)}
-      // onProgress={this.handleProgress}
-      // // onDuration={this.handleDuration}
+        onPause={() => setPlayerState(PlayerState.PAUSED)}
+        // onBuffer={() => console.log('onBuffer')}
+        // onPlaybackRateChange={this.handleOnPlaybackRateChange}
+        // onSeek={e => console.log('onSeek', e)}
+        // onEnded={this.handleEnded}
+        // onError={e => console.log('onError', e)}
+        onProgress={({ playedSeconds, played }) => thread?.postMessage({ playedSeconds, played })}
+        onDuration={() => console.log("duration")}
       // onPlaybackQualityChange={e => console.log('onPlaybackQualityChange', e)}
       />
 

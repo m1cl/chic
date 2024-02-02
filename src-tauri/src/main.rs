@@ -80,6 +80,11 @@ async fn handle_connection(peer: SocketAddr, stream: TcpStream) -> Result<()> {
 
   info!("New WebSocket connection: {}", peer);
 
+  info!(
+    "Port is {}",
+    ws_stream.get_ref().local_addr().unwrap().port()
+  );
+
   while let Some(msg) = ws_stream.next().await {
     let msg = msg?;
     info!("Received message: {:?}", msg);
@@ -159,6 +164,7 @@ async fn start_websocket_server(addr: &str) {
   let listener = TcpListener::bind(&addr).await.expect("Can't listen");
   info!("Listening on: {}", addr);
 
+  // TODO: save all the connections in a vector and close them when the app is closed
   while let Ok((stream, _)) = listener.accept().await {
     let peer = stream
       .peer_addr()

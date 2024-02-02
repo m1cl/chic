@@ -1,13 +1,13 @@
-import {AnimateSharedLayout} from "framer-motion";
-import {AnimatePresence} from "framer-motion";
-import {motion} from "framer-motion";
-import React, {FC, ReactNode, useState} from "react";
+import { AnimateSharedLayout } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import React, { FC, ReactNode, useState } from "react";
 import styled from "styled-components";
-import {H2} from "../Songs/Songs";
+import { H2 } from "../Songs/Songs";
 import cover from "./album.png";
-import {useStore} from "../../store";
-import {parseSongInformation} from "../Player/Player";
-import {Draggable} from "../Draggable/Draggable";
+import { useStore } from "../../store";
+import { parseSongInformation } from "../Player/Player";
+import { Draggable } from "../Draggable/Draggable";
 // import {emit, listen} from "@tauri-apps/api/event";
 // With the Tauri API npm package:
 
@@ -44,9 +44,11 @@ const Title = styled.h3`
   color: white;
 `;
 
-const AlbumCover = styled(motion.img) <{isOpen: boolean}>`
+const AlbumCover = styled(motion.img)<{ isOpen: boolean }>`
   filter: ${(props) =>
-    props.isOpen ? "drop-shadow(5px 5px 3px rgba(0,0,0,0.7))" : "opacity(100%)"};
+    props.isOpen
+      ? "drop-shadow(5px 5px 3px rgba(0,0,0,0.7))"
+      : "opacity(100%)"};
 `;
 
 const Container = styled(AnimateSharedLayout)`
@@ -98,39 +100,40 @@ export type PlaylistType = {
 };
 const ContentContainer = styled(motion.div)``;
 
-
-const Card = ({items}: CardProps) => {
-
+const Card = ({ items }: CardProps) => {
   const setCurrentSongIndex = useStore((state) => state.setCurrentSongIndex);
-  const {isPlaying, setIsPlaying} = useStore();
+  const currentTilte = useStore((state) => state.getCurrentTitle)();
+  const { isPlaying, setIsPlaying } = useStore();
   items = items.map((item: any) => {
     item.artist = item.artist?.replace(/['"]+/g, "");
     return item;
   });
-  //TODO: something odd with id 
+  //TODO: something odd with id
   const handleClick = (e) => {
     e.preventDefault();
 
     if (!isPlaying) setIsPlaying(true);
-    console.log("ccurent index", e.target.id);
     setCurrentSongIndex(e.target.id);
-  }
+  };
   // TODO: don t parse if discogs_wantlist
   return (
     <Container>
       {items.map((item: any) => (
-        <div id={`container-${item.id}`}>
+        <div id={`container-${item.id}`} key={item.id}>
           <Item item={item} />
-          <H2 id={item.id} onClick={handleClick}>{item.playlist === "discogs_wantlist" ? item.name.replace(".mp3", "") : parseSongInformation(item)}</H2>
+          <H2 id={item.id} onClick={handleClick}>
+            {item.playlist === "discogs_wantlist"
+              ? item.name.replace(".mp3", "")
+              : parseSongInformation(item)}
+          </H2>
         </div>
       ))}
     </Container>
   );
 };
-const Item: FC<{item: PlaylistType}> = ({item}) => {
-
+const Item: FC<{ item: PlaylistType }> = ({ item }) => {
   const setCurrentSongIndex = useStore((state) => state.setCurrentSongIndex);
-  const {isPlaying, setIsPlaying} = useStore();
+  const { isPlaying, setIsPlaying } = useStore();
   const [isOpen, setIsOpen] = useState(false);
 
   function handleIsOpen() {
@@ -147,15 +150,15 @@ const Item: FC<{item: PlaylistType}> = ({item}) => {
   const handleClick = (e) => {
     e.preventDefault();
     if (!isPlaying) setIsPlaying(true);
-    console.log("ccurent index", e.target.id);
     setCurrentSongIndex(e.target.id);
-  }
+  };
   const toggleOpen = () => setIsOpen(!isOpen);
 
   return (
     <ItemContainer
       layout
       drag
+      key={`item-container-${item.id}`}
       onMouseEnter={fastExpander}
       onMouseLeave={handleMouseLeave}
       animate={{
@@ -164,8 +167,6 @@ const Item: FC<{item: PlaylistType}> = ({item}) => {
         marginRight: "100px",
       }}
     >
-
-
       <motion.div className="avatar" layout />
 
       <AnimatePresence>
@@ -188,16 +189,16 @@ const Item: FC<{item: PlaylistType}> = ({item}) => {
   );
 };
 
-const Content: FC<{item: PlaylistType}> = ({item}) => {
+const Content: FC<{ item: PlaylistType }> = ({ item }) => {
   return (
     <ContentContainer
       key={item.src}
       layout
-      style={{zIndex: 0}}
-      initial={{opacity: 0}}
-      animate={{opacity: 1}}
-      transition={{duration: 1.5}}
-      exit={{opacity: 0}}
+      style={{ zIndex: 0 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1.5 }}
+      exit={{ opacity: 0 }}
     >
       <Title className="row">{item.name}</Title>
       <Row className="row">{item.writer}</Row>

@@ -35,10 +35,11 @@ export const AnimatedRoutes: FC<RoutesProps> = ({
   exitBeforeEnter = true,
   initial = false,
 }) => {
+  const uuid = Math.random().toString(36).slice(2);
   const location = useLocation();
   return (
     <AnimatePresence exitBeforeEnter={exitBeforeEnter} initial={initial}>
-      <Switch location={location} key={location.pathname}>
+      <Switch location={location} key={uuid}>
         {children}
       </Switch>
     </AnimatePresence>

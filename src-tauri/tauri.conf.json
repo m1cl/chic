@@ -48,19 +48,13 @@
       "active": false
     },
     "allowlist": {
-      "all": true
-    },
-    "windows": [
-      {
-        "title": "chic",
-        "width": 800,
-        "height": 600,
-        "resizable": true,
-        "fullscreen": false
+      "all": true,
+      "http": {
+        "all": true
+      },
+      "fs": {
+        "all": true
       }
-    ],
-    "security": {
-      "csp": "default-src blob: data: filesystem: ws: wss: http: https: tauri: 'unsafe-eval' 'unsafe-inline' 'self' img-src: 'self'"
     }
   }
 }

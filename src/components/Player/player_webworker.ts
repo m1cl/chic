@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-globals */
 // websocket-worker.ts
-const WEBSOCKET_URL = 'ws://localhost:9002';
+const WEBSOCKET_URL = "ws://localhost:9002";
 
 function createSocketInstance() {
   let socket = new WebSocket(WEBSOCKET_URL);
@@ -25,8 +25,8 @@ function socketManagement() {
       } else {
         // e.g. server process killed or network down
         // event.code is usually 1006 in this case
-        console.log('[close] Connection died');
-        postMessage('[SOCKET] Connection died');
+        console.log("[close] Connection died");
+        postMessage("[SOCKET] Connection died");
       }
     };
 
@@ -35,21 +35,20 @@ function socketManagement() {
       postMessage(`[SOCKET] ${error.message}`);
       socketInstance.close();
     };
-  }
-  else {
-    console.log("no socket instance")
+  } else {
+    console.log("no socket instance");
   }
 }
 
 self.onmessage = function (event) {
   const workerData = event.data;
-  postMessage("[WORKER]: Web worker onmessage established")
+  postMessage("[WORKER]: Web worker onmessage established");
 
   switch (workerData.connectionStatus) {
     case "init":
-      socketInstance = createSocketInstance()
-      self.socketInstance = socketInstance
-      socketManagement()
+      socketInstance = createSocketInstance();
+      self.socketInstance = socketInstance;
+      socketManagement();
       break;
 
     case "stop":
@@ -57,10 +56,20 @@ self.onmessage = function (event) {
       break;
 
     default:
-      if (self.socketInstance) {
-        self.socketInstance.send(JSON.stringify({ title: workerData.title }))
+      if (self.socketInstance?.readyState === 1) {
+        const { title, playerState, time, played, playedSecond } = workerData;
+        self.socketInstance.send(
+          JSON.stringify({
+            played,
+            playedSecond,
+            title,
+            playerState,
+            time,
+          }),
+        );
       }
-      socketManagement()
+
+      socketManagement();
       break;
   }
-}
+};

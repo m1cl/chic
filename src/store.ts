@@ -1,8 +1,8 @@
 import create from "zustand";
 import createContext from "zustand/context";
-import {persist} from "zustand/middleware";
-import {getPlaylist} from "./api";
-import {PlaylistState} from "./types";
+import { persist } from "zustand/middleware";
+import { getPlaylist } from "./api";
+import { PlaylistState } from "./types";
 import Fuse from "fuse.js";
 
 export const Provider = createContext();
@@ -18,20 +18,24 @@ export const useStore = create<PlaylistState>(persist(
       if (!get().currentPlaylist[get().currentSongIndex]) return null
       return get().currentPlaylist[get().currentSongIndex].src;
     },
+    getCurrentTitle: () => {
+      if (!get().currentPlaylist[get().currentSongIndex]) return null
+      return get().currentPlaylist[get().currentSongIndex].name
+    },
     currentSongIndex: 0,
     setCurrentSongIndex: (currentSongIndex: number) =>
-      set({currentSongIndex}),
+      set({ currentSongIndex }),
     fetch: async (api: string) => {
       if (api === "playlist") {
         // TODO: DEV MODE if is updated
         // if (isUpdated) return
         let isUpdated = get().playlists;
         const playlists = await getPlaylist();
-        set({playlists});
+        set({ playlists });
       }
     },
-    setIsPlaying: () => set({isPlaying: !get().isPlaying}),
-    setSearchResults: (searchResults: string) => set({searchResults}),
+    setIsPlaying: () => set({ isPlaying: !get().isPlaying }),
+    setSearchResults: (searchResults: string) => set({ searchResults }),
 
     setCurrentPlaylist: (playlist: string) => {
       if (playlist) get().setSearchResults(playlist)
@@ -51,12 +55,12 @@ export const useStore = create<PlaylistState>(persist(
           return c;
         });
       console.log("currentSong is ", currentPlaylist[get().currentSongIndex]);
-      if (!playlist) return set({currentPlaylist: []});
+      if (!playlist) return set({ currentPlaylist: [] });
 
-      return set({currentPlaylist, currentSongIndex: 0});
+      return set({ currentPlaylist, currentSongIndex: 0 });
     },
     setSelectedPlaylist: (currentPlaylist: string) =>
-      set({selectedPlaylist: currentPlaylist, searchResults: ""}),
+      set({ selectedPlaylist: currentPlaylist, searchResults: "" }),
   }),
   {
     name: "playlists-storage", // unique name
