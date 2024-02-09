@@ -1,5 +1,6 @@
 extern crate dirs;
 
+use authentication_manager::AuthManager;
 use std::env;
 
 use crate::youtube::{create_playlists_from_dir, PlaylistItems};
@@ -23,7 +24,6 @@ use tokio_tungstenite::{
 extern crate rocket;
 
 mod discogs;
-mod music_player;
 mod youtube;
 
 pub static CHIC_CONFIG_DIR: &'static str = "~/.config/chic/";
@@ -123,7 +123,6 @@ async fn create_tauri_window() {
   tauri::Builder::default()
     .plugin(tauri_plugin_websocket::init())
     .invoke_handler(tauri::generate_handler![
-      music_player::play_song,
       discogs::get_want_list_information,
       youtube::get_youtube_search_results,
       get_playlists,
@@ -185,8 +184,9 @@ async fn main() {
   // let _ = env_logger::try_init();
   // env_logger::init();
 
-  tokio::spawn(start_websocket_server("localhost:9002"));
-  youtube::get_playlists_from_user().await;
-  tokio::spawn(create_web_server());
-  create_tauri_window().await;
+  // youtube::get_playlists_from_user().await;
+  let auth_manager = AuthManager::init("discogs");
+  // tokio::spawn(start_websocket_server("localhost:9002"));
+  // tokio::spawn(create_web_server());
+  // create_tauri_window().await;
 }

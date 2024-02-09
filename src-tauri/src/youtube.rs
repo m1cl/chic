@@ -1,5 +1,5 @@
 use rocket::get;
-use rusty_ytdl::search::{SearchResult, Video, YouTube};
+use rusty_ytdl::search::{SearchResult, YouTube};
 use serde::Serialize;
 use std::{
   error::Error,

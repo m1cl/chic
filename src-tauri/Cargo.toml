@@ -23,37 +23,33 @@ path = "./src/authentication_manager.rs"
 serde_json = "1.0"
 serde = { version = "1.0", features = [ "derive" ] }
 walkdir = "2.3.2"
-cpal = "0.13.4"
-rodio = "0.14.0"
 json = "0.12.4"
 tokio = { version = "1.13.0", features = [ "full" ] }
 tokio-tungstenite = "0.16.0"
 log = "0.4.14"
-tungstenite = "0.16.0"
-futures-util = "0.3.18"
 sqlx = { version = "0.5", features = [ "runtime-tokio-native-tls", "sqlite" ] }
 config = "0.11.0"
 dotenv = "0.15.0"
-dotenv_codegen = "0.15.0"
-oauth2 = "4.1.0"
 url = "2.2.2"
 rocket = "0.5.0-rc.1"
-dirs = "4.0.0"
 rusqlite = "0.26.3"
 hyper = "0.14.24"
 hyper-rustls = "0.23.2"
+futures-util = "0.3.18"
 youtube_dl = { version = "0.8.0", features = [ "downloader" ] }
 ytd-rs = "0.1.7"
-coreaudio-sys = "0.2.12"
 tauri = { version = "1.4.1", features = ["api-all"] }
 tauri-macros = "1.4.0"
 regex = "1.9.3"
 rusty_ytdl = "0.6.3"
+oauth2 = "4.1.0"
 wsd = "1.1.1"
-reqwest = { version = "0.11.22", features = ["json"] }
 youtube_search = "1.0.2"
 rs-youtube = "0.2.2"
 tauri-plugin-websocket = { git = "https://github.com/tauri-apps/plugins-workspace", version = "0.0.0" }
+reqwest = "0.11.24"
+dirs = "5.0.1"
+future-utils = "0.12.1"
 
 [features]
 default = ["custom-protocol"]

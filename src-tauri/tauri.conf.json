@@ -7,8 +7,8 @@
     "withGlobalTauri": true,
     "distDir": "../build",
     "devPath": "http://localhost:3000",
-    "beforeDevCommand": "npm start",
-    "beforeBuildCommand": "npm run build"
+    "beforeDevCommand": "cd frontend/src && npm run dev",
+    "beforeBuildCommand": "cd frontend/src && npm run build"
   },
   "tauri": {
     "bundle": {
