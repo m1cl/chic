@@ -12,12 +12,11 @@
 # next.js
 /.next/
 /out/
-/**/CHACHEDIR.TAG
+/src-tauri/target/*
 
 # production
 /build
 /debug
-*/**/debug
 
 # misc
 .DS_Store
