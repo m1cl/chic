@@ -12,11 +12,9 @@
 # next.js
 /.next/
 /out/
-/src-tauri/target/*
 
 # production
 /build
-/debug
 
 # misc
 .DS_Store
