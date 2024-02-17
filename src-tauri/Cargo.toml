@@ -12,12 +12,36 @@ rust-version = "1.60"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "1.5.1" }
+tauri-build = { version = "1.5.1", features = [] }
 
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.5.4" }
+tauri = { version = "1.5.4", features = [] }
+walkdir = "2.4.0"
+json = "0.12.4"
+tokio = "1.36.0"
+tokio-tungstenite = "0.21.0"
+log = "0.4.20"
+config = "0.14.0"
+dotenv = "0.15.0"
+url = "2.5.0"
+rocket = "0.5.0"
+rusqlite = "0.31.0"
+hyper = "1.1.0"
+hyper-rustls = "0.26.0"
+futures-util = "0.3.30"
+youtube_dl = "0.9.0"
+ytd-rs = "0.1.7"
+regex = "1.10.3"
+rusty_ytdl = "0.6.6"
+oauth2 = "4.4.2"
+wsd = "1.1.1"
+youtube_search = "1.0.2"
+rs-youtube = "0.2.2"
+reqwest = "0.11.24"
+dirs = "5.0.1"
+future-utils = "0.12.1"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.
