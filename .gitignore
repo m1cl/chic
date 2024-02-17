@@ -12,9 +12,12 @@
 # next.js
 /.next/
 /out/
+/**/CHACHEDIR.TAG
 
 # production
 /build
+/debug
+*/**/debug
 
 # misc
 .DS_Store
