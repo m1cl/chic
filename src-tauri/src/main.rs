@@ -4,7 +4,7 @@ extern crate dirs;
 use std::env;
 
 use crate::youtube::{create_playlists_from_dir, PlaylistItems};
-use config::{ConfigError, Environment, File};
+use discogs::get_want_list_information;
 use log::info;
 use rocket::fs::{FileServer, Options};
 
@@ -118,7 +118,7 @@ async fn create_tauri_window() {
 }
 
 #[tauri::command]
-#[get("/player/playlists")]
+#[get("/playlists")]
 async fn get_playlists() -> String {
     println!("Starting getting directory items");
     let playlists: Vec<PlaylistItems> = create_playlists_from_dir();
@@ -173,6 +173,7 @@ async fn main() {
     // youtube::get_playlists_from_user().await;
     //let auth_manager = AuthManager::init("discogs");
     tokio::spawn(start_websocket_server("localhost:9002"));
+    // get_want_list_information("m1cl".into()).await;
     tokio::spawn(create_web_server());
     create_tauri_window().await;
 }

@@ -8,6 +8,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      minWidth: {
+        nav: "240px",
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":

@@ -6,6 +6,7 @@ use std::{
     process::{Command, Output},
     time::Duration,
 };
+use url::Url;
 use walkdir::{DirEntry, WalkDir};
 use youtube_dl::YoutubeDl;
 
