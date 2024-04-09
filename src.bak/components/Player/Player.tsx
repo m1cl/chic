@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 //import play from "./play.png";
 //import next from "./next.png";
 import {
@@ -8,17 +8,23 @@ import {
   PlayListPlacement,
   ProgressUI,
   VolumeSliderPlacement,
-} from "react-modern-audio-player/dist/types/components/AudioPlayer/Context";
-import { useStore } from "../../store";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { PlaylistState, PlaylistType } from "../../types";
-import ReactPlayer from "react-player";
+} from 'react-modern-audio-player/dist/types/components/AudioPlayer/Context';
+import { useStore } from '../../store';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { PlaylistState, PlaylistType } from '../../types';
+import ReactPlayer from 'react-player';
 
 // TODO: Create playlist object in the backend for $HOME/.config/chic directory and send it to frontend
 //
 export const parseSongInformation = (playlistItem: PlaylistType) => {
-  if (!playlistItem || !playlistItem.name) return "";
-  return playlistItem.name.replace(".mp3", "");
+  if (!playlistItem || !playlistItem.name) return '';
+  return playlistItem.name.replace('.mp3', '');
 };
 
 const PlayerWrapper = styled.div`
@@ -71,17 +77,17 @@ const Center = styled.div`
 `;
 
 enum PlayerState {
-  READY = "READY",
-  PLAYING = "PLAYING",
-  PAUSED = "PAUSED",
-  STARTING = "STARTING",
-  STOPPED = "STOPPED",
+  READY = 'READY',
+  PLAYING = 'PLAYING',
+  PAUSED = 'PAUSED',
+  STARTING = 'STARTING',
+  STOPPED = 'STOPPED',
 }
 type PlayerSocketPayload = {
   time: number;
   currentTitle: string;
   playerState: PlayerState;
-}
+};
 
 const Marquee = styled.marquee`
   transition: 0.5s;
@@ -93,50 +99,52 @@ const Marquee = styled.marquee`
 
 const Player = () => {
   const playerRef = useRef(null);
-  const [progressType, _] = useState<ProgressUI>("waveform");
+  const [progressType, _] = useState<ProgressUI>('waveform');
   const [volumeSliderPlacement, _setVolumeSliderPlacement] =
     useState<VolumeSliderPlacement>();
   const [playerPlacement, _setPlayerPlacement] =
-    useState<PlayerPlacement>("bottom-left");
+    useState<PlayerPlacement>('bottom-left');
   const [playListPlacement, _setPlayListPlacement] =
-    useState<PlayListPlacement>("bottom");
+    useState<PlayListPlacement>('bottom');
 
   const allPlaylists = useStore((state: PlaylistState) => state.playlists);
   const currentPlaylist = useStore(
-    (state: PlaylistState) => state.currentPlaylist,
+    (state: PlaylistState) => state.currentPlaylist
   );
   const setCurrentPlaylist = useStore(
-    (state: PlaylistState) => state.setCurrentPlaylist,
+    (state: PlaylistState) => state.setCurrentPlaylist
   );
   const setCurrentSongIndex = useStore(
-    (state: PlaylistState) => state.setCurrentSongIndex,
+    (state: PlaylistState) => state.setCurrentSongIndex
   );
   const currentSongIndex = useStore(
-    (state: PlaylistState) => state.currentSongIndex,
+    (state: PlaylistState) => state.currentSongIndex
   );
-  const [currentTitle, setCurrentTitle] = useState<string>("");
-  const [currentTime, setCurrentTime] = useState(0)
+  const [currentTitle, setCurrentTitle] = useState<string>('');
+  const [currentTime, setCurrentTime] = useState(0);
 
   const isPlaying = useStore((state: PlaylistState) => state.isPlaying);
   const setIsPlaying = useStore((state: PlaylistState) => state.setIsPlaying);
 
   const [_players, setPlaylists] = useState<PlaylistType[]>();
   const [isLooping, setIsLooping] = useState(false);
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState('');
   const [thread, setThread] = useState<Worker>();
-  const [log, setLog] = useState([])
+  const [log, setLog] = useState([]);
   const [playerState, setPlayerState] = useState(PlayerState.STOPPED);
 
-  const handleWorkerMessage = useCallback((e) => {
-    console.log("send to worker")
-    thread?.postMessage({ action: "message", message: e })
-  }, [isPlaying]);
+  const handleWorkerMessage = useCallback(
+    (e) => {
+      console.log('send to worker');
+      thread?.postMessage({ action: 'message', message: e });
+    },
+    [isPlaying]
+  );
 
   const handleNextSong = (prevNext: string) => {
     if (prevNext) return setCurrentSongIndex(currentSongIndex + 1);
     if (currentSongIndex > 0) return setCurrentSongIndex(currentSongIndex - 1);
   };
-
 
   useEffect(() => {
     if (playerRef?.current) {
@@ -146,51 +154,51 @@ const Player = () => {
 
     if (allPlaylists) {
       if (!currentPlaylist) {
-        console.log("set current playlist");
+        console.log('set current playlist');
         setCurrentPlaylist(allPlaylists);
       }
     }
-
   }, [currentPlaylist, isPlaying]);
-
 
   // Initialize WebWorker
   useEffect(() => {
     const worker = new Worker(
-      new URL("./player_webworker.ts", import.meta.url),
+      new URL('./player_webworker.ts', import.meta.url)
     );
-    setThread(worker)
+    setThread(worker);
 
-    return () => worker.terminate()
-
-  }, [])
+    return () => worker.terminate();
+  }, []);
 
   // handle worker messages
   useEffect(() => {
     if (thread) {
-
-      thread?.postMessage({ connectionStatus: "init" })
+      thread?.postMessage({ connectionStatus: 'init' });
       thread.onmessage = (e) => {
-        if (typeof e.data === "string") {
-          if (e.data.includes("[")) {
-            setLog((prevLogs) => [...prevLogs, e.data])
+        if (typeof e.data === 'string') {
+          if (e.data.includes('[')) {
+            setLog((prevLogs) => [...prevLogs, e.data]);
           }
+        } else {
+          console.log('e.data', e.data);
         }
-        else {
-          console.log("e.data", e.data)
-        }
-      }
-
+      };
     }
-  }, [thread])
+  }, [thread]);
 
   useEffect(() => {
     const title = parseSongInformation(currentPlaylist[currentSongIndex]);
     if (thread && isPlaying) {
-      thread?.postMessage({ action: "message", title, playerState, time: currentTime, isPlaying })
+      thread?.postMessage({
+        action: 'message',
+        title,
+        playerState,
+        time: currentTime,
+        isPlaying,
+      });
     }
-    setCurrentTitle(title)
-  }, [currentSongIndex, isPlaying])
+    setCurrentTitle(title);
+  }, [currentSongIndex, isPlaying]);
 
   if (!currentPlaylist) return <div />;
 
@@ -206,7 +214,7 @@ const Player = () => {
         url={
           currentPlaylist[currentSongIndex]
             ? currentPlaylist[currentSongIndex].src
-            : ""
+            : ''
         }
         playing={isPlaying}
         controls={true}
@@ -219,8 +227,8 @@ const Player = () => {
         onStart={() => setPlayerState(PlayerState.STARTING)}
         onPlay={() => setPlayerState(PlayerState.PLAYING)}
         // ENDED is the solution
-        onEnded={() => handleNextSong("next")}
-        onBufferEnd={() => console.log("buffer ends")}
+        onEnded={() => handleNextSong('next')}
+        onBufferEnd={() => console.log('buffer ends')}
         // onEnablePIP={this.handleEnablePIP}
         // onDisablePIP={this.handleDisablePIP}
         onPause={() => setPlayerState(PlayerState.PAUSED)}
@@ -229,9 +237,11 @@ const Player = () => {
         // onSeek={e => console.log('onSeek', e)}
         // onEnded={this.handleEnded}
         // onError={e => console.log('onError', e)}
-        onProgress={({ playedSeconds, played }) => thread?.postMessage({ playedSeconds, played })}
-        onDuration={() => console.log("duration")}
-      // onPlaybackQualityChange={e => console.log('onPlaybackQualityChange', e)}
+        onProgress={({ playedSeconds, played }) =>
+          thread?.postMessage({ playedSeconds, played })
+        }
+        onDuration={() => console.log('duration')}
+        // onPlaybackQualityChange={e => console.log('onPlaybackQualityChange', e)}
       />
 
       <Marquee>
@@ -289,7 +299,7 @@ const Player = () => {
             </svg>
           </Buttons>
         )}
-        <Buttons className="" onClick={() => handleNextSong("next")}>
+        <Buttons className="" onClick={() => handleNextSong('next')}>
           <svg
             stroke="currentColor"
             fill="currentColor"

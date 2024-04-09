@@ -185,8 +185,8 @@ async fn main() {
   // env_logger::init();
 
   // youtube::get_playlists_from_user().await;
-  let auth_manager = AuthManager::init("discogs");
-  // tokio::spawn(start_websocket_server("localhost:9002"));
-  // tokio::spawn(create_web_server());
-  // create_tauri_window().await;
+  // let auth_manager = AuthManager::init("discogs");
+  tokio::spawn(start_websocket_server("localhost:9002"));
+  tokio::spawn(create_web_server());
+  create_tauri_window().await;
 }

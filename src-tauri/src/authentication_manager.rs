@@ -27,6 +27,7 @@ impl AuthManager {
     let client_secret: Option<ClientSecret>;
     let auth_url: AuthUrl;
     let token_url: Option<TokenUrl>;
+
     match api_name {
       "google" => {
         client_id = ClientId::new(
