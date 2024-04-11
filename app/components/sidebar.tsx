@@ -9,10 +9,10 @@ const links = [
   { href: '/playlists', label: 'Playlist' },
 ];
 
-export default function Sidebar() {
+export default function Sihebar() {
   const pathname = usePathname();
   return (
-    <nav className="min-w-nav sticky overflow-hidden left-0 flex flex-col gap-1 p-2 font-sans text-base font-normal text-gray-700">
+    <nav className="w-32 sticky overflow-hidden left-0 flex flex-col gap-1 p-2 font-sans text-base font-normal text-gray-700">
       {links.map(({ href, label }) => (
         <Link
           key={label}

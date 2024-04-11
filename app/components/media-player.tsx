@@ -10,7 +10,7 @@ export default function MediaPlayer() {
       <AudioPlayer
         autoPlay
         src={''}
-        // other props here
+      // other props here
       />
     </div>
   );

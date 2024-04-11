@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} w-full h-full bg-white-800`}>
+      <body className={`${inter.className} flex bg-white-800`}>
         <Sidebar />
         <main className="p-11 h-full">{children}</main>
         <MediaPlayer />
