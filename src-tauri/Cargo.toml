@@ -46,6 +46,8 @@ rs-youtube = "0.2.2"
 reqwest = "0.11.24"
 dirs = "5.0.1"
 future-utils = "0.12.1"
+lazy_static = "1.4.0"
+homedir = "0.2.1"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.

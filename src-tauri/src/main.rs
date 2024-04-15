@@ -1,10 +1,11 @@
+#[macro_use]
+extern crate lazy_static;
 extern crate dirs;
 
 // use authentication_manager::AuthManager;
 use std::env;
 
 use crate::youtube::{create_playlists_from_dir, PlaylistItems};
-use discogs::get_want_list_information;
 use log::info;
 use rocket::fs::{FileServer, Options};
 
@@ -23,10 +24,10 @@ use tokio_tungstenite::{
 #[macro_use]
 extern crate rocket;
 
-mod discogs;
-mod youtube;
+pub mod discogs;
+pub mod helper;
+pub mod youtube;
 
-pub static CHIC_CONFIG_DIR: &'static str = "~/.config/chic/";
 pub static mut DISCOGS_USER: &'static str = "";
 pub static mut YOUTUBE_USER: &'static str = "";
 
@@ -162,15 +163,6 @@ async fn start_websocket_server(addr: &str) {
 }
 #[tokio::main]
 async fn main() {
-    // TODO: when downloading the playlist, add a progress bar
-    // match youtube::download_playlist().await {
-    //   Ok(outout) => println!("Download was successful"),
-    //   Err(e) => println!("Something went wrong {:?}", e),
-    // };
-    // let _ = env_logger::try_init();
-    // env_logger::init();
-
-    // youtube::get_playlists_from_user().await;
     //let auth_manager = AuthManager::init("discogs");
     tokio::spawn(start_websocket_server("localhost:9002"));
     // get_want_list_information("m1cl".into()).await;
