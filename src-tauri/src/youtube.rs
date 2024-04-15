@@ -1,4 +1,6 @@
+use lazy_static::lazy_static;
 use rocket::get;
+
 use rusty_ytdl::search::{SearchResult, YouTube};
 use serde::Serialize;
 use std::{
@@ -6,7 +8,6 @@ use std::{
     process::{Command, Output},
     time::Duration,
 };
-use url::Url;
 use walkdir::{DirEntry, WalkDir};
 use youtube_dl::YoutubeDl;
 
@@ -31,7 +32,15 @@ pub struct PlaylistItems {
 //     customTrackInfo?: string | ReactNode;
 
 // INFO: get all info from users playlist  ./yt-dlp --dump-json --flat-playlist --skip-download  "https://www.youtube.com/@Twipzy/playlists"> info.json
-pub static CHIC_CONFIG_DIR: &'static str = "/Users/m1cl/.config/chic/";
+lazy_static! {
+    pub static ref CHIC_CONFIG_DIR: String = homedir::get_my_home()
+        .unwrap()
+        .unwrap()
+        .join(".config/chic/")
+        .to_str()
+        .unwrap()
+        .to_string();
+}
 // Get all playlists and titles
 // youtube-dl --download-archive archive.txt -o '%(playlist_title)s/%(title)s-%(id)s.%(ext)s' "$url"
 //
@@ -94,8 +103,8 @@ pub fn create_playlists_from_dir() -> Vec<PlaylistItems> {
 // TODO: put this into discogs
 pub async fn download_audio(url: String, dir: String) -> Result<(), Box<dyn Error>> {
     log::warn!("...DOWNLOADING AUDIO {}", url);
-    let dir = format!("{}{}", CHIC_CONFIG_DIR, "discogs_wantlist");
-    let yt_dlp_path = format!("{}{}", CHIC_CONFIG_DIR, "yt-dlp");
+    let dir = format!("{}{}", *CHIC_CONFIG_DIR, "discogs_wantlist");
+    let yt_dlp_path = format!("{}{}", *CHIC_CONFIG_DIR, "yt-dlp");
     let _output = YoutubeDl::new(url)
         .extract_audio(true)
         .process_timeout(Duration::new(0, 30))
@@ -115,7 +124,7 @@ pub async fn download_playlist() -> Result<Output, Box<dyn Error>> {
         "0".to_string(),
         "--write-thumbnail".to_string(),
         "-o".to_string(),
-        format!("{}%(playlist_title)s/%(title)s.%(ext)s", CHIC_CONFIG_DIR),
+        format!("{}%(playlist_title)s/%(title)s.%(ext)s", *CHIC_CONFIG_DIR),
         "https://www.youtube.com/@Twipzy/playlists ".to_string(),
     ];
 
