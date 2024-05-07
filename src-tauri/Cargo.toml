@@ -1,0 +1,38 @@
+[package]
+name = "app"
+version = "0.1.0"
+description = "Chic Music player"
+authors = ["Michael Ajala"]
+license = ""
+repository = ""
+edition = "2021"
+rust-version = "1.70"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.0.0-beta.14", features = [] }
+
+[dependencies]
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+tauri = { version = "2.0.0-beta.18", features = [] }
+rocket = "0.5.0"
+walkdir = "2.5.0"
+youtube_dl = "0.10.0"
+rusty_ytdl = "0.7.1"
+lazy_static = "1.4.0"
+homedir = "0.2.1"
+log = "0.4.21"
+reqwest = "0.12.4"
+url = "2.5.0"
+wsd = "1.1.1"
+oauth2 = "4.4.2"
+tokio = "1.37.0"
+dotenv = "0.15.0"
+
+[features]
