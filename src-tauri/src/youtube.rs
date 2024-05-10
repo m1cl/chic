@@ -1,15 +1,14 @@
 use lazy_static::lazy_static;
 use rocket::get;
+use std::process::Command;
+use std::process::Output;
+use youtube_dl::download_yt_dlp;
+use youtube_dl::YoutubeDl;
 
 use rusty_ytdl::search::{SearchResult, YouTube};
 use serde::Serialize;
-use std::{
-    error::Error,
-    process::{Command, Output},
-    time::Duration,
-};
+use std::{error::Error, time::Duration};
 use walkdir::{DirEntry, WalkDir};
-use youtube_dl::YoutubeDl;
 
 #[derive(Default, Serialize)]
 pub struct PlaylistItems {
@@ -71,7 +70,7 @@ fn get_playlist_name(entry: &DirEntry) -> String {
 pub fn create_playlists_from_dir() -> Vec<PlaylistItems> {
     let mut id = 0;
     let mut playlists: Vec<PlaylistItems> = Vec::new();
-    for entry in WalkDir::new("chic/")
+    for entry in WalkDir::new(CHIC_CONFIG_DIR.clone())
         .follow_links(true)
         .into_iter()
         .filter_map(|e| e.ok())
@@ -101,7 +100,7 @@ pub fn create_playlists_from_dir() -> Vec<PlaylistItems> {
 }
 
 // TODO: put this into discogs
-pub async fn download_audio(url: String, dir: String) -> Result<(), Box<dyn Error>> {
+pub async fn download_audio(url: String, _dir: String) -> Result<(), Box<dyn Error>> {
     log::warn!("...DOWNLOADING AUDIO {}", url);
     let dir = format!("{}{}", *CHIC_CONFIG_DIR, "discogs_wantlist");
     let yt_dlp_path = format!("{}{}", *CHIC_CONFIG_DIR, "yt-dlp");
@@ -115,11 +114,17 @@ pub async fn download_audio(url: String, dir: String) -> Result<(), Box<dyn Erro
 
 // TODO baustelle
 pub async fn download_playlist() -> Result<Output, Box<dyn Error>> {
+    let yt_dlp_path = download_yt_dlp(CHIC_CONFIG_DIR.clone()).await.unwrap();
     log::warn!("...DOWNLOADING PLAYLISTS");
     let args: Vec<String> = vec![
         "--extract-audio".to_string(),
+        "-ciwx".to_string(),
+        // TODO: ffmpeg must be installed in order to convert the files into mp3
         "--audio-format".to_string(),
         "mp3".to_string(),
+        "--download-archive".to_string(),
+        format!("{}{}", *CHIC_CONFIG_DIR, "downloaded.txt"),
+        "--no-post-overwrite".to_string(),
         "--audio-quality".to_string(),
         "0".to_string(),
         "--write-thumbnail".to_string(),
@@ -128,7 +133,7 @@ pub async fn download_playlist() -> Result<Output, Box<dyn Error>> {
         "https://www.youtube.com/@Twipzy/playlists ".to_string(),
     ];
 
-    let output = Command::new("yt-dlp")
+    let output = Command::new(yt_dlp_path)
         .args(args)
         .output()
         .expect("Failed to execute command");
