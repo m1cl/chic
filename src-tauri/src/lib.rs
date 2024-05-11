@@ -1,16 +1,22 @@
-use rocket::fs::{FileServer, Options};
+use crate::youtube::CHIC_CONFIG_DIR;
+use rocket::fs::FileServer;
+use rocket::fs::Options;
 use rocket::get;
 use rocket::routes;
-use rocket::tokio::task;
 use tauri::generate_handler;
-use youtube::{create_playlists_from_dir, PlaylistItems, CHIC_CONFIG_DIR};
+use tokio::task;
+use youtube::{create_playlists_from_dir, download_playlist, PlaylistItems};
 mod authentication_manager;
 mod discogs;
 mod youtube;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run() {
+pub async fn run() {
+    create_web_server().await;
+    let _ = download_playlist().await;
     tauri::Builder::default()
+        .plugin(tauri_plugin_http::init())
+        .plugin(tauri_plugin_fs::init())
         .invoke_handler(generate_handler![get_playlists])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
