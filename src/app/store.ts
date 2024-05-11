@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { getPlaylist } from '../api';
-import { PlaylistState } from '../types';
+import { PlaylistState, PlaylistType } from '../types';
 import Fuse from 'fuse.js';
 import { createJSONStorage } from 'zustand/middleware';
 
@@ -33,7 +33,7 @@ export const useStore = create(
           set({ playlists });
         }
       },
-      setPlaylists: (playlists: PlaylistState[]) => set({ playlists }),
+      setPlaylists: (playlists: PlaylistType[]) => set({ playlists }),
       setIsPlaying: () => set({ isPlaying: !get().isPlaying }),
       setSearchResults: (searchResults: string) => set({ searchResults }),
 
