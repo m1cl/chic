@@ -2,5 +2,5 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #[tokio::main]
 async fn main() {
-    app_lib::run();
+    app_lib::run().await;
 }
