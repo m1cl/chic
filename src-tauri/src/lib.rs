@@ -12,6 +12,7 @@ mod youtube;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub async fn run() {
+    download_playlist().await;
     create_web_server().await;
     let _ = download_playlist().await;
     tauri::Builder::default()

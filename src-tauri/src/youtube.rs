@@ -1,5 +1,6 @@
 use lazy_static::lazy_static;
 use rocket::get;
+use std::fs;
 use std::process::Command;
 use std::process::Output;
 use youtube_dl::download_yt_dlp;
@@ -32,6 +33,9 @@ pub struct PlaylistItems {
 
 // INFO: get all info from users playlist  ./yt-dlp --dump-json --flat-playlist --skip-download  "https://www.youtube.com/@Twipzy/playlists"> info.json
 lazy_static! {
+
+    // TODO: maybe?
+    // pub static ref CHIC_CONFIG_DIR: String = app_data_dir!("chic").to_str().unwrap().to_string();
     pub static ref CHIC_CONFIG_DIR: String = homedir::get_my_home()
         .unwrap()
         .unwrap()
@@ -80,9 +84,9 @@ pub fn create_playlists_from_dir() -> Vec<PlaylistItems> {
         if playlist_name.contains("mp3") {
             continue;
         }
-        let url = "http://localhost:8000/music/";
+        // let url = "http://localhost:8000/music/";
         let f_name = entry.file_name().to_string_lossy().to_string();
-        let src = format!("{}{}", url, path);
+        let src = format!("{}", path);
         // let img = format!("{}album.png", url);
         if f_name.ends_with(".mp3") {
             playlists.push(PlaylistItems {
@@ -114,7 +118,8 @@ pub async fn download_audio(url: String, _dir: String) -> Result<(), Box<dyn Err
 
 // TODO baustelle
 pub async fn download_playlist() -> Result<Output, Box<dyn Error>> {
-    let yt_dlp_path = download_yt_dlp(CHIC_CONFIG_DIR.clone()).await.unwrap();
+    let yt_dlp_path = download_yt_dlp(CHIC_CONFIG_DIR.clone()).await?;
+    fs::create_dir_all(CHIC_CONFIG_DIR.clone())?;
     log::warn!("...DOWNLOADING PLAYLISTS");
     let args: Vec<String> = vec![
         "--extract-audio".to_string(),
