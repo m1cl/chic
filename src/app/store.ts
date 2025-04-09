@@ -13,55 +13,36 @@ export const useStore = create(
       searchResults: '',
       selectedPlaylist: '',
       isPlaying: false,
-      getCurrentSong: () => {
-        if (!get().currentPlaylist[get().currentSongIndex]) return null;
-        return get().currentPlaylist[get().currentSongIndex].src;
-      },
-      getCurrentTitle: () => {
-        if (!get().currentPlaylist[get().currentSongIndex]) return null;
-        return get().currentPlaylist[get().currentSongIndex].name;
-      },
+      getCurrentSong: () =>
+        get().currentPlaylist[get().currentSongIndex]?.src ?? null,
+      getCurrentTitle: () =>
+        get().currentPlaylist[get().currentSongIndex]?.name ?? null,
       currentSongIndex: 0,
-      setCurrentSongIndex: (currentSongIndex: number) =>
-        set({ currentSongIndex }),
-      fetch: async (api: string) => {
-        if (api === 'playlist') {
-          // TODO: DEV MODE if is updated
-          // if (isUpdated) return
-          if (get().playlists) return;
-          const playlists = await getPlaylist();
-          set({ playlists });
-        }
+      setCurrentSongIndex: (index: number) => set({ currentSongIndex: index }),
+      fetchPlaylists: async () => {
+        if (get().playlists.length > 0) return;
+        const playlists = await getPlaylist();
+        set({ playlists });
       },
       setPlaylists: (playlists: PlaylistType[]) => set({ playlists }),
-      setIsPlaying: () => set({ isPlaying: !get().isPlaying }),
-      setSearchResults: (searchResults: string) => set({ searchResults }),
-
-      setCurrentPlaylist: (playlist: string) => {
-        if (playlist) get().setSearchResults(playlist);
+      togglePlaying: () =>
+        set((state) => ({ isPlaying: !state.isPlaying })),
+      setSearchResults: (results: string) => set({ searchResults: results }),
+      setCurrentPlaylist: (playlistName: string) => {
+        if (!playlistName) return set({ currentPlaylist: [], currentSongIndex: 0 });
         const playlists = get().playlists;
-        const options = {
-          keys: ['playlist', 'src'],
-        };
-        // TODO: something odd here
-        const currentPlaylist = new Fuse(playlists, options)
-          .search(playlist)
-          .map((c) => c.item)
-          .map((c, i) => {
-            c.id = i;
-            return c;
-          });
-        console.log('currentSong is ', currentPlaylist[get().currentSongIndex]);
-        if (!playlist) return set({ currentPlaylist: [] });
-
-        return set({ currentPlaylist, currentSongIndex: 0 });
+        const options = { keys: ['playlist', 'src'] };
+        const fuse = new Fuse(playlists, options);
+        const searchResults = fuse.search(playlistName).map((result) => result.item);
+        const indexedPlaylist = searchResults.map((item, index) => ({ ...item, id: index }));
+        set({ currentPlaylist: indexedPlaylist, currentSongIndex: 0 });
       },
-      setSelectedPlaylist: (currentPlaylist: string) =>
-        set({ selectedPlaylist: currentPlaylist, searchResults: '' }),
+      setSelectedPlaylist: (name: string) =>
+        set({ selectedPlaylist: name, searchResults: '' }),
     }),
     {
-      name: 'playlists-storage', // unique name
-      storage: createJSONStorage(() => sessionStorage), // (optional) by default the 'localStorage' is used
+      name: 'playlists-storage',
+      storage: createJSONStorage(() => sessionStorage),
     },
   ),
 );
